@@ -1,5 +1,7 @@
 # Oemer (End-to-end OMR)
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/BreezeWhite/oemer/blob/main/play.ipynb)
+
 End-to-end Optical Music Recognition system build on deep learning models and machine learning techniques.
 Default to use **Onnxruntime** for model inference. If you want to use **tensorflow** for the inference,
 run `export INFERENCE_WITH_TF=true` and make sure there is TF installed.
@@ -8,7 +10,7 @@ run `export INFERENCE_WITH_TF=true` and make sure there is TF installed.
 
 https://user-images.githubusercontent.com/24308057/136168551-2e705c2d-8cf5-4063-826f-0e179f54c772.mp4
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/BreezeWhite/oemer/blob/main/play.ipynb)
+
 
 ## Quick Start
 ``` bash
@@ -40,6 +42,14 @@ pip install dist/Oemer-<version>-py3-none-any.whl
 # Available options: debug, info, warn, warning, error, crtical
 export LOG_LEVEL=debug
 ```
+
+## Model Training
+
+There are two UNet models being used: one serves to separate stafflines and all other symbols, and the other to separate more detailed symbol types (see [Technical Details](#Techinical-Details) below).
+
+The two model uses different datasets for training: [CvcMuscima-Distortions](http://www.cvc.uab.es/cvcmuscima/index_database.html) for training the first model, and [DeepScores-extended](https://tuggeluk.github.io/downloads/) for the second model. Both leverages different kinds of image augmentations to enhance the robustness while training (see [here](https://github.com/BreezeWhite/oemer/blob/main/oemer/train.py#L50-L108)).
+
+To identify more specific symbols, SVM models are used. The data used are extracted from DeepScores. There are a total of three different SVM models that will be used to classify symbols. More details can be referred to [oemer/classifier.py](https://github.com/BreezeWhite/oemer/blob/main/oemer/classifier.py).
 
 
 ## Technical Details

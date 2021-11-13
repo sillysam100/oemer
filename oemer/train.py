@@ -12,7 +12,6 @@ import augly.image as imaugs
 from .build_label import build_label
 from .models.unet import semantic_segmentation, u_net
 from .constant import CHANNEL_NUM
-from .bbox import find_lines, draw_lines
 
 
 
