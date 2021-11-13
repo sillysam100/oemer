@@ -8,7 +8,7 @@ run `export INFERENCE_WITH_TF=true` and make sure there is TF installed.
 
 https://user-images.githubusercontent.com/24308057/136168551-2e705c2d-8cf5-4063-826f-0e179f54c772.mp4
 
-
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/BreezeWhite/oemer/blob/main/play.ipynb)
 
 ## Quick Start
 ``` bash
