@@ -45,11 +45,11 @@ export LOG_LEVEL=debug
 
 ## Model Training
 
-There are two UNet models being used: one serves to separate stafflines and all other symbols, and the other to separate more detailed symbol types (see [Technical Details](#Techinical-Details) below).
+There are two UNet models being used: one serves to separate stafflines and all other symbols, and the other to separate more detailed symbol types (see [Technical Details](#technical-details) below). Training script is under `oemer/train.py`.
 
-The two model uses different datasets for training: [CvcMuscima-Distortions](http://www.cvc.uab.es/cvcmuscima/index_database.html) for training the first model, and [DeepScores-extended](https://tuggeluk.github.io/downloads/) for the second model. Both leverages different kinds of image augmentations to enhance the robustness while training (see [here](https://github.com/BreezeWhite/oemer/blob/main/oemer/train.py#L50-L108)).
+The two models use different datasets for training: [CvcMuscima-Distortions](http://www.cvc.uab.es/cvcmuscima/index_database.html) for training the first model, and [DeepScores-extended](https://tuggeluk.github.io/downloads/) for the second model. Both leverages different kinds of image augmentations to enhance the robustness while training (see [here](https://github.com/BreezeWhite/oemer/blob/main/oemer/train.py#L50-L108)).
 
-To identify more specific symbols, SVM models are used. The data used are extracted from DeepScores. There are a total of three different SVM models that will be used to classify symbols. More details can be referred to [oemer/classifier.py](https://github.com/BreezeWhite/oemer/blob/main/oemer/classifier.py).
+To identify more specific symbols, SVM models are used. The data used are extracted from DeepScores. There are three different SVM models that are being used to classify symbols. More details can be referred to [oemer/classifier.py](https://github.com/BreezeWhite/oemer/blob/main/oemer/classifier.py).
 
 
 ## Technical Details
