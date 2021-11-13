@@ -6,12 +6,12 @@ with open("README.md") as red:
 
 setuptools.setup(
     name='Oemer',
-    version='0.2.1',
-    author='Meteo Corp.',
-    author_email='contact@meteo.com.tw',
-    description='End-to-end Optical Music Recoginition (OMR) system.',
+    version='0.1.0',
+    author='BreezeWhite',
+    author_email='miyasihta2010@tuta.io',
+    description='End-to-end Optical Music Recognition (OMR) system.',
     long_description=ldest,
-    url='https://github.com/meteo-team/oemer',
+    url='https://github.com/BreezeWhite/oemer',
     packages=setuptools.find_packages(),
     package_data={
     '': [
