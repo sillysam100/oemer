@@ -17,8 +17,10 @@ setuptools.setup(
     package_data={
     '': [
             'sklearn_models/*.model',
-            'checkpoints/unet_big/*',
-            'checkpoints/seg_net/*',
+            'checkpoints/unet_big/metadata.pkl',
+            'checkpoints/unet_big/arch.json',
+            'checkpoints/seg_net/metadata.pkl',
+            'checkpoints/seg_net/arch.json',
         ]
     },
     install_requires=[
