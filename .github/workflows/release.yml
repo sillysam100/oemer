@@ -27,3 +27,7 @@ jobs:
           draft: false
           prerelease: false
           files: dist/*.whl
+      - name: Upload to PyPi
+        run: |
+          pip install twine
+          twine upload -u __token__ -p ${{ secrets.TEST_PYPI_TOKEN }} -r testpypi dist/*.whl

@@ -11,6 +11,7 @@ setuptools.setup(
     author_email='miyasihta2010@tuta.io',
     description='End-to-end Optical Music Recognition (OMR) system.',
     long_description=ldest,
+    long_description_content_type='text/markdown',
     url='https://github.com/BreezeWhite/oemer',
     packages=setuptools.find_packages(),
     package_data={
