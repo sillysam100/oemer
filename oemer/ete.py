@@ -246,6 +246,7 @@ def main():
     # Check there are checkpoints
     chk_path = os.path.join(MODULE_PATH, "checkpoints/unet_big/model.onnx")
     if not os.path.exists(chk_path):
+        logger.warn("No checkpoint found in %s", chk_path)
         for title, url in CHECKPOINTS_URL.items():
             save_dir = "unet_big" if title.startswith("1st") else "seg_net"
             save_dir = os.path.join(MODULE_PATH, "checkpoints", save_dir)

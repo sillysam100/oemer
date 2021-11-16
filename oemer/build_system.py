@@ -1049,14 +1049,14 @@ def build_part_list():
 def build_work(f_name=None):
     work = Element("work")
     title = SubElement(work, "work-title")
-    title.text = f_name if f_name is not None else "Meteo AI Research"
+    title.text = f_name if f_name is not None else "End-to-end OMR"
     return work
 
 
 def build_identity():
     iden = Element("identification")
     creator = SubElement(iden, "creator", attrib={"type": "composer"})
-    creator.text = "by Meteo"
+    creator.text = "Transcribed by Oemer"
     return iden
 
 
