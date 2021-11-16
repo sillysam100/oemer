@@ -204,10 +204,15 @@ def extract(args):
 
 
 def get_parser():
-    parser = argparse.ArgumentParser("Oemer", description="End-to-end OMR")
+    parser = argparse.ArgumentParser(
+        "Oemer",
+        description="End-to-end OMR command line tool. Receives an image as input, and outputs MusicXML file.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("img_path", help="Path to the image.", type=str)
-    parser.add_argument("-o", "--output-path", help="Path to output the result file", type=str, default="./")
-    parser.add_argument("--use-tf", help="Use Tensorflow for model inference. Default is to use Onnxruntime.", action="store_true")
+    parser.add_argument(
+        "-o", "--output-path", help="Path to output the result file.", type=str, default="./")
+    parser.add_argument(
+        "--use-tf", help="Use Tensorflow for model inference. Default is to use Onnxruntime.", action="store_true")
     parser.add_argument(
         "--save-cache",
         help="Save the model predictions and the next time won't need to predict again.",
