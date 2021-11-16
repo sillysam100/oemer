@@ -6,12 +6,13 @@ with open("README.md") as red:
 
 setuptools.setup(
     name='oemer',
-    version='0.1.0-rc4',
+    version='0.1.0-rc6',
     author='BreezeWhite',
     author_email='miyasihta2010@tuta.io',
     description='End-to-end Optical Music Recognition (OMR) system.',
     long_description=ldest,
     long_description_content_type='text/markdown',
+    license_files=('LICENSE',),
     url='https://github.com/BreezeWhite/oemer',
     packages=setuptools.find_packages(),
     package_data={
