@@ -6,7 +6,7 @@ with open("README.md") as red:
 
 setuptools.setup(
     name='Oemer',
-    version='0.1.0',
+    version='0.1.0-rc4',
     author='BreezeWhite',
     author_email='miyasihta2010@tuta.io',
     description='End-to-end Optical Music Recognition (OMR) system.',
