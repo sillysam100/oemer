@@ -5,7 +5,7 @@ with open("README.md") as red:
     ldest = red.read()
 
 setuptools.setup(
-    name='Oemer',
+    name='oemer',
     version='0.1.0-rc4',
     author='BreezeWhite',
     author_email='miyasihta2010@tuta.io',
