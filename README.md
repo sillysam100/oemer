@@ -415,8 +415,30 @@ This step includes an important algorithm: key finding. The algorithm can be spl
 
 #### Symbol Alignment
 
+Determine the alignment between different parts of notes. Notes being classfied to the same position are considered in the same beat. In other words, notes within the same beat should have the same accumulated beats beforehand across parts. We thus can further use this assumption to adjust the rhythm type of the previous notes.
+
 
 #### Beat Adjustment
+
+Below shows a graph of alignment results. The number means the minimum detected beat length of the track in that beat position. The commented numbers after each row (beat position) are accumulated length difference.
+
+``` python
+# Min durations of each position of the measure
+
+#  Tracks   Accum. Diff.
+#  T1  T2
+[[ 8., 24.],  # 16
+ [ 8.,  0.],  # 8
+ [ 8.,  0.],  # 0
+ [ 0., 24.],  # 24 <- need to insert an eighth rest to balance the rhythm
+ [ 8.,  0.],  # 16                    ↑
+ [ 8.,  0.],  # 8                     │ find that
+ [ 4.,  4.]]  # 0  <- checkpoint No.2 ┘
+```
+
+Checkpoints occur at the row which both have number (meaning both tracks have notes). In the given example, the checkpoints will occur at row 1 and 7. Also, there be a 'mark' to indicate the rhythm in that beat position should be adjusted. The mark will point to where both tracks have number, or the next row after the accumulated difference becomes zero. In above case, the mark will point to row 1, then row 4, then row 7.
+
+At the checkpoint (both have notes), the accumulated difference should be zero. This can be inferred easily from our assumption described in the first paragraph. If the difference is not zero, then the makred position by the 'mark' should adjust their rhythm type or adding rests to make sure the difference go down to zero. Therefore, according to the rule, the total beats in a measure will only increase, since the accumulated difference is always positive number and thus we can only 'add' beat to balance the system.
 
 
 #### Decode
