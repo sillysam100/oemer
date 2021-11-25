@@ -22,8 +22,11 @@ https://user-images.githubusercontent.com/24308057/136168551-2e705c2d-8cf5-4063-
 ``` bash
 pip install oemer
 oemer <path_to_image>
+```
+With GPU, this usually takes around 3~5 minutes to finish. Will output the result MusicXML document to current directory.
 
-# oemer --help
+Available options
+```
 usage: Oemer [-h] [-o OUTPUT_PATH] [--use-tf] [--save-cache] img_path
 
 End-to-end OMR command line tool. Receives an image as input, and outputs MusicXML file.
@@ -38,7 +41,6 @@ optional arguments:
   --use-tf              Use Tensorflow for model inference. Default is to use Onnxruntime. (default: False)
   --save-cache          Save the model predictions and the next time won't need to predict again. (default: False)
 ```
-With GPU, this usually takes around 3~5 minutes to finish. Will output the result MusicXML document to current directory.
 
 ## Change log level
 ``` bash
