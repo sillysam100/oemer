@@ -2,20 +2,21 @@
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/BreezeWhite/oemer/blob/main/colab.ipynb)
 [![PyPI version](https://badge.fury.io/py/oemer.svg)](https://badge.fury.io/py/oemer)
-![PyPI - License](https://img.shields.io/pypi/l/oemer)
+![PyPI - License](https://img.shields.io/github/license/BreezeWhite/oemer)
 
 End-to-end Optical Music Recognition system build on top of deep learning models and machine learning techniques.
-Able to transcribe on skewed and phone taken photos. The models were trained to identify *Western Music Notation*, which could mean the system
-will probably fail on transcribing handwritten or other notation types.
+Able to transcribe on skewed and phone taken photos. The models were trained to identify *Western Music Notation*, which could mean the system will probably not work on transcribing hand-written scores or other notation types.
 
-For the first run, the checkpoints will be downloaded automatically and may take up to 10 minutes to download, depends on your connection speed.
-
-Default to use **Onnxruntime** for inference. If you want to use **Tensorflow** for running the inference,
-run `export INFERENCE_WITH_TF=true` and make sure there is TF installed.
 
 ![](figures/tabi_mix.jpg)
 
 https://user-images.githubusercontent.com/24308057/136168551-2e705c2d-8cf5-4063-826f-0e179f54c772.mp4
+
+
+For the first time running, the checkpoints will be downloaded automatically and may take up to 10 minutes to download, depending on your connection speed. Checkpoints can also be manually downloaded from [here](https://github.com/BreezeWhite/oemer/releases/tag/checkpoints). Put checkpoint files start with `1st_*` to `oemer/checkpoints/unet_big`, `2nd_*` to `oemer/checkpoints/seg_net`, and rename the files by removing the prefix `1st_`, `2nd_`.
+
+Default to use **Onnxruntime** for inference. If you want to use **Tensorflow** for running the inference,
+run `export INFERENCE_WITH_TF=true` and make sure there is TF installed.
 
 
 ## Quick Start
@@ -27,7 +28,7 @@ With GPU, this usually takes around 3~5 minutes to finish. Will output the resul
 
 Available options
 ```
-usage: Oemer [-h] [-o OUTPUT_PATH] [--use-tf] [--save-cache] img_path
+usage: oemer [-h] [-o OUTPUT_PATH] [--use-tf] [--save-cache] img_path
 
 End-to-end OMR command line tool. Receives an image as input, and outputs MusicXML file.
 
@@ -52,16 +53,16 @@ export LOG_LEVEL=debug
 
 There are two UNet models being used: one serves to separate stafflines and all other symbols, and the other to separate more detailed symbol types (see [Technical Details](#technical-details) below). Training script is under `oemer/train.py`.
 
-The two models use different datasets for training: [CvcMuscima-Distortions](http://www.cvc.uab.es/cvcmuscima/index_database.html) for training the first model, and [DeepScores-extended](https://tuggeluk.github.io/downloads/) for the second model. Both leverages different kinds of image augmentations to enhance the robustness while training (see [here](https://github.com/BreezeWhite/oemer/blob/main/oemer/train.py#L50-L108)).
+The two models use different datasets for training: [CvcMuscima-Distortions](http://www.cvc.uab.es/cvcmuscima/index_database.html) for training the first model, and [DeepScores-extended](https://tuggeluk.github.io/downloads/) for the second model. Both leverage different kinds of image augmentations to enhance the robustness while training (see [here](https://github.com/BreezeWhite/oemer/blob/main/oemer/train.py#L50-L108)).
 
-To identify more specific symbols, SVM models are used. The data used are extracted from DeepScores. There are three different SVM models that are being used to classify symbols. More details can be referred to [oemer/classifier.py](https://github.com/BreezeWhite/oemer/blob/main/oemer/classifier.py).
+To identify more specific symbols, SVM models are used. The data used to train SVM models are extracted from DeepScores. There are three different SVM models that are being used to classify symbols. More details can be referred to [oemer/classifier.py](https://github.com/BreezeWhite/oemer/blob/main/oemer/classifier.py).
 
 
 ## Technical Details
 
 This section describes the detail techniques for solving the OMR problem. The overall flow can also be found in [oemer/ete.py](https://github.com/meteo-team/oemer/blob/main/oemer/ete.py), which is also the entrypoint for `oemer` command.
 
-Disclaimer: All descriptions below are simplfied compare to the actual implementation. Only core concepts are covered.
+Notice that all descriptions below are simplfied compare to the actual implementations. Only core concepts are covered.
 
 ### Model Prediction
 Oemer first predicts different informations with two image semantic segmentation models: one for
@@ -415,7 +416,7 @@ This step includes an important algorithm: key finding. The algorithm can be spl
 
 #### Symbol Alignment
 
-Determine the alignment between different parts of notes. Notes being classfied to the same position are considered in the same beat. In other words, notes within the same beat should have the same accumulated beats beforehand across parts. We thus can further use this assumption to adjust the rhythm type of the previous notes.
+Determine the alignment between different notes in different tracks. Notes being paired together (horizontally) are considered at the same beat position in that measure. In other words, notes within the same beat should have the same accumulated beats beforehand across parts. We thus can further use this assumption to adjust the rhythm type of the previous notes.
 
 
 #### Beat Adjustment
