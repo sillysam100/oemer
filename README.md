@@ -3,6 +3,7 @@
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/BreezeWhite/oemer/blob/main/colab.ipynb)
 [![PyPI version](https://badge.fury.io/py/oemer.svg)](https://badge.fury.io/py/oemer)
 ![PyPI - License](https://img.shields.io/github/license/BreezeWhite/oemer)
+[![Downloads](https://static.pepy.tech/personalized-badge/oemer?period=month&units=international_system&left_color=black&right_color=orange&left_text=Downloads)](https://pepy.tech/project/oemer)
 
 End-to-end Optical Music Recognition system build on top of deep learning models and machine learning techniques.
 Able to transcribe on skewed and phone taken photos. The models were trained to identify *Western Music Notation*, which could mean the system will probably not work on transcribing hand-written scores or other notation types.
