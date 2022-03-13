@@ -21,7 +21,19 @@ run `export INFERENCE_WITH_TF=true` and make sure there is TF installed.
 
 ## Quick Start
 ``` bash
+# Install from PyPi
 pip install oemer
+
+# (optional) Install the GPU version
+pip install oemer[gpu]
+
+# (optional) Install the full version, with both onnxruntime-gpu and tensorflow included
+pip install oemer[full]
+
+# (optional) Or install the newest updates directly from Github.
+pip install https://github.com/BreezeWhite/oemer
+
+# Run
 oemer <path_to_image>
 ```
 With GPU, this usually takes around 3~5 minutes to finish. Will output the result MusicXML document to current directory.
@@ -43,7 +55,7 @@ optional arguments:
   --save-cache          Save the model predictions and the next time won't need to predict again. (default: False)
 ```
 
-## Change log level
+## Change the log level
 ``` bash
 # Available options: debug, info, warn, warning, error, crtical
 export LOG_LEVEL=debug
@@ -51,22 +63,22 @@ export LOG_LEVEL=debug
 
 ## Model Training
 
-There are two UNet models being used: one serves to separate stafflines and all other symbols, and the other to separate more detailed symbol types (see [Technical Details](#technical-details) below). Training script is under `oemer/train.py`.
+There are two UNet models being used: one serves to separate stafflines and all other symbols, and the other for separating more detailed symbol types (see [Technical Details](#technical-details) below). The training script is under `oemer/train.py`.
 
-The two models use different datasets for training: [CvcMuscima-Distortions](http://www.cvc.uab.es/cvcmuscima/index_database.html) for training the first model, and [DeepScores-extended](https://tuggeluk.github.io/downloads/) for the second model. Both leverage different kinds of image augmentations to enhance the robustness while training (see [here](https://github.com/BreezeWhite/oemer/blob/main/oemer/train.py#L50-L108)).
+The two models use different datasets for training: [CvcMuscima-Distortions](http://www.cvc.uab.es/cvcmuscima/index_database.html) for training the first model, and [DeepScores-extended](https://tuggeluk.github.io/downloads/) for the second model. Both trainings leverage multiple types of image augmentation techniques to enhance the robustness (see [here](https://github.com/BreezeWhite/oemer/blob/main/oemer/train.py#L50-L108)).
 
-To identify more specific symbols, SVM models are used. The data used to train SVM models are extracted from DeepScores. There are three different SVM models that are being used to classify symbols. More details can be referred to [oemer/classifier.py](https://github.com/BreezeWhite/oemer/blob/main/oemer/classifier.py).
+To identify invidual symbol types on the predictions, SVM models are used. The data used to train SVM models are extracted from [DeepScores-extended](https://tuggeluk.github.io/downloads/). There are three different SVM models that are used to classify symbols. More details can be found in [oemer/classifier.py](https://github.com/BreezeWhite/oemer/blob/main/oemer/classifier.py).
 
 
 ## Technical Details
 
 This section describes the detail techniques for solving the OMR problem. The overall flow can also be found in [oemer/ete.py](https://github.com/meteo-team/oemer/blob/main/oemer/ete.py), which is also the entrypoint for `oemer` command.
 
-Notice that all descriptions below are simplfied compare to the actual implementations. Only core concepts are covered.
+Notice that all descriptions below are simplfied compared to the actual implementations. Only core concepts are covered.
 
 ### Model Prediction
 Oemer first predicts different informations with two image semantic segmentation models: one for
-predicting stafflines and all other symbols; and second model for more detailed symbol informations,
+predicting stafflines and all other symbols; and the second model for more detailed symbol informations,
 including noteheads, clefs, stems, rests, sharp, flat, natural.
 
 
@@ -81,11 +93,11 @@ including noteheads, clefs, stems, rests, sharp, flat, natural.
 
 ### Dewarping
 
-Before proceed to recognizing the symbols, one may need to deskew the photo first since 
-the later process assumes the stafflines are all horizontally aligned and the position 
-of noteheads, rests and all other things are all depends on this assumption.
+Before proceed to recognizing symbols, it is necessary to deskew the photo first, since
+later processes assume stafflines are all horizontally aligned, and also the position 
+of noteheads, rests and all other things are all depending on this assumption.
 
-For the dewarping, there can be summarized to six steps as shown in the below figure.
+For the dewarping process, it can be summarized imto six steps as shown in the below figure.
 
 <p align='center'>
     <img width="100%" src="figures/dewarp_steps.png">
@@ -93,23 +105,23 @@ For the dewarping, there can be summarized to six steps as shown in the below fi
 </p>
 
 
-The dewarping map will be apply to all the predicted informations by the two models.
+The dewarping map will be applied to all the predicted informations produced by the two NN models.
 
 ### Staffline Extraction
 
-After dewarping, stafflines will be parsed. This step plays the most important role,
-as this is the foundation to all the later steps. Ths most important information is 
-`unit_size`, which is the interval between stafflines. It's obvious that all the sizes,
-distance-related information in a music score all relate to the interval, or gap, of stafflines.
+After dewarping, stafflines are being parsed first. This step plays the most important role
+during the whole process, as this is the foundation to all later steps. Ths most important information is 
+`unit_size`, which is the interval between stafflines. It's obvious that all the size-related and
+distance-related information in a music score, all relate to the interval size of stafflines.
 
-The stafflines are processed part-by-part horizontally, as shown below:
+Stafflines are processed part-by-part horizontally, as shown below:
 
 <p align='center'>
     <img width="50%" src="figures/staffs.jpg">
 </p>
 
 For each part, the algorithm finds the lines by accumulating positive pixels by rows.
-After summarizing the counts for each row, we get the following statistics:
+After summarizing the amounts for each row, we get the following statistics:
 
 <p align='center'>
     <img width="50%" src="figures/staffline_peaks.png">
@@ -119,12 +131,12 @@ The algorithm then picks all the peaks and applies additional rules to filter ou
 The final picked true positive peaks (stafflines) are marked with red dots.
 
 Another important information is **tracks** and **groups**. For a conventional piano score, there are
-two tracks, for left and right hand, respectively, and forms a group. For this information,
-the algorithm *foresees* the symbols predictions and parse the barlines to infer possible
-track numbers.
+two tracks, for left and right hand, respectively. The two tracks futher forms a group. For this information,
+the algorithm uses the symbol predictions and parse the barline information to infer possible
+grouping of tracks.
 
-After extraction, the informations are stored into list of `Staff` instances. Example 
-`Staff` instance representation is as follow:
+After extraction, the informations are stored into list of `Staff` instances. An example 
+`Staff` instance representation is as following:
 
 ``` bash
 # Example instance of oemer.staffline_extraction.Staff
@@ -153,14 +165,14 @@ Steps to extract noteheads are breifly illustrated in the following figure:
 
 
 One of the output channel of the second model predicts the noteheads map, as can be seen in the
-top-middle image. The algorithm then pre-process it with morphing to refine the information.
-Worth noticing here is that we force the model to predict 'hollow' notes to be solid noteheads,
-which thus the information won't be eliminated by the morphing.
+top-middle image. The algorithm then pre-processes it with morphing to refine the information.
+Worth noticing here is that the model was trained to predict 'hollow' notes as solid noteheads,
+which thus the empty noteheads won't be eliminated by the morphing.
 
-Next, the algorithm detects the bounding boxes of each noteheads. Since the noteheads could
-overlap with each other, the initial detection could thus contain more than one noteheads. 
-To deal with such situation, the algorithm integrate the information `unit_size` to approximate
-how many noteheads are actually there, in both horizontal and vertical direction. The result
+Next, the algorithm detects the bounding box of each noteheads. Since the noteheads could
+overlap with each other, the initial detection could contain more than one notehead. 
+To deal with such situation, the algorithm integrates the information `unit_size` to approximate
+how many noteheads are actually there, in both horizontal and vertical directions. The result
 is shown in the bottom-left figure.
 
 As we force the model to predict both half and whole notes to be solid noteheads, we need to
@@ -168,9 +180,9 @@ setup rules to decide whether they are actually half or whole notes. This could 
 simply compare the region coverage rate between the prediction and the original image.
 The result is shown in the bottom-middle figure.
 
-Finally, the last thing to be parsed is the position of noteheads on stafflines. The origin
-starts from the bottom line space with (D4 for treble clef, and F3 for bass clef) index 0.
-There could be negative numbers as well. In this step, noteheads are also being assigned with
+Finally, the last thing to be parsed is the position of noteheads on stafflines. Index 0
+originates from the bottom line space (D4 for treble clef, and F3 for bass clef), higher pitch
+having larger index number. There could also be negative numbers. In this step, noteheads are also assigned with
 track and group number, indicating which stave they belong to. The bottom-right figure shows
 the result.
 
@@ -178,17 +190,17 @@ the result.
 ``` bash
 # Example instance of oemer.notehead_extraction.NoteHead
 Notehead 12 (  # The number refers to note ID
-    Points: 123  # Number of pixels for this notehead.
-    Bounding box: [649 402 669 419]
+    Points: 123  # Number of pixels included in this notehead.
+    Bounding box: [649 402 669 419] # xyxy
     Stem up: None  # Direction of the stem, will be infered in later steps.
-    Track: 1
-    Group: 0
+    Track: 1  # For a two-hand piano score, this represents the left hand track.
+    Group: 0  # The staring group of the score.
     Pitch: None  # Actual pitch in MIDI number, will be infered in later steps.
-    Dot: False  # Whether there is dot for this note.
+    Dot: False  # Whether the note contains a dot.
     Label: NoteType.HALF_OR_WHOLE  # Initial guess of the rhythm type.
     Staff line pos: 4  # Position on stafflines. Counting from D4 for treble clef.
-    Is valid: True  # Flag for marking if the note is valid.
-    Note group ID: None  # Note group ID this note belong to. Will be infered in later steps.
+    Is valid: True  # Flag for marking if the note prediction is valid.
+    Note group ID: None  # Note group ID this note belongs to. Will be infered in later steps.
     Sharp/Flat/Natural: None  # Accidental type of this note. Will be infered in later steps.
 )
 
