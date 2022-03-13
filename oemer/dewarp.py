@@ -177,10 +177,14 @@ def connect_nearby_grid_group(gg_map, grid_groups, grid_map, grids, ref_count=8,
                 yidx += y
                 xidx += end_x-step_size
                 reg = grid_map[yidx, xidx]
-                grid_id = np.unique(reg)
-                assert len(grid_id) == 1, grid_id
+                grid_id, counts = np.unique(reg, return_counts=True)
+                if len(grid_id) > 1:
+                    logger.warn(
+                        "Detected multiple possible overlapping grids: %s. Reg. count: %s",
+                        str(grid_id), str(counts))
+                grid_id = int(grid_id[np.argmax(counts)])
                 assert grid_id in grid_groups[label].gids, f"{grid_id}, {label}"
-                grid = grids[int(grid_id[0])]
+                grid = grids[grid_id]
 
                 # Interpolate y centers between the start and end points again.
                 centers = [grid.y_center, centers[0]]
