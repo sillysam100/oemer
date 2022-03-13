@@ -4,6 +4,9 @@
 [![PyPI version](https://badge.fury.io/py/oemer.svg)](https://badge.fury.io/py/oemer)
 ![PyPI - License](https://img.shields.io/github/license/BreezeWhite/oemer)
 [![Downloads](https://static.pepy.tech/personalized-badge/oemer?period=month&units=international_system&left_color=black&right_color=orange&left_text=Downloads)](https://pepy.tech/project/oemer)
+[![DOI](https://zenodo.org/badge/431709885.svg)](https://zenodo.org/badge/latestdoi/431709885)
+
+
 
 End-to-end Optical Music Recognition system build on top of deep learning models and machine learning techniques.
 Able to transcribe on skewed and phone taken photos. The models were trained to identify *Western Music Notation*, which could mean the system will probably not work on transcribing hand-written scores or other notation types.
@@ -56,26 +59,35 @@ optional arguments:
   --save-cache          Save the model predictions and the next time won't need to predict again. (default: False)
 ```
 
-## Change the log level
-``` bash
-# Available options: debug, info, warn, warning, error, crtical
-export LOG_LEVEL=debug
+## Citation
+
 ```
-
-## Model Training
-
-There are two UNet models being used: one serves to separate stafflines and all other symbols, and the other for separating more detailed symbol types (see [Technical Details](#technical-details) below). The training script is under `oemer/train.py`.
-
-The two models use different datasets for training: [CvcMuscima-Distortions](http://www.cvc.uab.es/cvcmuscima/index_database.html) for training the first model, and [DeepScores-extended](https://tuggeluk.github.io/downloads/) for the second model. Both trainings leverage multiple types of image augmentation techniques to enhance the robustness (see [here](https://github.com/BreezeWhite/oemer/blob/main/oemer/train.py#L50-L108)).
-
-To identify invidual symbol types on the predictions, SVM models are used. The data used to train SVM models are extracted from [DeepScores-extended](https://tuggeluk.github.io/downloads/). There are three different SVM models that are used to classify symbols. More details can be found in [oemer/classifier.py](https://github.com/BreezeWhite/oemer/blob/main/oemer/classifier.py).
-
+@software{yu_te_wu_2022_6350268,
+  author       = {Yu-Te Wu},
+  title        = {{oemer: An End-to-end Optical Music Recognition 
+                   Tool}},
+  month        = mar,
+  year         = 2022,
+  publisher    = {Zenodo},
+  version      = {v0.1.1},
+  doi          = {10.5281/zenodo.6350268},
+  url          = {https://doi.org/10.5281/zenodo.6350268}
+}
+```
 
 ## Technical Details
 
 This section describes the detail techniques for solving the OMR problem. The overall flow can also be found in [oemer/ete.py](https://github.com/meteo-team/oemer/blob/main/oemer/ete.py), which is also the entrypoint for `oemer` command.
 
 Notice that all descriptions below are simplfied compared to the actual implementations. Only core concepts are covered.
+
+### Model Training
+
+There are two UNet models being used: one serves to separate stafflines and all other symbols, and the other for separating more detailed symbol types (see [Model Prediction](#model-prediction) below). The training script is under `oemer/train.py`.
+
+The two models use different datasets for training: [CvcMuscima-Distortions](http://www.cvc.uab.es/cvcmuscima/index_database.html) for training the first model, and [DeepScores-extended](https://tuggeluk.github.io/downloads/) for the second model. Both trainings leverage multiple types of image augmentation techniques to enhance the robustness (see [here](https://github.com/BreezeWhite/oemer/blob/main/oemer/train.py#L50-L108)).
+
+To identify invidual symbol types on the predictions, SVM models are used. The data used to train SVM models are extracted from [DeepScores-extended](https://tuggeluk.github.io/downloads/). There are three different SVM models that are used to classify symbols. More details can be found in [oemer/classifier.py](https://github.com/BreezeWhite/oemer/blob/main/oemer/classifier.py).
 
 ### Model Prediction
 Oemer first predicts different informations with two image semantic segmentation models: one for
