@@ -247,7 +247,8 @@ def main():
     chk_path = os.path.join(MODULE_PATH, "checkpoints/unet_big/model.onnx")
     if not os.path.exists(chk_path):
         logger.warn("No checkpoint found in %s", chk_path)
-        for title, url in CHECKPOINTS_URL.items():
+        for idx, (title, url) in enumerate(CHECKPOINTS_URL.items()):
+            logger.info(f"Downloading checkpoints ({idx+1}/{len(CHECKPOINTS_URL)})")
             save_dir = "unet_big" if title.startswith("1st") else "seg_net"
             save_dir = os.path.join(MODULE_PATH, "checkpoints", save_dir)
             save_path = os.path.join(save_dir, title.split("_")[1])
