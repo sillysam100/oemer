@@ -26,7 +26,7 @@ setuptools.setup(
             ]
     },
     install_requires=[
-        'onnxruntime-gpu',
+        'onnxruntime',
         'opencv-python==4.5.3.56',
         'matplotlib',
         'pillow',
@@ -35,7 +35,8 @@ setuptools.setup(
         'scikit-learn==0.24.2'
     ],
     extras_require={
-        'full': ['tensorflow-gpu', 'tf2onnx']
+        'gpu': ['onnxruntime-gpu'],
+        'full': ['tensorflow-gpu', 'tf2onnx', 'onnxruntime-gpu']
     },
     entry_points={'console_scripts': ['oemer = oemer.ete:main']},
     keywords=['OMR', 'optical-music-recognition', 'AI', 'machine-learning', 'image-processing'],
