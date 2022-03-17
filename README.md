@@ -3,7 +3,7 @@
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/BreezeWhite/oemer/blob/main/colab.ipynb)
 [![PyPI version](https://badge.fury.io/py/oemer.svg)](https://badge.fury.io/py/oemer)
 ![PyPI - License](https://img.shields.io/github/license/BreezeWhite/oemer)
-[![Downloads](https://static.pepy.tech/personalized-badge/oemer?period=month&units=international_system&left_color=black&right_color=orange&left_text=Downloads)](https://pepy.tech/project/oemer)
+[![Downloads](https://img.shields.io/pypi/dm/oemer?color=orange&style=flat-square)](https://pypistats.org/packages/oemer)
 [![DOI](https://zenodo.org/badge/431709885.svg)](https://zenodo.org/badge/latestdoi/431709885)
 
 
@@ -15,13 +15,6 @@ Able to transcribe on skewed and phone taken photos. The models were trained to 
 ![](figures/tabi_mix.jpg)
 
 https://user-images.githubusercontent.com/24308057/136168551-2e705c2d-8cf5-4063-826f-0e179f54c772.mp4
-
-
-For the first time running, the checkpoints will be downloaded automatically and may take up to 10 minutes to download, depending on your connection speed. Checkpoints can also be manually downloaded from [here](https://github.com/BreezeWhite/oemer/releases/tag/checkpoints). Put checkpoint files start with `1st_*` to `oemer/checkpoints/unet_big`, `2nd_*` to `oemer/checkpoints/seg_net`, and rename the files by removing the prefix `1st_`, `2nd_`.
-
-Default to use **Onnxruntime** for inference. If you want to use **Tensorflow** for running the inference,
-run `export INFERENCE_WITH_TF=true` and make sure there is TF installed.
-
 
 ## Quick Start
 ``` bash
@@ -40,6 +33,12 @@ pip install https://github.com/BreezeWhite/oemer
 # Run
 oemer <path_to_image>
 ```
+
+For the first time running, the checkpoints will be downloaded automatically and may take up to 10 minutes to download, depending on your connection speed. Checkpoints can also be manually downloaded from [here](https://github.com/BreezeWhite/oemer/releases/tag/checkpoints). Put checkpoint files start with `1st_*` to `oemer/checkpoints/unet_big`, `2nd_*` to `oemer/checkpoints/seg_net`, and rename the files by removing the prefix `1st_`, `2nd_`.
+
+Default to use **Onnxruntime** for inference. If you want to use **Tensorflow** for running the inference,
+run `export INFERENCE_WITH_TF=true` and make sure there is TF installed.
+
 With GPU, this usually takes around 3~5 minutes to finish. Will output the result MusicXML document to current directory.
 
 Available options
