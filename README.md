@@ -3,7 +3,7 @@
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/BreezeWhite/oemer/blob/main/colab.ipynb)
 [![PyPI version](https://badge.fury.io/py/oemer.svg)](https://badge.fury.io/py/oemer)
 ![PyPI - License](https://img.shields.io/github/license/BreezeWhite/oemer)
-[![Downloads](https://img.shields.io/pypi/dm/oemer?color=orange&style=flat-square)](https://pypistats.org/packages/oemer)
+[![Downloads](https://img.shields.io/pypi/dm/oemer?color=orange)](https://pypistats.org/packages/oemer)
 [![DOI](https://zenodo.org/badge/431709885.svg)](https://zenodo.org/badge/latestdoi/431709885)
 
 
