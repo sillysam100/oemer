@@ -21,6 +21,7 @@ from oemer.note_group_extraction import extract as group_extract
 from oemer.symbol_extraction import extract as symbol_extract
 from oemer.rhythm_extraction import extract as rhythm_extract
 from oemer.build_system import MusicXMLBuilder
+from oemer.draw_teaser import teaser
 
 
 logger = get_logger(__name__)
@@ -202,6 +203,8 @@ def extract(args):
     with open(out_path, "wb") as ff:
         ff.write(xml)
 
+    return out_path
+
 
 def get_parser():
     parser = argparse.ArgumentParser(
@@ -255,7 +258,9 @@ def main():
             download_file(title, url, save_path)
 
     clear_data()
-    extract(args)
+    mxl_path = extract(args)
+    img = teaser()
+    img.save(mxl_path.replace(".musicxml", "_teaser.png"))
 
 
 if __name__ == "__main__":
