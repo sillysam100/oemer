@@ -34,14 +34,14 @@ pip install https://github.com/BreezeWhite/oemer
 oemer <path_to_image>
 ```
 
-For the first time running, the checkpoints will be downloaded automatically and may take up to 10 minutes to download, depending on your connection speed. Checkpoints can also be manually downloaded from [here](https://github.com/BreezeWhite/oemer/releases/tag/checkpoints). Put checkpoint files start with `1st_*` to `oemer/checkpoints/unet_big`, `2nd_*` to `oemer/checkpoints/seg_net`, and rename the files by removing the prefix `1st_`, `2nd_`.
+The `oemer` command will output the transcribed MusicXML file and an image of analyzed elements to current directory.
+
+With GPU, this usually takes around 3~5 minutes to finish. For the first time running, the checkpoints will be downloaded automatically and may take up to 10 minutes to download, depending on your connection speed. Checkpoints can also be manually downloaded from [here](https://github.com/BreezeWhite/oemer/releases/tag/checkpoints). Put checkpoint files start with `1st_*` to `oemer/checkpoints/unet_big`, `2nd_*` to `oemer/checkpoints/seg_net`, and rename the files by removing the prefix `1st_`, `2nd_`.
 
 Default to use **Onnxruntime** for inference. If you want to use **Tensorflow** for running the inference,
 run `export INFERENCE_WITH_TF=true` and make sure there is TF installed.
 
-With GPU, this usually takes around 3~5 minutes to finish. Will output the result MusicXML document to current directory.
-
-Available options
+### Available options
 ```
 usage: oemer [-h] [-o OUTPUT_PATH] [--use-tf] [--save-cache] img_path
 
