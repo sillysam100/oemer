@@ -132,15 +132,16 @@ def extract(args):
     image = cv2.imread(str(img_path))
     image = cv2.resize(image, (staff.shape[1], staff.shape[0]))
 
-    logger.info("Dewarping")
-    coords_x, coords_y = estimate_coords(staff)
-    staff = dewarp(staff, coords_x, coords_y)
-    symbols = dewarp(symbols, coords_x, coords_y)
-    stems_rests = dewarp(stems_rests, coords_x, coords_y)
-    clefs_keys = dewarp(clefs_keys, coords_x, coords_y)
-    notehead = dewarp(notehead, coords_x, coords_y)
-    for i in range(image.shape[2]):
-        image[..., i] = dewarp(image[..., i], coords_x, coords_y)
+    if not args.without_deskew:
+        logger.info("Dewarping")
+        coords_x, coords_y = estimate_coords(staff)
+        staff = dewarp(staff, coords_x, coords_y)
+        symbols = dewarp(symbols, coords_x, coords_y)
+        stems_rests = dewarp(stems_rests, coords_x, coords_y)
+        clefs_keys = dewarp(clefs_keys, coords_x, coords_y)
+        notehead = dewarp(notehead, coords_x, coords_y)
+        for i in range(image.shape[2]):
+            image[..., i] = dewarp(image[..., i], coords_x, coords_y)
 
     # Register predictions
     symbols = symbols + clefs_keys + stems_rests
@@ -219,6 +220,11 @@ def get_parser():
     parser.add_argument(
         "--save-cache",
         help="Save the model predictions and the next time won't need to predict again.",
+        action='store_true')
+    parser.add_argument(
+        "-d",
+        "--without-deskew",
+        help="Disable the deskewing step if you are sure the image has no skew.",
         action='store_true')
     return parser
 
