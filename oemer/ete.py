@@ -42,15 +42,24 @@ def clear_data():
         layers.delete_layer(l)
 
 
-def generate_pred(img_path):
+def generate_pred(img_path, use_tf=False):
     logger.info("Extracting staffline and symbols")
-    staff_symbols_map, _ = inference(os.path.join(MODULE_PATH, "checkpoints/unet_big"), img_path)
+    staff_symbols_map, _ = inference(
+        os.path.join(MODULE_PATH, "checkpoints/unet_big"),
+        img_path,
+        use_tf=use_tf,
+    )
     staff = np.where(staff_symbols_map==1, 1, 0)
     symbols = np.where(staff_symbols_map==2, 1, 0)
 
     logger.info("Extracting layers of different symbols")
     symbol_thresholds = [0.5, 0.4, 0.4]
-    sep, _ = inference(os.path.join(MODULE_PATH, "checkpoints/seg_net"), img_path, manual_th=None)
+    sep, _ = inference(
+        os.path.join(MODULE_PATH, "checkpoints/seg_net"),
+        img_path,
+        manual_th=None,
+        use_tf=use_tf,
+    )
     stems_rests = np.where(sep==1, 1, 0)
     notehead = np.where(sep==2, 1, 0)
     clefs_keys = np.where(sep==3, 1, 0)
@@ -115,7 +124,7 @@ def extract(args):
         if args.use_tf:
             ori_inf_type = os.environ.get("INFERENCE_WITH_TF", None)
             os.environ["INFERENCE_WITH_TF"] = "true"
-        staff, symbols, stems_rests, notehead, clefs_keys = generate_pred(str(img_path))
+        staff, symbols, stems_rests, notehead, clefs_keys = generate_pred(str(img_path), use_tf=args.use_tf)
         if args.use_tf:
             os.environ["INFERENCE_WITH_TF"] = ori_inf_type
         if args.save_cache:

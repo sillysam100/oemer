@@ -1,3 +1,4 @@
+import re
 import math
 import enum
 from typing import List, Mapping
@@ -714,6 +715,9 @@ class MusicXMLBuilder:
         mxl_list.insert(1, doctype)
         mxl_list[0] += b'?>\n'
         mxl_str = b"".join(mxl_list)
+
+        # Work around for merging the init and the first measure.
+        mxl_str = re.sub(r'\s+</measure>\n\s+<measure number="1">\n\s+<print.+/>', '', mxl_str)
         return mxl_str
 
 

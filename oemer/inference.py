@@ -8,13 +8,6 @@ import numpy as np
 from oemer import MODULE_PATH
 
 
-use_tf = os.environ.get('INFERENCE_WITH_TF', "false") == "true"
-if use_tf:
-    import tensorflow as tf
-else:
-    import onnxruntime as rt
-
-
 def resize_image(image: Image):
     # Estimate target size with number of pixels.
     # Best number would be 3M~4.35M pixels.
@@ -31,8 +24,10 @@ def resize_image(image: Image):
     return image.resize((tar_w, tar_h))
 
 
-def inference(model_path, img_path, step_size=128, batch_size=16, manual_th=None):
+def inference(model_path, img_path, step_size=128, batch_size=16, manual_th=None, use_tf=False):
     if use_tf:
+        import tensorflow as tf
+
         arch_path = os.path.join(model_path, "arch.json")
         w_path = os.path.join(model_path, "weights.h5")
         model = tf.keras.models.model_from_json(open(arch_path, "r").read())
@@ -40,6 +35,8 @@ def inference(model_path, img_path, step_size=128, batch_size=16, manual_th=None
         input_shape = model.input_shape
         output_shape = model.output_shape
     else:
+        import onnxruntime as rt
+
         onnx_path = os.path.join(model_path, "model.onnx")
         metadata = pickle.load(open(os.path.join(model_path, "metadata.pkl"), "rb"))
         providers = ["CUDAExecutionProvider", "CPUExecutionProvider"]

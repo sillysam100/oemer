@@ -39,13 +39,16 @@ The `oemer` command will output the transcribed MusicXML file and an image of an
 With GPU, this usually takes around 3~5 minutes to finish. For the first time running, the checkpoints will be downloaded automatically and may take up to 10 minutes to download, depending on your connection speed. Checkpoints can also be manually downloaded from [here](https://github.com/BreezeWhite/oemer/releases/tag/checkpoints). Put checkpoint files start with `1st_*` to `oemer/checkpoints/unet_big`, `2nd_*` to `oemer/checkpoints/seg_net`, and rename the files by removing the prefix `1st_`, `2nd_`.
 
 Default to use **Onnxruntime** for inference. If you want to use **Tensorflow** for running the inference,
-run `export INFERENCE_WITH_TF=true` and make sure there is TF installed.
+add `--use-tf` to the command and make sure there is TF installed.
+
+If you encounter errors, try adding `--without-deskew` first (see [issue #9](https://github.com/BreezeWhite/oemer/issues/9)). If the problem still exists, file an issue and make sure following the template format.
 
 ### Available options
 ```
-usage: oemer [-h] [-o OUTPUT_PATH] [--use-tf] [--save-cache] img_path
+usage: Oemer [-h] [-o OUTPUT_PATH] [--use-tf] [--save-cache] [-d] img_path
 
-End-to-end OMR command line tool. Receives an image as input, and outputs MusicXML file.
+End-to-end OMR command line tool. Receives an image as input, and outputs
+MusicXML file.
 
 positional arguments:
   img_path              Path to the image.
@@ -54,8 +57,12 @@ optional arguments:
   -h, --help            show this help message and exit
   -o OUTPUT_PATH, --output-path OUTPUT_PATH
                         Path to output the result file. (default: ./)
-  --use-tf              Use Tensorflow for model inference. Default is to use Onnxruntime. (default: False)
-  --save-cache          Save the model predictions and the next time won't need to predict again. (default: False)
+  --use-tf              Use Tensorflow for model inference. Default is to use
+                        Onnxruntime. (default: False)
+  --save-cache          Save the model predictions and the next time won't
+                        need to predict again. (default: False)
+  -d, --without-deskew  Disable the deskewing step if you are sure the image
+                        has no skew. (default: False)
 ```
 
 ## Citation
@@ -68,7 +75,7 @@ optional arguments:
   month        = mar,
   year         = 2022,
   publisher    = {Zenodo},
-  version      = {v0.1.1},
+  version      = {v0.1.4},
   doi          = {10.5281/zenodo.6350268},
   url          = {https://doi.org/10.5281/zenodo.6350268}
 }
