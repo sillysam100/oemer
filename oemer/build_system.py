@@ -508,13 +508,16 @@ class AddForward(Action):
 
 
 class AddMeasure(Action):
-    def __init__(self, measure: Measure, **kwargs):
+    def __init__(self, measure: Measure, add_break: bool = False, **kwargs):
         super().__init__(**kwargs)
         self.measure = measure
+        self.add_break = add_break
 
     def perform(self, parent_elem=None):
         self.init_sfn_state()
         elem = Element('measure', attrib={'number': str(self.measure.number)})
+        if self.add_break:
+            SubElement(elem, 'print', attrib={'new-system': 'yes'})
         if parent_elem is not None:
             parent_elem.append(elem)
         return elem
@@ -574,8 +577,11 @@ class MusicXMLBuilder:
         cur_clefs = first_measure.get_track_clef()
         total_tracks = len(cur_clefs)
         for grp, measures in self.measures.items():
+            to_add_system_break = True
             for idx, measure in enumerate(measures):
-                self.actions.append(AddMeasure(measure))
+                self.actions.append(AddMeasure(measure, add_break=to_add_system_break))
+                to_add_system_break = False
+
                 last_tidx = 0
                 last_dura = 0
                 last_pos = 0
