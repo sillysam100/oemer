@@ -717,7 +717,7 @@ class MusicXMLBuilder:
         mxl_str = b"".join(mxl_list)
 
         # Work around for merging the init and the first measure.
-        mxl_str = re.sub(r'\s+</measure>\n\s+<measure number="1">\n\s+<print.+/>', '', mxl_str)
+        mxl_str = re.sub(rb'\s+</measure>\n\s+<measure number="1">\n\s+<print.+/>', b'', mxl_str)
         return mxl_str
 
 
