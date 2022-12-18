@@ -1,10 +1,15 @@
 __pycache__/
 .git/
 .venv/
+.vscode/
+
 build/
 dist/
 oemer.egg-info/
 checkpoints/
 
+.DS_Store
+
 *.musicxml
 *.mp3
+*.swp

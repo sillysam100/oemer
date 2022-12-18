@@ -27,12 +27,11 @@ setuptools.setup(
     },
     install_requires=[
         'onnxruntime',
-        'opencv-python==4.5.3.56',
+        'opencv-python>=4.5.3.56',
         'matplotlib',
         'pillow',
-        'numpy==1.21.2',
-        'scipy==1.6.2',
-        'scikit-learn==0.24.2'
+        'scipy',
+        'scikit-learn>=1.2'
     ],
     extras_require={
         'gpu': ['onnxruntime-gpu'],

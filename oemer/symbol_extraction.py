@@ -3,6 +3,7 @@ import enum
 import cv2
 import numpy as np
 import scipy.ndimage
+import matplotlib.pyplot as plt
 
 from oemer import layers
 from oemer import exceptions as E
@@ -452,6 +453,11 @@ def draw_symbols(symbols, ori_img, labels=None, color=(235, 64, 52)):
         cv2.rectangle(out, (x1, y1), (x2, y2), color, 2)
         cv2.putText(out, str(label), (x2+2, y2), cv2.FONT_HERSHEY_SIMPLEX, 0.8, color, 2)
     return out
+
+
+def show(data):
+    plt.imshow(data, aspect='auto')
+    plt.show()
 
 
 if __name__ == "__main__":

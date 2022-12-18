@@ -39,7 +39,7 @@ def inference(model_path, img_path, step_size=128, batch_size=16, manual_th=None
 
         onnx_path = os.path.join(model_path, "model.onnx")
         metadata = pickle.load(open(os.path.join(model_path, "metadata.pkl"), "rb"))
-        providers = ["CUDAExecutionProvider", "CPUExecutionProvider"]
+        providers = ["CoreMLExecutionProvider", "CUDAExecutionProvider", "CPUExecutionProvider"]
         sess = rt.InferenceSession(onnx_path, providers=providers)
         output_names = metadata['output_names']
         input_shape = metadata['input_shape']

@@ -4,7 +4,7 @@ from pathlib import Path
 from PIL import Image
 import pickle
 
-import tensorflow as tf
+# import tensorflow as tf
 import augly.image as imaugs
 import numpy as np
 from sklearn import svm
@@ -12,10 +12,10 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier, GradientBoostingClassifier, BaggingClassifier
 from sklearn.linear_model import RidgeClassifier
 from sklearn.model_selection import GridSearchCV
-from tensorflow.keras.layers import Dense, InputLayer, BatchNormalization
+# from tensorflow.keras.layers import Dense, InputLayer, BatchNormalization
 
-from .bbox import get_bbox, merge_nearby_bbox, draw_bounding_boxes, rm_merge_overlap_bbox
-from .build_label import find_example
+from oemer.bbox import get_bbox, merge_nearby_bbox, draw_bounding_boxes, rm_merge_overlap_bbox
+from oemer.build_label import find_example
 
 
 SVM_PARAM_GRID = {
@@ -29,8 +29,10 @@ TARGET_WIDTH = 40
 TARGET_HEIGHT = 70
 DISTANCE = 10
 
+DATASET_PATH = "./ds2_dense/segmentation"
 
-def collect(color, out_path, samples=100):
+
+def _collect(color, out_path, samples=100):
     out_path = Path(out_path)
     if not out_path.exists():
         out_path.mkdir()
@@ -39,7 +41,7 @@ def collect(color, out_path, samples=100):
     add_space = 10
     idx = 0
     while cur_samples < samples:
-        arr = find_example(color)
+        arr = find_example(DATASET_PATH, color)
         if arr is None:
             continue
         arr[arr!=200] = 0
@@ -67,6 +69,28 @@ def collect(color, out_path, samples=100):
     print()
 
 
+def collect_data(samples=400):
+    color_map = {
+        74: "sharp",
+        70: "flat",
+        72: "natural",
+        97: 'rest_whole',
+        98: 'rest_half',
+        99: 'rest_quarter',
+        100: 'rest_8th',
+        101: 'rest_16th',
+        102: 'rest_32nd',
+        103: 'rest_64th',
+        10: 'gclef',
+        13: 'fclef',
+    }
+
+    for color, name in color_map.items():
+        print('Current', name)
+        _collect(color, f"train_data/{name}", samples=samples)
+        _collect(color, f"test_data/{name}", samples=samples)
+
+
 def train(folders):
     class_map = {idx: Path(ff).name for idx, ff in enumerate(folders)}
     train_x = []
@@ -76,7 +100,7 @@ def train(folders):
     for cidx, folder in enumerate(folders):
         folder = Path(folder)
         idx = 0
-        for ff in folder.iterdir():
+        for ff in folder.glob('*.png'):
             if samples is not None and idx >= samples:
                 break
             img = Image.open(ff).resize((TARGET_WIDTH, TARGET_HEIGHT))
@@ -152,14 +176,14 @@ def test(model, folders):
     for cidx, folder in enumerate(folders):
         folder = Path(folder)
         idx = 0
-        files = list(folder.iterdir())
+        files = list(folder.glob('*.png'))
         random.shuffle(files)
         for ff in files:
             if idx >= samples:
                 break
             img = Image.open(ff).resize((TARGET_WIDTH, TARGET_HEIGHT))
             arr = np.array(img).flatten()
-            test_x.append(arr   )
+            test_x.append(arr)
             test_y.append(cidx)
             idx += 1
 
@@ -168,23 +192,6 @@ def test(model, folders):
     tp = len(pred_y[tp_idx])
     acc = tp / len(test_y)
     print("Accuracy: ", acc)
-    train_x = []
-    train_y = []
-    samples = None
-    print("Loading data")
-    for cidx, folder in enumerate(folders):
-        folder = Path(folder)
-        idx = 0
-        for ff in folder.iterdir():
-            if samples is not None and idx >= samples:
-                break
-            img = Image.open(ff).resize((TARGET_WIDTH, TARGET_HEIGHT))
-            arr = np.array(img)
-            train_x.append(arr)
-            train_y.append(cidx)
-            idx += 1
-    train_x = np.array(train_x)[..., np.newaxis]
-    train_y = tf.one_hot(train_y, len(folders))
 
 
 def test_tf(model, folders):
@@ -230,46 +237,24 @@ def predict(region, model_name):
 
 
 if __name__ == "__main__":
-    dataset_path = "/media/kohara/ADATA HV620S/dataset/ds2_dense/segmentation"
-
     samples = 400
-    color_map = {
-        74: "sharp",
-        70: "flat",
-        72: "natural"
-    }
-    # color_map = {
-    #     10: 'gclef',
-    #     13: 'fclef'
-    # }
-    color_map = {
-        97: 'rest_whole',
-        98: 'rest_half',
-        99: 'rest_quarter',
-        100: 'rest_8th',
-        101: 'rest_16th',
-        102: 'rest_32nd',
-        103: 'rest_64th'
-    }
+    # collect_data(samples=samples)
 
-    # for color, name in color_map.items():
-    #     collect(color, f"train_data/{name}", samples=samples)
-    #     collect(color, f"test_data/{name}", samples=samples)
-
-    folders = ["gclef", "fclef"]; model_name = "clef"
-    #folders = ["sharp", "flat", "natural"]; model_name = "sfn"
-    # folders = ["rest_whole", "rest_half", "rest_quarter", "rest_8th", "rest_16th", "rest_32nd", "rest_64th"]
-    # folders = ["rest_whole", "rest_quarter", "rest_8th"]; model_name = "rests"
+    # folders = ["gclef", "fclef"]; model_name = "clef"
+    # folders = ["sharp", "flat", "natural"]; model_name = "sfn"
+    folders = ["rest_whole", "rest_quarter", "rest_8th"]; model_name = "rests"
     # folders = ["rest_8th", "rest_16th", "rest_32nd", "rest_64th"]; model_name = "rests_above8"
+
     #folders = ['clefs', 'sfns']; model_name = 'clefs_sfns'
+    #folders = ["rest_whole", "rest_half", "rest_quarter", "rest_8th", "rest_16th", "rest_32nd", "rest_64th"]
 
     # Sklearn model
-    model, class_map = train([f"train_data/{folder}" for folder in folders])
-    test(model, [f"test_data/{folder}" for folder in folders])
+    model, class_map = train([f"ds2_dense/train_data/{folder}" for folder in folders])
+    test(model, [f"ds2_dense/test_data/{folder}" for folder in folders])
 
     # TF-based model
     # model, class_map = train_tf([f"train_data/{folder}" for folder in folders])
     # test_tf(model, [f"test_data/{folder}" for folder in folders])
 
     output = {'model': model, 'w': TARGET_WIDTH, 'h': TARGET_HEIGHT, 'class_map': class_map}
-    pickle.dump(output, open(f"sklearn_models/{model_name}.model", "wb"))
+    pickle.dump(output, open(f"oemer/sklearn_models/{model_name}.model", "wb"))

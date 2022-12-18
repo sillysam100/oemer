@@ -89,8 +89,7 @@ def build_label(seg_path):
     return output
 
 
-def find_example(color: int, max_count=100, mark_value=200):
-    dataset_path = "/media/kohara/ADATA HV620S/dataset/ds2_dense/segmentation"
+def find_example(dataset_path: str, color: int, max_count=100, mark_value=200):
     files = os.listdir(dataset_path)
     random.shuffle(files)
     for ff in files[:max_count]:
