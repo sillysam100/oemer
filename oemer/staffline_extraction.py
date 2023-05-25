@@ -324,7 +324,7 @@ def extract(splits=8, line_threshold=0.8, horizontal_diff_th=0.1, unit_size_diff
     all_staffs = []
     for rr in zones:
         print(rr[0], rr[-1], end=' ')
-        rr = np.array(rr, dtype=np.int)
+        rr = np.array(rr, dtype=int)
         staffs = extract_part(staff_pred[:, rr], x_offset=rr[0], line_threshold=line_threshold)
         if staffs is not None:
             all_staffs.append(staffs)
