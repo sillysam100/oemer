@@ -27,7 +27,7 @@ setuptools.setup(
     },
     install_requires=[
         'onnxruntime',
-        'opencv-python>=4.5.3.56',
+        'opencv-python-headless>=4.5.3.56',
         'matplotlib',
         'pillow',
         'scipy',
