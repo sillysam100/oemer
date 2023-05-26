@@ -125,7 +125,7 @@ def extract(args):
             ori_inf_type = os.environ.get("INFERENCE_WITH_TF", None)
             os.environ["INFERENCE_WITH_TF"] = "true"
         staff, symbols, stems_rests, notehead, clefs_keys = generate_pred(str(img_path), use_tf=args.use_tf)
-        if args.use_tf:
+        if args.use_tf and ori_inf_type is not None:
             os.environ["INFERENCE_WITH_TF"] = ori_inf_type
         if args.save_cache:
             data = {
