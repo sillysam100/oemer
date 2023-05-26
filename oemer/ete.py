@@ -176,7 +176,7 @@ def extract(args):
     layers.register_layer('notes', np.array(notes))
 
     # Add a new layer (w * h), indicating note id of each pixel.
-    layers.register_layer('note_id', np.zeros(symbols.shape, dtype=int)-1)
+    layers.register_layer('note_id', np.zeros(symbols.shape, dtype=np.int)-1)
     register_note_id()
 
     # ---- Extract groups of note ---- #
