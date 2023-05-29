@@ -4,7 +4,8 @@
 [![PyPI version](https://badge.fury.io/py/oemer.svg)](https://badge.fury.io/py/oemer)
 ![PyPI - License](https://img.shields.io/github/license/BreezeWhite/oemer)
 [![Downloads](https://img.shields.io/pypi/dm/oemer?color=orange)](https://pypistats.org/packages/oemer)
-[![DOI](https://zenodo.org/badge/431709885.svg)](https://zenodo.org/badge/latestdoi/431709885)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7980155.svg)](https://doi.org/10.5281/zenodo.7980155)
+
 
 
 
@@ -65,16 +66,15 @@ optional arguments:
 ## Citation
 
 ```
-@software{yu_te_wu_2022_6350268,
-  author       = {Yu-Te Wu},
-  title        = {{oemer: An End-to-end Optical Music Recognition 
-                   Tool}},
-  month        = mar,
-  year         = 2022,
+@software{yu_te_wu_2023_7980155,
+  author       = {Yu-Te, Wu},
+  title        = {BreezeWhite/oemer: v0.1.6},
+  month        = may,
+  year         = 2023,
   publisher    = {Zenodo},
-  version      = {v0.1.4},
-  doi          = {10.5281/zenodo.6350268},
-  url          = {https://doi.org/10.5281/zenodo.6350268}
+  version      = {v0.1.6},
+  doi          = {10.5281/zenodo.7980155},
+  url          = {https://doi.org/10.5281/zenodo.7980155}
 }
 ```
 
