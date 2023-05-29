@@ -6,7 +6,7 @@ with open("README.md") as red:
 
 setuptools.setup(
     name='oemer',
-    version='0.1.5',
+    version='0.1.6',
     author='BreezeWhite',
     author_email='miyasihta2010@tuta.io',
     description='End-to-end Optical Music Recognition (OMR) system.',
@@ -26,7 +26,7 @@ setuptools.setup(
             ]
     },
     install_requires=[
-        'onnxruntime',
+        'onnxruntime-gpu',
         'opencv-python-headless>=4.5.3.56',
         'matplotlib',
         'pillow',
@@ -34,8 +34,7 @@ setuptools.setup(
         'scikit-learn>=1.2'
     ],
     extras_require={
-        'gpu': ['onnxruntime-gpu'],
-        'full': ['tensorflow-gpu', 'tf2onnx', 'onnxruntime-gpu']
+        'tf': ['tensorflow-gpu', 'tf2onnx'],
     },
     entry_points={'console_scripts': ['oemer = oemer.ete:main']},
     keywords=['OMR', 'optical-music-recognition', 'AI', 'machine-learning', 'image-processing'],

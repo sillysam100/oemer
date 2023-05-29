@@ -21,11 +21,8 @@ https://user-images.githubusercontent.com/24308057/136168551-2e705c2d-8cf5-4063-
 # Install from PyPi
 pip install oemer
 
-# (optional) Install the GPU version
-pip install oemer[gpu]
-
-# (optional) Install the full version, with both onnxruntime-gpu and tensorflow included
-pip install oemer[full]
+# (optional) Install the Tensorflow version.
+pip install oemer[tf]
 
 # (optional) Or install the newest updates directly from Github.
 pip install https://github.com/BreezeWhite/oemer
