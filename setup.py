@@ -1,8 +1,16 @@
+import sys
 import setuptools
 
 
 with open("README.md") as red:
     ldest = red.read()
+
+
+if sys.platform == 'darwin':
+    onnx_package = 'onnxruntime'
+else:
+    onnx_package = 'onnxruntime-gpu'
+
 
 setuptools.setup(
     name='oemer',
@@ -26,7 +34,7 @@ setuptools.setup(
             ]
     },
     install_requires=[
-        'onnxruntime-gpu',
+        onnx_package,
         'opencv-python-headless>=4.5.3.56',
         'matplotlib',
         'pillow',
