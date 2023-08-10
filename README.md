@@ -39,6 +39,12 @@ With GPU, this usually takes around 3~5 minutes to finish. For the first time ru
 Default to use **Onnxruntime** for inference. If you want to use **Tensorflow** for running the inference,
 add `--use-tf` to the command and make sure there is TF installed.
 
+
+## Issue
+
+### IMPORTANT!!
+***Please follow the issue template, fill in all required information. Otherwise, the issue will be closed directly without further processing!***
+
 If you encounter errors, try adding `--without-deskew` first (see [issue #9](https://github.com/BreezeWhite/oemer/issues/9)). If the problem still exists, file an issue and make sure following the template format.
 
 ### Available options
