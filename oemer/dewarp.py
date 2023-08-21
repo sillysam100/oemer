@@ -284,7 +284,7 @@ def estimate_coords(staff_pred):
 
 
 def dewarp(img, coords_x, coords_y):
-    return cv2.remap(img.astype(np.float32), coords_x,coords_y, cv2.INTER_CUBIC)
+    return cv2.remap(img.astype(np.float32), coords_x,coords_y, cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)
 
 
 if __name__ == "__main__":
@@ -326,7 +326,7 @@ if __name__ == "__main__":
     grid_x, grid_y = np.mgrid[0:gg_map.shape[0]:1, 0:gg_map.shape[1]:1]
     mapping = griddata(points, vals, (grid_x, grid_y), method='linear')
     for i in range(out.shape[-1]):
-        out[..., i] = cv2.remap(out[..., i].astype(np.float32), grid_y.astype(np.float32), mapping.astype(np.float32), cv2.INTER_CUBIC)
+        out[..., i] = cv2.remap(out[..., i].astype(np.float32), grid_y.astype(np.float32), mapping.astype(np.float32), cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)
 
     mix = np.hstack([ori_img, out])
 
