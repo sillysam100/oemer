@@ -468,7 +468,7 @@ class AddNote(Action):
         self.chord = chord
         self.voice = voice
 
-    def perform(self, parent_elem: Element = None) -> Element:
+    def perform(self, parent_elem: Optional[Element] = None) -> Element:
         clef_type = self.ctx.clefs[self.note.track].label
         chroma = get_chroma_pitch(self.note.staff_line_pos, clef_type)
         cur_sfn = self.ctx.sfn_state[chroma]
@@ -487,7 +487,7 @@ class AddRest(Action):
         super().__init__(**kwargs)
         self.rest = rest
 
-    def perform(self, parent_elem: Element = None) -> Element:
+    def perform(self, parent_elem: Optional[Element] = None) -> Element:
         elem = decode_rest(self.rest)
         if parent_elem is not None:
             parent_elem.append(elem)
@@ -524,7 +524,7 @@ class AddMeasure(Action):
         self.measure = measure
         self.add_break = add_break
 
-    def perform(self, parent_elem: Element = None) -> Element:
+    def perform(self, parent_elem: Optional[Element] = None) -> Element:
         self.init_sfn_state()
         elem = Element('measure', attrib={'number': str(self.measure.number)})
         if self.add_break:
@@ -540,7 +540,7 @@ class AddInit(Action):
         assert measure.at_beginning
         self.measure = measure
 
-    def perform(self, parent_elem: Element = None) -> Element:
+    def perform(self, parent_elem: Optional[Element] = None) -> Element:
         self.ctx.key = self.measure.get_key()
         self.ctx.clefs = self.measure.get_track_clef()
         self.init_sfn_state()
@@ -567,7 +567,7 @@ class AddInit(Action):
 
 
 class MusicXMLBuilder:
-    def __init__(self, title: str = None) -> None:
+    def __init__(self, title: Optional[str] = None) -> None:
         self.measures: dict[int, list[Measure]] = {}
         self.actions: list[Action] = []
         self.title: str = title
@@ -1066,7 +1066,7 @@ def build_part_list() -> Element:
     return parts
 
 
-def build_work(f_name: str = None) -> Element:
+def build_work(f_name: Optional[str] = None) -> Element:
     work = Element("work")
     title = SubElement(work, "work-title")
     title.text = f_name if f_name is not None else "End-to-end OMR"
