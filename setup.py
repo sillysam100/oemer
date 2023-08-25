@@ -31,7 +31,6 @@ setuptools.setup(
         'matplotlib',
         'pillow',
         'scipy',
-        'numpy',
         'scikit-learn>=1.2',
         'types-Pillow',
         'types-tensorflow'
