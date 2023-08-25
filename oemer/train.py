@@ -467,7 +467,7 @@ def train_model(
     return model
 
 
-def resize_image(image: Image):
+def resize_image(image: Image.Image):
     # Estimate target size with number of pixels.
     # Best number would be 3M~4.35M pixels.
     w, h = image.size

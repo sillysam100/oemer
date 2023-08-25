@@ -16,7 +16,7 @@ def draw_bbox(bboxes, color, text=None, labels=None, text_y_pos=1):
             cv2.putText(out, labels[idx], (x2+2, y_pos), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 1)
 
 
-def teaser() -> Image:
+def teaser() -> Image.Image:
     ori_img = layers.get_layer('original_image')
     notes = layers.get_layer('notes')
     groups = layers.get_layer('note_groups')

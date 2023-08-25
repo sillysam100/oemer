@@ -7,6 +7,7 @@ from xml.dom import minidom
 from xml.etree.ElementTree import Element, SubElement
 
 import numpy as np
+from typing import Union
 
 from oemer import layers
 from oemer.symbol_extraction import Barline, Clef, Sfn, Rest, SfnType, ClefType, RestType
@@ -395,7 +396,7 @@ class Measure:
 class Action:
 
     class Context:
-        key: Key = None
+        key: Union[Key, None] = None
         clefs: List[Clef] = []
         sfn_state: Mapping[str, Sfn] = {chr(ord('A')+i):None for i in range(7)}
 
