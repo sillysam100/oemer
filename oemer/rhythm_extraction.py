@@ -22,6 +22,7 @@ from typing import Dict
 dot_img: ndarray
 ratio_img: ndarray
 beam_img: ndarray
+ratio_map: ndarray
 
 logger = get_logger(__name__)
 
@@ -83,7 +84,7 @@ def parse_dot(min_area_ratio: float = 0.08, max_area_ratio: float = 0.2) -> None
         gbox = group.bbox
         unit_size = get_unit_size(*get_center(gbox))
         nbox = np.array([notes[nid].bbox for nid in nids])
-        nbox = (np.min(nbox[:, 0]), np.min(nbox[:, 1]), np.max(nbox[:, 2]), np.max(nbox[:, 3]))
+        nbox = (np.min(nbox[:, 0]), np.min(nbox[:, 1]), np.max(nbox[:, 2]), np.max(nbox[:, 3])) # type: ignore
         min_count = round(unit_size**2 * min_area_ratio)
         max_count = round(unit_size**2 * max_area_ratio)
 
@@ -145,10 +146,10 @@ def parse_beams(min_area_ratio: float = 0.07, min_tp_ratio: float = 0.4, min_wid
     valid_box = []
     valid_idxs = []
     idx_map = np.zeros_like(poly_map) - 1
-    for idx, rbox in enumerate(rboxes):
+    for idx, rbox in enumerate(rboxes): # type: ignore
         # Used to find indexes of contour areas later. Must be check before
         # any 'continue' statement.
-        idx %= 255
+        idx %= 255 # type: ignore
         if idx == 0:
             idx_map = np.zeros_like(poly_map) - 1
 
@@ -231,7 +232,7 @@ def parse_beam_overlap_regions(poly_map: ndarray, invalid_map: ndarray) -> Tuple
     sym_map, _ = scipy.ndimage.label(mix)
 
     out_map = np.zeros_like(reg_map)
-    map_info = {}
+    map_info: Any = {}
     for idx in range(1, feat_num+1):
         mask = (reg_map == idx)
         sym_labels = set(np.unique(sym_map[mask]))
@@ -271,7 +272,7 @@ def refine_map_info(map_info: Dict[int, Dict[str, Any]]) -> Dict[int, Dict[str, 
     groups = layers.get_layer('note_groups')
     group_map = layers.get_layer('group_map')
 
-    new_map_info = {}
+    new_map_info: Any = {}
     rev_map = {}
     for reg, info in map_info.items():
         cur_gids = info['gids']
@@ -383,14 +384,14 @@ def scan_beam_flag(
         if c not in stat:
             stat[c] = 0
         stat[c] += 1
-    stat = sorted(stat.items(), key=lambda s: s[0], reverse=True)
+    stat = sorted(stat.items(), key=lambda s: s[0], reverse=True) # type: ignore
 
     # At least there are such amount agreed with that there
     # are this number of beams/flags.
     accum = 0
     min_num = len(counter) * threshold
-    for c, num in stat:
-        accum += num
+    for c, num in stat: # type: ignore
+        accum += num # type: ignore
         if accum > min_num:
             return c
     return 0
@@ -535,8 +536,8 @@ def parse_rhythm(beam_map: ndarray, map_info: Dict[int, Dict[str, Any]], agree_t
         count = {k: 0 for k in set(labels)}
         for l in labels:
             count[l] += 1
-        count = sorted(count.items(), key=lambda c: c[1], reverse=True)
-        label = count[0][0]
+        count = sorted(count.items(), key=lambda c: c[1], reverse=True) # type: ignore
+        label = count[0][0] # type: ignore
         if label == NoteType.HALF_OR_WHOLE:
             # This group contians only half notes
             for nid in group.note_ids:
@@ -565,7 +566,7 @@ def parse_rhythm(beam_map: ndarray, map_info: Dict[int, Dict[str, Any]], agree_t
             end_y = gbox[3]
 
         # Calculate how many beams/flags are there.
-        count = scan_beam_flag(
+        count = scan_beam_flag( # type: ignore
             bin_beam_map,
             max(reg_box[0], cen_x-half_scan_width),
             start_y,
@@ -580,7 +581,7 @@ def parse_rhythm(beam_map: ndarray, map_info: Dict[int, Dict[str, Any]], agree_t
         # Assign note label
         for nid in group.note_ids:
             if notes[nid].label is None:
-                notes[nid].label = note_type_map[count]
+                notes[nid].label = note_type_map[count] # type: ignore
 
     return beam_img
 

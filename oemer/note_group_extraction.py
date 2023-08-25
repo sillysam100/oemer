@@ -16,9 +16,7 @@ from oemer.bbox import (
 )
 from numpy import float64
 from numpy import ndarray
-from typing import Dict
-from typing import List
-from typing import Tuple
+from typing import Dict, List, Tuple, Any
 
 # Globals
 grp_img: ndarray
@@ -28,20 +26,20 @@ logger = get_logger(__name__)
 
 class NoteGroup:
     def __init__(self) -> None:
-        self.id: int = None
-        self.bbox: list[int] = None
+        self.id: int | Any = None
+        self.bbox: list[int] | Any = None
         self.note_ids: list[int] = []
         self.top_note_ids: list[int] = []  # For multi-melody cases
         self.bottom_note_ids: list[int] = []  # For multi-melody cases
-        self.stem_up: bool = None
-        self.has_stem: bool = None
-        self.all_same_type: bool = None  # All notes are solid or hollow
-        self.group: int = None
-        self.track: int = None
+        self.stem_up: bool | Any = None
+        self.has_stem: bool | Any = None
+        self.all_same_type: bool | Any = None  # All notes are solid or hollow
+        self.group: int | Any = None
+        self.track: int | Any = None
 
     @property
     def x_center(self) -> float64:
-        return (self.bbox[0] + self.bbox[2]) / 2
+        return float64((self.bbox[0] + self.bbox[2]) / 2)
 
     def __len__(self):
         return len(self.note_ids)
@@ -72,7 +70,7 @@ def group_noteheads() -> Tuple[Dict[int, List[int]], ndarray]:
     if -1 in nids:
         nids.remove(-1)
 
-    groups = {}
+    groups: Any = {}
     for nid in nids:
         nys, nxs = np.where(note_id_map==nid)
 
@@ -213,7 +211,7 @@ def parse_stem_direction(groups: Dict[int, List[int]], group_map: ndarray, toler
         gy, gx = np.where(group_map==gp)
         gbox = (np.min(gx), np.min(gy), np.max(gx), np.max(gy))
         nbox = np.array([notes[nid].bbox for nid in nids])
-        nbox = (np.min(nbox[:, 0]), np.min(nbox[:, 1]), np.max(nbox[:, 2]), np.max(nbox[:, 3]))
+        nbox = (np.min(nbox[:, 0]), np.min(nbox[:, 1]), np.max(nbox[:, 2]), np.max(nbox[:, 3])) # type: ignore
         nh = np.mean([notes[nid].bbox[3]-notes[nid].bbox[1] for nid in nids])  # Average note height in this group
         tolerance = nh * tolerance_ratio
 
@@ -289,7 +287,7 @@ def gen_groups(groups: Dict[int, List[int]], group_map: ndarray) -> Tuple[List[N
         gy, gx = np.where(group_map==gid)
         gbox = (np.min(gx), np.min(gy), np.max(gx), np.max(gy))
         nbox = np.array([notes[nid].bbox for nid in nids])
-        nbox = (np.min(nbox[:, 0]), np.min(nbox[:, 1]), np.max(nbox[:, 2]), np.max(nbox[:, 3]))
+        nbox = (np.min(nbox[:, 0]), np.min(nbox[:, 1]), np.max(nbox[:, 2]), np.max(nbox[:, 3])) # type: ignore
 
         cv2.rectangle(grp_img, (gbox[0], gbox[1]), (gbox[2], gbox[3]), (255, 0, 0), 2)
         cv2.rectangle(grp_img, (nbox[0], nbox[1]), (nbox[2], nbox[3]), (0, 0, 255), 2)
@@ -326,7 +324,7 @@ def gen_groups(groups: Dict[int, List[int]], group_map: ndarray) -> Tuple[List[N
         if not (same_track and same_group):
             y_mass_center = (gbox[1] + gbox[3]) / 2
             x_mass_center = (gbox[0] + gbox[2]) / 2
-            st, _ = find_closest_staffs(x_mass_center, y_mass_center)
+            st, _ = find_closest_staffs(x_mass_center, y_mass_center) # type: ignore
             tar_track = st.track
             tar_group = st.group
             for nid in nids:
@@ -362,11 +360,11 @@ def extract() -> Tuple[List[NoteGroup], ndarray]:
     groups, group_map = parse_stem_direction(groups, group_map)
 
     logger.debug("Instanitiating note groups")
-    groups, group_map = gen_groups(groups, group_map)
+    groups, group_map = gen_groups(groups, group_map) # type: ignore
 
     logger.debug("Post check notes in groups")
 
-    return groups, group_map
+    return groups, group_map # type: ignore
 
 
 def predict_symbols():
@@ -420,4 +418,4 @@ if __name__ == "__main__":
     groups, c_map = gen_groups(b_groups, b_map)
 
     bboxes = [g.bbox for g in groups]
-    out = draw_bounding_boxes(bboxes, notehead)
+    out = draw_bounding_boxes(bboxes, notehead) # type: ignore

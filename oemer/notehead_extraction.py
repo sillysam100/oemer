@@ -12,8 +12,7 @@ from oemer.logging import get_logger
 from oemer.staffline_extraction import Staff
 from numpy import float64
 from numpy import ndarray
-from typing import List
-from typing import Tuple
+from typing import List, Tuple, Any
 
 # Globals
 nn_img: ndarray
@@ -39,24 +38,24 @@ class NoteType(enum.Enum):
 class NoteHead:
     def __init__(self) -> None:
         self.points: list[tuple] = []
-        self.pitch: int = None
+        self.pitch: int | Any = None
         self.has_dot: bool = False
-        self.bbox: list[float] = None  # XYXY
-        self.stem_up: bool = None
-        self.stem_right: bool = None
-        self.track: int = None
-        self.group: int = None
-        self.staff_line_pos: int = None
-        self.invalid: bool = False  # May be false positive
-        self.id: int = None
-        self.note_group_id: int = None
-        self.sfn = None  # See symbols_extraction.py
+        self.bbox: list[float] | Any = None  # XYXY
+        self.stem_up: bool | Any = None
+        self.stem_right: bool | Any = None
+        self.track: int | Any = None
+        self.group: int | Any = None
+        self.staff_line_pos: int | Any = None
+        self.invalid: bool | Any = False  # May be false positive
+        self.id: int | Any = None
+        self.note_group_id: int | Any = None
+        self.sfn: Any = None  # See symbols_extraction.py
 
         # Protected attributes
-        self._label: NoteType = None
+        self._label: NoteType | Any = None
 
     @property
-    def label(self) -> NoteType:
+    def label(self) -> NoteType | Any:
         if self.invalid:
             logger.warning(f"Note {self.id} is not a valid note.")
             return None
@@ -228,10 +227,10 @@ def get_notehead_bbox(
     note = morph_notehead(pred, unit_size=global_unit_size)
     bboxes = get_bbox(note)
     bboxes = rm_merge_overlap_bbox(bboxes)
-    result_bboxes = []
+    result_bboxes: Any = []
     for box in bboxes:
         unit_size = get_unit_size(*get_center(box))
-        box = check_bbox_size(box, pred, unit_size)
+        box = check_bbox_size(box, pred, unit_size) # type: ignore
         result_bboxes.extend(box)
     logger.debug("Detected noteheads: %d", len(result_bboxes))
 
@@ -274,8 +273,8 @@ def fill_hole(region: ndarray) -> ndarray:
             cand_x.append(cur)
             cur += 1
         if cur < w:
-            cand_y = np.array(cand_y)
-            cand_x = np.array(cand_x)
+            cand_y = np.array(cand_y) # type: ignore
+            cand_x = np.array(cand_x) # type: ignore
             tar[cand_y, cand_x] = 1
 
     # Scan by column
@@ -298,8 +297,8 @@ def fill_hole(region: ndarray) -> ndarray:
                 cand_x.append(xi)
                 cur += 1
             if cur < h:
-                cand_y = np.array(cand_y)
-                cand_x = np.array(cand_x)
+                cand_y = np.array(cand_y) # type: ignore
+                cand_x = np.array(cand_x) # type: ignore
                 tar[cand_y, cand_x] = 1
     return tar
 
@@ -382,7 +381,7 @@ def parse_stem_info(notes: List[NoteHead]) -> None:
 
     for note in notes:
         box = note.bbox
-        region = st_map[box[1]:box[3], box[0]:box[2]]
+        region = st_map[box[1]:box[3], box[0]:box[2]] # type: ignore
         lls = set(np.unique(region))
         if 0 in lls:
             lls.remove(0)
@@ -441,7 +440,8 @@ def extract(
     solid_box = []
     hollow_box = []
     for box in merged_box:
-        box = np.array(box) - 1  # Fix shifting caused by morphing
+        # Fix shifting caused by morphing
+        box = np.array(box) - 1  # type: ignore
         region = symbols[box[1]:box[3], box[0]:box[2]]
         count = region[region>0].size
         if count == 0:
@@ -461,8 +461,8 @@ def extract(
 
     # Assign notes with extracted infromation
     logger.info("Instanitiating notes")
-    solid_notes = gen_notes(solid_box, symbols)
-    hollow_notes = gen_notes(hollow_box, symbols)
+    solid_notes = gen_notes(solid_box, symbols) # type: ignore
+    hollow_notes = gen_notes(hollow_box, symbols) # type: ignore
 
     logger.debug("Setting temporary note type")
     for idx in range(len(hollow_notes)):

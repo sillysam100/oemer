@@ -32,7 +32,7 @@ def filter_out_small_area(bboxes: Union[List[Tuple[int, int, int, int]], List[Tu
             size = area_size
         else:
             unit_size = get_unit_size(*get_center(box))
-            size = area_size_func(unit_size)
+            size = area_size_func(unit_size) # type: ignore
         if w * h > size:
             valid_box.append(box)
     return valid_box

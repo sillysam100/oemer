@@ -14,13 +14,13 @@ from typing import Union
 out: ndarray
 
 def draw_bbox(bboxes: Union[List[Tuple[int, int, int, int]], List[ndarray]], color: Tuple[int, int, int], text: Optional[str] = None, labels: Optional[List[str]] = None, text_y_pos: float = 1) -> None:
-    for idx, (x1, y1, x2, y2) in enumerate(bboxes):
-        cv2.rectangle(out, (x1, y1), (x2, y2), color, 2)
-        y_pos = y1 + round((y2-y1)*text_y_pos)
+    for idx, (x1, y1, x2, y2) in enumerate(bboxes): # type: ignore
+        cv2.rectangle(out, (x1, y1), (x2, y2), color, 2) # type: ignore
+        y_pos = y1 + round((y2-y1)*text_y_pos) # type: ignore
         if text is not None:
-            cv2.putText(out, text, (x2+2, y_pos), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 1)
+            cv2.putText(out, text, (x2+2, y_pos), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 1) # type: ignore
         else:
-            cv2.putText(out, labels[idx], (x2+2, y_pos), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 1)
+            cv2.putText(out, labels[idx], (x2+2, y_pos), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 1) # type: ignore
 
 
 def teaser() -> Image.Image:

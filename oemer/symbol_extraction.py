@@ -59,10 +59,10 @@ class RestType(enum.Enum):
 
 class Clef:
     def __init__(self) -> None:
-        self.bbox: list[int] = None
-        self.track: int = None
-        self.group: int = None
-        self._label: ClefType = None
+        self.bbox: list[int] | Any = None
+        self.track: int | Any = None
+        self.group: int | Any = None
+        self._label: ClefType | Any = None
 
     @property
     def label(self) -> ClefType:
@@ -75,7 +75,7 @@ class Clef:
 
     @property
     def x_center(self) -> float64:
-        return (self.bbox[0] + self.bbox[2]) / 2
+        return float64((self.bbox[0] + self.bbox[2]) / 2)
 
     def __repr__(self):
         return f"Clef: {self.label.name} / Track: {self.track} / Group: {self.group}"
@@ -83,12 +83,12 @@ class Clef:
 
 class Sfn:
     def __init__(self) -> None:
-        self.bbox: list[int] = None
-        self.note_id: int = None
-        self.is_key: bool = None  # Whether is key or accidental
-        self.track: int = None
-        self.group: int = None
-        self._label: SfnType = None
+        self.bbox: list[int] | Any = None
+        self.note_id: int | Any = None
+        self.is_key: bool | Any = None  # Whether is key or accidental
+        self.track: int | Any = None
+        self.group: int | Any = None
+        self._label: SfnType | Any = None
 
     @property
     def label(self) -> SfnType:
@@ -101,7 +101,7 @@ class Sfn:
 
     @property
     def x_center(self) -> float64:
-        return (self.bbox[0] + self.bbox[2]) / 2
+        return float64((self.bbox[0] + self.bbox[2]) / 2)
 
     def __repr__(self):
         return f"SFN: {self.label.name} / Note ID: {self.note_id} / Is key: {self.is_key}" \
@@ -110,11 +110,11 @@ class Sfn:
 
 class Rest:
     def __init__(self) -> None:
-        self.bbox: list[int] = None
-        self.has_dot: bool = None
-        self.track: int = None
-        self.group: int = None
-        self._label: RestType = None
+        self.bbox: list[int] | Any = None
+        self.has_dot: bool | Any = None
+        self.track: int | Any = None
+        self.group: int | Any = None
+        self._label: RestType | Any = None
 
     @property
     def label(self) -> RestType:
@@ -127,7 +127,7 @@ class Rest:
 
     @property
     def x_center(self) -> float64:
-        return (self.bbox[0] + self.bbox[2]) / 2
+        return float64((self.bbox[0] + self.bbox[2]) / 2)
 
     def __repr__(self):
         return f"Rest: {self.label.name} / Has dot: {self.has_dot} / Track: {self.track}" \
@@ -136,12 +136,12 @@ class Rest:
 
 class Barline:
     def __init__(self) -> None:
-        self.bbox: list[int] = None
-        self.group: int = None
+        self.bbox: list[int] | Any = None
+        self.group: int | Any = None
 
     @property
     def x_center(self) -> float64:
-        return (self.bbox[0] + self.bbox[2]) / 2
+        return float64((self.bbox[0] + self.bbox[2]) / 2)
 
     def __repr__(self):
         return f"Barline / Group: {self.group}"
@@ -166,11 +166,11 @@ def filter_barlines(lines: List[Tuple[int, int, int, int]], min_height_unit_rati
         valid_lines.append(line)
 
     # Second round check, in bbox mode.
-    valid_lines = np.array(valid_lines)
-    max_x = np.max(valid_lines[..., 2])
-    max_y = np.max(valid_lines[..., 3])
+    valid_lines = np.array(valid_lines) # type: ignore
+    max_x = np.max(valid_lines[..., 2]) # type: ignore
+    max_y = np.max(valid_lines[..., 3]) # type: ignore
     data = np.zeros((max_y+10, max_x+10, 3))
-    data = draw_lines(valid_lines, data, width=1)
+    data = draw_lines(valid_lines, data, width=1) # type: ignore
     boxes = get_bbox(data[..., 1])
     valid_box = []
     for box in boxes:
@@ -188,9 +188,9 @@ def filter_barlines(lines: List[Tuple[int, int, int, int]], min_height_unit_rati
     top_5 = np.mean(heights[-5:])
     norm = np.array(heights) / top_5
     idx = np.where(norm > 0.5)[0]
-    valid_box = np.array(valid_box)[idx]
+    valid_box = np.array(valid_box)[idx] # type: ignore
 
-    return valid_box
+    return valid_box # type: ignore
 
 
 def parse_barlines(group_map: ndarray, stems_rests: ndarray, symbols: ndarray, min_height_unit_ratio: float = 3.75) -> ndarray:
@@ -247,7 +247,7 @@ def filter_clef_box(bboxes: List[Tuple[int, int, int, int]]) -> List[Tuple[int, 
 
 def parse_clefs_keys(clefs_keys: ndarray, unit_size: float64, clef_size_ratio: float = 3.5, max_clef_tp_ratio: float = 0.45) -> Tuple[List[Tuple[int, int, int, int]], List[Tuple[int, int, int, int]], List[str], List[str]]:
     global cs_img
-    cs_img = to_rgb_img(clefs_keys)
+    cs_img = to_rgb_img(clefs_keys) # type: ignore
 
     ker = np.ones((np.int64(unit_size//2), 1), dtype=np.uint8)
     clefs_keys = cv2.erode(cv2.dilate(clefs_keys.astype(np.uint8), ker), ker)
@@ -485,4 +485,4 @@ if __name__ == "__main__":
     aa = draw_symbols(clefs, ori_img)
     bb = draw_symbols(rests, aa, color=(11, 163, 0))
     cc = draw_symbols(sfns, bb, color=(53, 0, 168))
-    dd = draw_bounding_boxes([b.bbox for b in barlines], cc, color=(250, 0, 200))
+    dd = draw_bounding_boxes([b.bbox for b in barlines], cc, color=(250, 0, 200)) # type: ignore

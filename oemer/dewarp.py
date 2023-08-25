@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from oemer.morph import morph_open
 from oemer.logging import get_logger
 from numpy import ndarray
-from typing import List, Tuple
+from typing import List, Tuple, Any
 from typing_extensions import Self
 
 
@@ -20,8 +20,8 @@ logger = get_logger(__name__)
 
 class Grid:
     def __init__(self) -> None:
-        self.id: int = None
-        self.bbox: list[int] = None  # XYXY
+        self.id: int | Any = None
+        self.bbox: list[int] | Any = None  # XYXY
         self.y_shift: int = 0
 
     @property
@@ -35,11 +35,11 @@ class Grid:
 
 class GridGroup:
     def __init__(self) -> None:
-        self.id: int = None
-        self.reg_id: int = None
-        self.bbox: list[int] = None
+        self.id: int | Any = None
+        self.reg_id: int | Any = None
+        self.bbox: list[int] | Any = None
         self.gids: list[int] = []
-        self.split_unit: int = None
+        self.split_unit: int | Any = None
 
     @property
     def y_center(self):
@@ -62,7 +62,7 @@ def build_grid(st_pred: ndarray, split_unit: int = 11) -> Tuple[ndarray, List[Gr
 
     is_on = lambda data: np.sum(data) > split_unit//2
 
-    grids = []
+    grids: Any = []
     for i in range(0, w, split_unit):
         cur_y = 0
         last_y = 0
@@ -191,7 +191,7 @@ def connect_nearby_grid_group(gg_map: ndarray, grid_groups: List[GridGroup], gri
 
                 # Interpolate y centers between the start and end points again.
                 centers = [grid.y_center, centers[0]]
-                x = [-i-1, 0]
+                x = [-i-1, 0] # type: ignore
                 inter_func = interp1d(x, centers, kind='linear')
 
                 # Start to insert grids between points
@@ -211,7 +211,7 @@ def connect_nearby_grid_group(gg_map: ndarray, grid_groups: List[GridGroup], gri
                         max(gg.bbox[3], box[3])
                     )
                     gg.bbox = [int(bb) for bb in gg.bbox]
-                    box = [int(bb) for bb in box]
+                    box = [int(bb) for bb in box] # type: ignore
                     grids.append(grid)
                     new_gg_map[box[1]:box[3], box[0]:box[2]] = gg.id
 
