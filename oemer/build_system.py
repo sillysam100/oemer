@@ -287,19 +287,19 @@ class Measure:
             if has_multi:
                 multi_track_idx.append(idx)
 
-            duras = [[] for _ in range(track_nums)] # type: ignore
+            duras = [[] for _ in range(track_nums)]
             for sym in slot:
                 dura = get_duration(sym)
                 duras[sym.track].append(dura)
-            for track, dura in enumerate(duras): # type: ignore
-                du = min(dura) if dura else 0 # type: ignore
+            for track, dura in enumerate(duras):
+                du = min(dura) if dura else 0
                 track_duras[idx, track] = du
 
         # Decide whether to keep processing
         if track_nums == 1:
-            self.time_slots = time_slots # type: ignore
+            self.time_slots = time_slots
             self.slot_duras = track_duras
-            return # type: ignore
+            return
         assert track_nums == 2, track_nums
 
         # Start adjusting rhythms
