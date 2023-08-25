@@ -12,14 +12,14 @@ from oemer import layers
 from oemer import exceptions as E
 from oemer.logging import get_logger
 from oemer.bbox import find_lines, get_bbox, get_center
-from numpy import int64
+from numpy import int
 from numpy import bool_
 from numpy import float64
 from typing import List, Any, cast
 from typing_extensions import Self
 from numpy import ndarray
 from typing import Tuple
-from numpy import int32
+from numpy import int
 
 
 logger = get_logger(__name__)
@@ -38,7 +38,7 @@ class Line:
         self.points: Any = []
         self.label: LineLabel | None = None
 
-    def add_point(self, y: int64, x: int64) -> None:
+    def add_point(self, y: int, x: int) -> None:
         self.points.append((y, x))
         self._y_center = None
         self._y_upper = None
@@ -292,7 +292,7 @@ class Staff:
         return (x_dist + y_dist) ** 0.5
 
 
-def init_zones(staff_pred: ndarray, splits: int) -> Tuple[ndarray, int, int, int64]:
+def init_zones(staff_pred: ndarray, splits: int) -> Tuple[ndarray, int, int, int]:
     ys, xs = np.where(staff_pred > 0)
 
     # Define left and right bound
@@ -376,7 +376,7 @@ def extract(splits: int = 8, line_threshold: float = 0.8, horizontal_diff_th: fl
     return np.array(all_staffs), zones
 
 
-def extract_part(pred: ndarray, x_offset: int64, line_threshold: float = 0.8) -> List[Staff]:
+def extract_part(pred: ndarray, x_offset: int, line_threshold: float = 0.8) -> List[Staff]:
     # Extract lines
     lines, _ = extract_line(pred, x_offset=x_offset, line_threshold=line_threshold)
 
@@ -407,7 +407,7 @@ def extract_part(pred: ndarray, x_offset: int64, line_threshold: float = 0.8) ->
     return staffs
 
 
-def extract_line(pred: ndarray, x_offset: int64, line_threshold: float = 0.8) -> Tuple[ndarray, ndarray]:
+def extract_line(pred: ndarray, x_offset: int, line_threshold: float = 0.8) -> Tuple[ndarray, ndarray]:
     # Split into zones horizontally and detects staff lines separately.
     count = np.zeros(len(pred), dtype=np.uint16)
     sub_ys, sub_xs = np.where(pred > 0)
@@ -641,11 +641,11 @@ def further_infer_track_nums(staffs: ndarray, min_degree: int = 75) -> int:
     return num_track
 
 
-def get_degree(line: Tuple[int32, int32, int32, int32]) -> float64:
+def get_degree(line: Tuple[int, int, int, int]) -> float64:
     return np.rad2deg(np.arctan2(line[3] - line[1], line[2] - line[0]))
 
 
-def filter_lines(lines: List[Tuple[int32, int32, int32, int32]], staffs: ndarray, min_degree: int = 75) -> List[Tuple[int32, int32, int32, int32]]:
+def filter_lines(lines: List[Tuple[int, int, int, int]], staffs: ndarray, min_degree: int = 75) -> List[Tuple[int, int, int, int]]:
     min_y = 9999999
     min_x = 9999999
     max_y = 0
@@ -674,7 +674,7 @@ def filter_lines(lines: List[Tuple[int32, int32, int32, int32]], staffs: ndarray
     return cands
 
 
-def get_barline_map(symbols: ndarray, bboxes: List[Tuple[int32, int32, int32, int32]]) -> ndarray:
+def get_barline_map(symbols: ndarray, bboxes: List[Tuple[int, int, int, int]]) -> ndarray:
     img = np.zeros_like(symbols)
     for box in bboxes:
         box = list(box)

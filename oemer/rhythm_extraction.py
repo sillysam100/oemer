@@ -12,11 +12,11 @@ from oemer.bbox import get_center, get_rotated_bbox, to_rgb_img, draw_bounding_b
 from oemer.notehead_extraction import NoteType
 from oemer.morph import morph_open, morph_close
 from numpy import float64
-from numpy import int64
+from numpy import int
 from numpy import ndarray
 from typing import Tuple
 from typing import List
-from numpy import int32
+from numpy import int
 from typing import Any
 from typing import Dict
 
@@ -24,7 +24,7 @@ from typing import Dict
 logger = get_logger(__name__)
 
 
-def scan_dot(symbols: ndarray, note_id_map: ndarray, bbox: Tuple[int64, int64, int64, int64], unit_size: float64, min_count: int, max_count: int) -> bool:
+def scan_dot(symbols: ndarray, note_id_map: ndarray, bbox: Tuple[int, int, int, int], unit_size: float64, min_count: int, max_count: int) -> bool:
     right_bound = bbox[2] + 1
     start_y = bbox[1] - round(unit_size / 2)
     while True:
@@ -206,7 +206,7 @@ def parse_beams(min_area_ratio: float = 0.07, min_tp_ratio: float = 0.4, min_wid
     return poly_map, valid_box, invalid_map
 
 
-def parse_beam_overlap_regions(poly_map: ndarray, invalid_map: ndarray) -> Tuple[ndarray, Dict[int32, Dict[str, Any]]]:
+def parse_beam_overlap_regions(poly_map: ndarray, invalid_map: ndarray) -> Tuple[ndarray, Dict[int, Dict[str, Any]]]:
     # Fetch parameters
     symbols = layers.get_layer('symbols_pred')
     group_map = layers.get_layer('group_map')
@@ -264,7 +264,7 @@ def parse_beam_overlap_regions(poly_map: ndarray, invalid_map: ndarray) -> Tuple
     return out_map, map_info
 
 
-def refine_map_info(map_info: Dict[int32, Dict[str, Any]]) -> Dict[int32, Dict[str, Any]]:
+def refine_map_info(map_info: Dict[int, Dict[str, Any]]) -> Dict[int, Dict[str, Any]]:
     # Fetch parameters
     groups = layers.get_layer('note_groups')
     group_map = layers.get_layer('group_map')
@@ -313,7 +313,7 @@ def refine_map_info(map_info: Dict[int32, Dict[str, Any]]) -> Dict[int32, Dict[s
     return new_map_info
 
 
-def get_stem_x(gbox: Tuple[int64, int64, int64, int64], nboxes: List[ndarray], unit_size: float64, is_right: bool = True) -> int64:
+def get_stem_x(gbox: Tuple[int, int, int, int], nboxes: List[ndarray], unit_size: float64, is_right: bool = True) -> int:
     all_same_side = all(abs(nb[2]-gbox[2])<unit_size/3 for nb in nboxes)
     stem_at_center = not all_same_side
     if stem_at_center:
@@ -326,10 +326,10 @@ def get_stem_x(gbox: Tuple[int64, int64, int64, int64], nboxes: List[ndarray], u
 
 def scan_beam_flag(
     poly_map: ndarray,
-    start_x: int64,
-    start_y: int64,
-    end_x: int64,
-    end_y: int64,
+    start_x: int,
+    start_y: int,
+    end_x: int,
+    end_y: int,
     threshold: float = 0.1,
     min_width_ratio: float = 0.25,
     max_width_ratio: float = 0.9) -> int:
@@ -469,7 +469,7 @@ def parse_inner_groups(poly_map, group, set_box, note_type_map, half_scan_width,
                 group.top_note_ids.append(nn.id)
 
 
-def parse_rhythm(beam_map: ndarray, map_info: Dict[int32, Dict[str, Any]], agree_th: float = 0.15) -> ndarray:
+def parse_rhythm(beam_map: ndarray, map_info: Dict[int, Dict[str, Any]], agree_th: float = 0.15) -> ndarray:
     # Fetch parameters
     groups = layers.get_layer('note_groups')
     notes = layers.get_layer('notes') 

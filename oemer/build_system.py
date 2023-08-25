@@ -22,7 +22,7 @@ from numpy import float64
 from numpy import ndarray
 from typing import Tuple
 from typing import Dict
-from numpy import int64
+from numpy import int
 
 
 logger = get_logger(__name__)
@@ -749,7 +749,7 @@ def get_voices() -> List[Voice]:
     notes = layers.get_layer('notes')
 
     voices = []
-    def add_voice(grp: NoteGroup, nids: List[int64], stem_up: bool) -> None:
+    def add_voice(grp: NoteGroup, nids: List[int], stem_up: bool) -> None:
         nids = [nid for nid in nids if not notes[nid].invalid]
         if len(nids) == 0:
             return
@@ -843,7 +843,7 @@ def get_rest(duration):
     return rest
 
 
-def get_chroma_pitch(pos: int64, clef_type: ClefType) -> str:
+def get_chroma_pitch(pos: int, clef_type: ClefType) -> str:
     order = G_CLEF_POS_TO_PITCH if clef_type == ClefType.G_CLEF else F_CLEF_POS_TO_PITCH
     pos = int(pos)
     return order[pos%7] if pos >= 0 else order[pos%-7]

@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 
 from oemer import layers
-from numpy import int64
+from numpy import int
 from numpy import ndarray
 from typing import List
 from typing import Optional
@@ -12,7 +12,7 @@ from typing import Tuple
 from typing import Union
 
 
-def draw_bbox(bboxes: Union[List[Tuple[int64, int64, int64, int64]], List[ndarray]], color: Tuple[int, int, int], text: Optional[str] = None, labels: Optional[List[str]] = None, text_y_pos: float = 1) -> None:
+def draw_bbox(bboxes: Union[List[Tuple[int, int, int, int]], List[ndarray]], color: Tuple[int, int, int], text: Optional[str] = None, labels: Optional[List[str]] = None, text_y_pos: float = 1) -> None:
     for idx, (x1, y1, x2, y2) in enumerate(bboxes):
         cv2.rectangle(out, (x1, y1), (x2, y2), color, 2)
         y_pos = y1 + round((y2-y1)*text_y_pos)

@@ -9,7 +9,7 @@ from . import layers
 from oemer.staffline_extraction import Staff
 from typing import Tuple
 from numpy import float64
-from numpy import int32
+from numpy import int
 
 def count(data, intervals):
     """Count elements in different intervals"""
@@ -101,5 +101,5 @@ def estimate_degree(points, **kwargs):
     return slope_to_degree(model.coef_[0])
 
 
-def slope_to_degree(y_diff: int32, x_diff: int32) -> float64:
+def slope_to_degree(y_diff: int, x_diff: int) -> float64:
     return np.rad2deg(np.arctan2(y_diff, x_diff))

@@ -10,7 +10,7 @@ from oemer.bbox import get_bbox, get_center, merge_nearby_bbox, rm_merge_overlap
 from oemer.utils import get_unit_size, find_closest_staffs, get_global_unit_size
 from oemer.logging import get_logger
 from oemer.staffline_extraction import Staff
-from numpy import int64
+from numpy import int
 from numpy import float64
 from numpy import ndarray
 from typing import List
@@ -74,7 +74,7 @@ class NoteHead:
         assert isinstance(label, NoteType)
         self._label = label
 
-    def add_point(self, x: int64, y: int64) -> None:
+    def add_point(self, x: int, y: int) -> None:
         self.points.append((y, x))
 
     def __lt__(self, nt):

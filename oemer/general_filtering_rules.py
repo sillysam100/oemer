@@ -1,17 +1,17 @@
 from . import layers
 from .utils import get_unit_size
 from .bbox import get_center
-from numpy import int32
+from numpy import int
 from typing import List
 from typing import Tuple
 from typing import Union
-from numpy import int64
+from numpy import int
 from typing import Any
 from typing import Callable
 from typing import Optional
 
 
-def filter_out_of_range_bbox(bboxes: Union[List[Tuple[int, int, int, int]], List[Tuple[int32, int32, int32, int32]]]) -> Union[List[Tuple[int, int, int, int]], List[Tuple[int32, int32, int32, int32]]]:
+def filter_out_of_range_bbox(bboxes: Union[List[Tuple[int, int, int, int]], List[Tuple[int, int, int, int]]]) -> Union[List[Tuple[int, int, int, int]], List[Tuple[int, int, int, int]]]:
     zones = layers.get_layer('zones')
     max_x = zones[-1][-1]
     min_x = zones[0][0]
@@ -25,7 +25,7 @@ def filter_out_of_range_bbox(bboxes: Union[List[Tuple[int, int, int, int]], List
     return valid_box
  
 
-def filter_out_small_area(bboxes: Union[List[Tuple[int, int, int, int]], List[Tuple[int64, int64, int64, int64]]], area_size: Optional[Any] = None, area_size_func: Callable = None) -> Union[List[Tuple[int, int, int, int]], List[Tuple[int64, int64, int64, int64]]]:
+def filter_out_small_area(bboxes: Union[List[Tuple[int, int, int, int]], List[Tuple[int, int, int, int]]], area_size: Optional[Any] = None, area_size_func: Callable = None) -> Union[List[Tuple[int, int, int, int]], List[Tuple[int, int, int, int]]]:
     valid_box = []
     for box in bboxes:
         w = box[2] - box[0]

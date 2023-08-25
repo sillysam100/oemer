@@ -22,10 +22,10 @@ from oemer.bbox import (
     to_rgb_img
 )
 from numpy import float64
-from numpy import int64
+from numpy import int
 from typing import List
 from typing import Tuple
-from numpy import int32
+from numpy import int
 from numpy import ndarray
 from typing import Any
 from typing import Optional
@@ -147,7 +147,7 @@ class Barline:
         return f"Barline / Group: {self.group}"
 
 
-def filter_barlines(lines: List[Tuple[int32, int32, int32, int32]], min_height_unit_ratio: float = 3.75) -> ndarray:
+def filter_barlines(lines: List[Tuple[int, int, int, int]], min_height_unit_ratio: float = 3.75) -> ndarray:
     lines = filter_out_of_range_bbox(lines)
     # lines = merge_nearby_bbox(lines, 100, x_factor=100)
     lines = rm_merge_overlap_bbox(lines, mode='merge', overlap_ratio=0)
@@ -224,7 +224,7 @@ def parse_barlines(group_map: ndarray, stems_rests: ndarray, symbols: ndarray, m
     return line_box
 
 
-def filter_clef_box(bboxes: List[Tuple[int64, int64, int64, int64]]) -> List[Tuple[int64, int64, int64, int64]]:
+def filter_clef_box(bboxes: List[Tuple[int, int, int, int]]) -> List[Tuple[int, int, int, int]]:
     valid_box = []
     for box in bboxes:
         w = box[2] - box[0]
@@ -245,7 +245,7 @@ def filter_clef_box(bboxes: List[Tuple[int64, int64, int64, int64]]) -> List[Tup
     return valid_box
 
 
-def parse_clefs_keys(clefs_keys: ndarray, unit_size: float64, clef_size_ratio: float = 3.5, max_clef_tp_ratio: float = 0.45) -> Tuple[List[Tuple[int64, int64, int64, int64]], List[Tuple[int64, int64, int64, int64]], List[str], List[str]]:
+def parse_clefs_keys(clefs_keys: ndarray, unit_size: float64, clef_size_ratio: float = 3.5, max_clef_tp_ratio: float = 0.45) -> Tuple[List[Tuple[int, int, int, int]], List[Tuple[int, int, int, int]], List[str], List[str]]:
     global cs_img
     cs_img = to_rgb_img(clefs_keys)
 
@@ -276,7 +276,7 @@ def parse_clefs_keys(clefs_keys: ndarray, unit_size: float64, clef_size_ratio: f
 
     clef_box = filter_clef_box(clef_box)
 
-    def pred_symbols(bboxes: List[Tuple[int64, int64, int64, int64]], model_name: str) -> List[str]:
+    def pred_symbols(bboxes: List[Tuple[int, int, int, int]], model_name: str) -> List[str]:
         label = []
         for x1, y1, x2, y2 in bboxes:
             region = np.copy(clefs_keys[y1:y2, x1:x2])
@@ -291,7 +291,7 @@ def parse_clefs_keys(clefs_keys: ndarray, unit_size: float64, clef_size_ratio: f
     return clef_box, key_box, clef_label, key_label
 
 
-def parse_rests(line_box: ndarray, unit_size: float64) -> Tuple[List[Tuple[int64, int64, int64, int64]], List[str]]:
+def parse_rests(line_box: ndarray, unit_size: float64) -> Tuple[List[Tuple[int, int, int, int]], List[str]]:
     stems_rests = layers.get_layer('stems_rests_pred')
     group_map = layers.get_layer('group_map')
 
@@ -343,7 +343,7 @@ def gen_barlines(bboxes: ndarray) -> List[Barline]:
     return barlines
 
 
-def gen_clefs(bboxes: List[Tuple[int64, int64, int64, int64]], labels: List[str]) -> List[Clef]:
+def gen_clefs(bboxes: List[Tuple[int, int, int, int]], labels: List[str]) -> List[Clef]:
     name_type_map = {
         "gclef": ClefType.G_CLEF,
         "fclef": ClefType.F_CLEF
@@ -360,7 +360,7 @@ def gen_clefs(bboxes: List[Tuple[int64, int64, int64, int64]], labels: List[str]
     return clefs
 
 
-def get_nearby_note_id(box: Tuple[int64, int64, int64, int64], note_id_map: ndarray) -> Optional[Any]:
+def get_nearby_note_id(box: Tuple[int, int, int, int], note_id_map: ndarray) -> Optional[Any]:
     cen_x, cen_y = get_center(box)
     unit_size = int(round(get_unit_size(cen_x, cen_y)))
     nid = None
@@ -371,7 +371,7 @@ def get_nearby_note_id(box: Tuple[int64, int64, int64, int64], note_id_map: ndar
     return nid
 
 
-def gen_sfns(bboxes: List[Tuple[int64, int64, int64, int64]], labels: List[str]) -> List[Sfn]:
+def gen_sfns(bboxes: List[Tuple[int, int, int, int]], labels: List[str]) -> List[Sfn]:
     note_id_map = layers.get_layer('note_id')
     notes = layers.get_layer('notes')
 
@@ -403,7 +403,7 @@ def gen_sfns(bboxes: List[Tuple[int64, int64, int64, int64]], labels: List[str])
     return sfns
 
 
-def gen_rests(bboxes: List[Tuple[int64, int64, int64, int64]], labels: List[str]) -> List[Rest]:
+def gen_rests(bboxes: List[Tuple[int, int, int, int]], labels: List[str]) -> List[Rest]:
     symbols = layers.get_layer('symbols_pred')
 
     name_type_map = {
