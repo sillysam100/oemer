@@ -15,8 +15,6 @@ from oemer.bbox import (
     draw_bounding_boxes
 )
 from numpy import float64
-from numpy import int
-from numpy import int
 from numpy import ndarray
 from typing import Dict
 from typing import List

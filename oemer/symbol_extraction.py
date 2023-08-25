@@ -22,10 +22,8 @@ from oemer.bbox import (
     to_rgb_img
 )
 from numpy import float64
-from numpy import int
 from typing import List
 from typing import Tuple
-from numpy import int
 from numpy import ndarray
 from typing import Any
 from typing import Optional

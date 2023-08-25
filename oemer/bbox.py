@@ -5,8 +5,6 @@ from sklearn.cluster import AgglomerativeClustering
 from numpy import ndarray
 from typing import List
 from typing import Tuple
-from numpy import int
-from numpy import int
 from typing import Union, Any
 from numpy import float64
 

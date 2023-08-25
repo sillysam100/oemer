@@ -22,7 +22,6 @@ from numpy import float64
 from numpy import ndarray
 from typing import Tuple
 from typing import Dict
-from numpy import int
 
 
 logger = get_logger(__name__)

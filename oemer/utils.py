@@ -9,7 +9,6 @@ from . import layers
 from oemer.staffline_extraction import Staff
 from typing import Tuple
 from numpy import float64
-from numpy import int
 
 def count(data, intervals):
     """Count elements in different intervals"""

@@ -12,11 +12,9 @@ from oemer.bbox import get_center, get_rotated_bbox, to_rgb_img, draw_bounding_b
 from oemer.notehead_extraction import NoteType
 from oemer.morph import morph_open, morph_close
 from numpy import float64
-from numpy import int
 from numpy import ndarray
 from typing import Tuple
 from typing import List
-from numpy import int
 from typing import Any
 from typing import Dict
 

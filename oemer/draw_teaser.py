@@ -4,7 +4,6 @@ import cv2
 import numpy as np
 
 from oemer import layers
-from numpy import int
 from numpy import ndarray
 from typing import List
 from typing import Optional

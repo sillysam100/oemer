@@ -12,14 +12,12 @@ from oemer import layers
 from oemer import exceptions as E
 from oemer.logging import get_logger
 from oemer.bbox import find_lines, get_bbox, get_center
-from numpy import int
 from numpy import bool_
 from numpy import float64
 from typing import List, Any, cast
 from typing_extensions import Self
 from numpy import ndarray
 from typing import Tuple
-from numpy import int
 
 
 logger = get_logger(__name__)
