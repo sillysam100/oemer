@@ -723,6 +723,6 @@ if __name__ == "__main__":
     peaks, _ = find_peaks(norm, height=threshold, distance=8, prominence=1)
     valid_peaks, groups = filter_line_peaks(peaks, norm)
     peaks = peaks[valid_peaks]
-    plt.plot(norm)
+    plt.plot(norm) # type: ignore
     plt.plot(peaks, [threshold]*len(peaks), 'ro')
     plt.show()
