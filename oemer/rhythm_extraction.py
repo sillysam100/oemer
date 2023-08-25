@@ -20,6 +20,10 @@ from numpy import int
 from typing import Any
 from typing import Dict
 
+# Globals
+dot_img: ndarray
+ratio_img: ndarray
+beam_img: ndarray
 
 logger = get_logger(__name__)
 

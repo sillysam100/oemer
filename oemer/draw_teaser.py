@@ -11,6 +11,8 @@ from typing import Optional
 from typing import Tuple
 from typing import Union
 
+# Globals
+out: ndarray
 
 def draw_bbox(bboxes: Union[List[Tuple[int, int, int, int]], List[ndarray]], color: Tuple[int, int, int], text: Optional[str] = None, labels: Optional[List[str]] = None, text_y_pos: float = 1) -> None:
     for idx, (x1, y1, x2, y2) in enumerate(bboxes):

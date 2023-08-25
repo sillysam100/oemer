@@ -16,6 +16,8 @@ from numpy import ndarray
 from typing import List
 from typing import Tuple
 
+# Globals
+nn_img: ndarray
 
 logger = get_logger(__name__)
 
@@ -404,7 +406,6 @@ def parse_stem_info(notes: List[NoteHead]) -> None:
         #     note.stem_right = False
         # else:
         #     note.stem_right = True
-
 
 def extract(
     min_h_ratio: float = 0.4,

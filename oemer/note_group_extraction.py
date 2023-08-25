@@ -22,6 +22,8 @@ from typing import Dict
 from typing import List
 from typing import Tuple
 
+# Globals
+grp_img: ndarray
 
 logger = get_logger(__name__)
 

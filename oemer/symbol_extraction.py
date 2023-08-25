@@ -30,7 +30,9 @@ from numpy import ndarray
 from typing import Any
 from typing import Optional
 
-
+# Globals
+global_cs: ndarray
+temp: ndarray
 
 logger = get_logger(__name__)
 
