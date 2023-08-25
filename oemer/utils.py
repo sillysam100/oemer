@@ -11,54 +11,6 @@ from typing import Tuple
 from numpy import float64
 from numpy import int32
 
-
-def get_logger(name, level="warn"):
-    """Get the logger for printing informations.
-    Used for layout the information of various stages while executing the program.
-    Set the environment variable ``LOG_LEVEL`` to change the default level.
-    Parameters
-    ----------
-    name: str
-        Name of the logger.
-    level: {'debug', 'info', 'warn', 'warning', 'error', 'critical'}
-        Level of the logger. The level 'warn' and 'warning' are different. The former
-        is the default level and the actual level is set to logging.INFO, and for
-        'warning' which will be set to true logging.WARN level. The purpose behind this
-        design is to categorize the message layout into several different formats.
-    """
-    logger = logging.getLogger(name)
-    level = os.environ.get("LOG_LEVEL", level)
-
-    msg_formats = {
-        "debug": "%(asctime)s [%(levelname)s] %(message)s  [at %(filename)s:%(lineno)d]",
-        "info": "%(asctime)s %(message)s  [at %(filename)s:%(lineno)d]",
-        "warn": "%(asctime)s %(message)s",
-        "warning": "%(asctime)s %(message)s",
-        "error": "%(asctime)s [%(levelname)s] %(message)s  [at %(filename)s:%(lineno)d]",
-        "critical": "%(asctime)s [%(levelname)s] %(message)s  [at %(filename)s:%(lineno)d]",
-    }
-    level_mapping = {
-        "debug": logging.DEBUG,
-        "info": logging.INFO,
-        "warn": logging.INFO,
-        "warning": logging.WARNING,
-        "error": logging.ERROR,
-        "critical": logging.CRITICAL,
-    }
-
-    date_format = "%Y-%m-%d %H:%M:%S"
-    formatter = logging.Formatter(fmt=msg_formats[level.lower()], datefmt=date_format)
-    handler = logging.StreamHandler()
-    handler.setFormatter(formatter)
-    if len(logger.handlers) > 0:
-        rm_idx = [idx for idx, handler in enumerate(logger.handlers) if isinstance(handler, logging.StreamHandler)]
-        for idx in rm_idx:
-            del logger.handlers[idx]
-    logger.addHandler(handler)
-    logger.setLevel(level_mapping[level.lower()])
-    return logger
-
-
 def count(data, intervals):
     """Count elements in different intervals"""
     occur = []
@@ -79,7 +31,7 @@ def find_closest_staffs(x: int, y: int) -> Tuple[Staff, Staff]:  # -> Tuple([Sta
     if len(diffs) == 1:
         return diffs[0], diffs[0]
     elif len(diffs) == 2:
-        return list(diffs)
+        return (diffs[0], diffs[1])
 
     # There are over three candidates
     first = diffs[0]
@@ -106,11 +58,11 @@ def find_closest_staffs(x: int, y: int) -> Tuple[Staff, Staff]:  # -> Tuple([Sta
 def get_unit_size(x: int, y: int) -> float64:
     st1, st2 = find_closest_staffs(x, y)
     if st1.y_center == st2.y_center:
-        return st1.unit_size
+        return float64(st1.unit_size)
 
     # Within the stafflines
     if st1.y_upper <= y <= st1.y_lower:
-        return st1.unit_size 
+        return float64(st1.unit_size)
 
     # Outside stafflines.
     # Infer the unit size by linear interpolation.
@@ -119,7 +71,7 @@ def get_unit_size(x: int, y: int) -> float64:
     w1 = dist1 / (dist1 + dist2)
     w2 = dist2 / (dist1 + dist2)
     unit_size = w1 * st1.unit_size + w2 * st2.unit_size
-    return unit_size
+    return float64(unit_size)
 
 
 def get_global_unit_size() -> float64:
@@ -127,8 +79,7 @@ def get_global_unit_size() -> float64:
     usize = []
     for st in staffs.reshape(-1, 1).squeeze():
         usize.append(st.unit_size)
-    layers._global_unit_size = sum(usize) / len(usize)
-    return layers._global_unit_size
+    return sum(usize) / len(usize)
 
 
 def get_total_track_nums() -> int:

@@ -13,7 +13,8 @@ from oemer import layers
 from oemer.symbol_extraction import Barline, Clef, Sfn, Rest, SfnType, ClefType, RestType
 from oemer.note_group_extraction import NoteGroup
 from oemer.notehead_extraction import NoteHead, NoteType
-from oemer.utils import get_global_unit_size, get_logger, get_total_track_nums
+from oemer.utils import get_global_unit_size, get_total_track_nums
+from oemer.logging import get_logger
 from typing import Union
 from typing import Any
 from typing import Optional

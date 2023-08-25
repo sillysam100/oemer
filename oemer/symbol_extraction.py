@@ -8,7 +8,8 @@ import matplotlib.pyplot as plt
 from oemer import layers
 from oemer import exceptions as E
 from oemer.inference import predict
-from oemer.utils import get_global_unit_size, slope_to_degree, get_unit_size, get_logger, find_closest_staffs
+from oemer.utils import get_global_unit_size, slope_to_degree, get_unit_size, find_closest_staffs
+from oemer.logging import get_logger
 from oemer.general_filtering_rules import filter_out_of_range_bbox, filter_out_small_area
 from oemer.bbox import (
     merge_nearby_bbox,

@@ -10,12 +10,13 @@ from sklearn.linear_model import LinearRegression
 
 from oemer import layers
 from oemer import exceptions as E
-from oemer.utils import get_logger
+from oemer.logging import get_logger
 from oemer.bbox import find_lines, get_bbox, get_center
 from numpy import int64
 from numpy import bool_
 from numpy import float64
-from typing import List
+from typing import List, Any, cast
+from typing_extensions import Self
 from numpy import ndarray
 from typing import Tuple
 from numpy import int32
@@ -34,7 +35,7 @@ class LineLabel(enum.Enum):
 
 class Line:
     def __init__(self) -> None:
-        self.points = []
+        self.points: Any = []
         self.label: LineLabel | None = None
 
     def add_point(self, y: int64, x: int64) -> None:
@@ -54,7 +55,7 @@ class Line:
         if self._y_center is not None:
             return self._y_center
         self._y_center = np.mean([point[0] for point in self.points])
-        return self._y_center
+        return cast(float, self._y_center)
 
     @property
     def y_upper(self) -> float | None:
@@ -72,7 +73,7 @@ class Line:
         if self._y_lower is not None:
             return self._y_lower
         self._y_lower = np.max([point[0] for point in self.points])
-        return self._y_lower
+        return cast(float, self._y_lower)
 
     @property
     def x_center(self) -> float:
@@ -81,7 +82,7 @@ class Line:
         if self._x_center is not None:
             return self._x_center
         self._x_center = np.mean([point[1] for point in self.points])
-        return self._x_center
+        return cast(float, self._x_center)
 
     @property
     def x_left(self) -> float:
@@ -90,7 +91,7 @@ class Line:
         if self._x_left is not None:
             return self._x_left
         self._x_left = np.min([point[1] for point in self.points])
-        return self._x_left
+        return cast(float, self._x_left)  
 
     @property
     def x_right(self) -> float:
@@ -99,7 +100,7 @@ class Line:
         if self._x_right is not None:
             return self._x_right
         self._x_right = np.max([point[1] for point in self.points])
-        return self._x_right
+        return cast(float, self._x_right)
 
     @property
     def slope(self) -> float:
@@ -113,9 +114,9 @@ class Line:
         model = LinearRegression()
         model.fit(xs, ys)
         self._slope = model.coef_[0]
-        return self._slope
+        return cast(float, self._slope)
 
-    def __lt__(self, line: Line) -> bool_:
+    def __lt__(self, line: Self) -> bool:
         return self.y_center < line.y_center
 
     def __len__(self):
@@ -134,21 +135,21 @@ class Line:
 
 class Staff:
     def __init__(self) -> None:
-        self.lines = []
-        self.track: int = None
-        self.group: int = None
+        self.lines: List[Line] = []
+        self.track: int | None = None
+        self.group: int | None  = None
         self.is_interp: bool = False
 
     def add_line(self, line: Line) -> None:
         self.lines.append(line)
-        self._y_center = None
+        self._y_center: float | None = None
         self._y_upper = None
         self._y_lower = None
-        self._x_center = None
+        self._x_center: float | None = None
         self._x_left = None
         self._x_right = None
-        self._unit_size = None
-        self._slope = None
+        self._unit_size: float | None = None
+        self._slope: float | None = None
 
     @property
     def y_center(self) -> float:
@@ -156,7 +157,7 @@ class Staff:
             setattr(self, "_y_center", None)
         if self._y_center is not None:
             return self._y_center
-        self._y_center = np.mean([line.y_center for line in self.lines])
+        self._y_center = float(np.mean([line.y_center for line in self.lines]))
         return self._y_center
 
     @y_center.setter
@@ -170,7 +171,7 @@ class Staff:
         if self._y_upper is not None:
             return self._y_upper
         self._y_upper = np.min([line.y_upper for line in self.lines])
-        return self._y_upper
+        return cast(float, self._y_upper)
 
     @y_upper.setter
     def y_upper(self, val):
@@ -183,7 +184,7 @@ class Staff:
         if self._y_lower is not None:
             return self._y_lower
         self._y_lower = np.max([line.y_lower for line in self.lines])
-        return self._y_lower
+        return cast(float, self._y_lower)
 
     @y_lower.setter
     def y_lower(self, val):
@@ -195,7 +196,7 @@ class Staff:
             setattr(self, "_x_center", None)
         if self._x_center is not None:
             return self._x_center
-        self._x_center = np.mean([line.x_center for line in self.lines])
+        self._x_center = float(np.mean([line.x_center for line in self.lines]))
         return self._x_center
 
     @x_center.setter
@@ -209,7 +210,7 @@ class Staff:
         if self._x_left is not None:
             return self._x_left
         self._x_left = np.min([line.x_left for line in self.lines])
-        return self._x_left
+        return cast(float, self._x_left)
 
     @x_left.setter
     def x_left(self, val):
@@ -222,14 +223,14 @@ class Staff:
         if self._x_right is not None:
             return self._x_right
         self._x_right = np.max([line.x_right for line in self.lines])
-        return self._x_right
+        return cast(float, self._x_right)
 
     @x_right.setter
     def x_right(self, val):
         self._x_right = val
 
     @property
-    def unit_size(self) -> int:
+    def unit_size(self) -> float:
         # The very basic size for measuring all the symbols.
         if not hasattr(self, "_unit_size"):
             setattr(self, "_unit_size", None)
@@ -237,7 +238,7 @@ class Staff:
             return self._unit_size
         centers = [line.y_center for line in self.lines]
         gaps = [centers[i] - centers[i-1] for i in range(1, len(self.lines))]
-        self._unit_size = np.mean(gaps)
+        self._unit_size = float(np.mean(gaps))
         return self._unit_size
 
     @property
@@ -250,7 +251,7 @@ class Staff:
             self._slope = None
         if self._slope is not None:
             return self._slope
-        self._slope = np.mean([l.slope for l in self.lines])
+        self._slope = float(np.mean([l.slope for l in self.lines]))
         return self._slope
 
     def duplicate(self, x_offset=0, y_offset=0):

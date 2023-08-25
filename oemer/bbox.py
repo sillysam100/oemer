@@ -7,8 +7,7 @@ from typing import List
 from typing import Tuple
 from numpy import int32
 from numpy import int64
-from typing import Union
-import typing
+from typing import Union, Any
 from numpy import float64
 
 
@@ -62,7 +61,7 @@ def rm_merge_overlap_bbox(bboxes: Union[List[Tuple[int, int, int, int]], List[Tu
     max_x, max_y = np.max(pts[:, 0]), np.max(pts[:, 1])
     mask = np.zeros((max_y, max_x), dtype=np.uint16)
 
-    box_info = []
+    box_info: Any = []
     for box in bboxes:
         area_size = (box[3]-box[1]) * (box[2]-box[0])
         box_info.append({

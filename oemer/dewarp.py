@@ -9,10 +9,10 @@ from sklearn.linear_model import LinearRegression
 import matplotlib.pyplot as plt
 
 from oemer.morph import morph_open
-from oemer.utils import get_logger
+from oemer.logging import get_logger
 from numpy import ndarray
-from typing import List
-from typing import Tuple
+from typing import List, Tuple
+from typing_extensions import Self
 
 
 logger = get_logger(__name__)
@@ -45,7 +45,7 @@ class GridGroup:
     def y_center(self):
         return round((self.bbox[1]+self.bbox[3]) / 2)
 
-    def __lt__(self, tar: GridGroup) -> bool:
+    def __lt__(self, tar: Self) -> bool:
         # Sort by width
         w = self.bbox[2] - self.bbox[0]
         tw = tar.bbox[2] - tar.bbox[0]
