@@ -31,10 +31,10 @@ setuptools.setup(
         'matplotlib',
         'pillow',
         'scipy',
+        'numpy',
         'scikit-learn>=1.2',
         'types-Pillow',
-        'types-tensorflow',
-        'data-science-types'
+        'types-tensorflow'
     ],
     extras_require={
         'tf': ['tensorflow-gpu', 'tf2onnx'],
