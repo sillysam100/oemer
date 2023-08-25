@@ -33,7 +33,7 @@ setuptools.setup(
         'scipy',
         'scikit-learn>=1.2',
         'types-Pillow',
-        'types-tensorflow'
+        'types-tensorflow',
         'data-science-types'
     ],
     extras_require={
