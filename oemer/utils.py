@@ -6,6 +6,10 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 
 from . import layers
+from oemer.staffline_extraction import Staff
+from typing import Tuple
+from numpy import float64
+from numpy import int32
 
 
 def get_logger(name, level="warn"):
@@ -67,7 +71,7 @@ def count(data, intervals):
     return occur
 
 
-def find_closest_staffs(x, y):  # -> Tuple([Staff, Staff]):
+def find_closest_staffs(x: int, y: int) -> Tuple[Staff, Staff]:  # -> Tuple([Staff, Staff]):
     staffs = layers.get_layer('staffs')
 
     staffs = staffs.reshape(-1, 1).squeeze()
@@ -99,7 +103,7 @@ def find_closest_staffs(x, y):  # -> Tuple([Staff, Staff]):
             return first, first
 
 
-def get_unit_size(x, y):
+def get_unit_size(x: int, y: int) -> float64:
     st1, st2 = find_closest_staffs(x, y)
     if st1.y_center == st2.y_center:
         return st1.unit_size
@@ -118,7 +122,7 @@ def get_unit_size(x, y):
     return unit_size
 
 
-def get_global_unit_size():
+def get_global_unit_size() -> float64:
     staffs = layers.get_layer('staffs')
     usize = []
     for st in staffs.reshape(-1, 1).squeeze():
@@ -127,7 +131,7 @@ def get_global_unit_size():
     return layers._global_unit_size
 
 
-def get_total_track_nums():
+def get_total_track_nums() -> int:
     staffs = layers.get_layer('staffs')
     tracks = [st.track for st in staffs.reshape(-1, 1).squeeze()]
     return len(set(tracks))
@@ -146,5 +150,5 @@ def estimate_degree(points, **kwargs):
     return slope_to_degree(model.coef_[0])
 
 
-def slope_to_degree(y_diff, x_diff):
+def slope_to_degree(y_diff: int32, x_diff: int32) -> float64:
     return np.rad2deg(np.arctan2(y_diff, x_diff))

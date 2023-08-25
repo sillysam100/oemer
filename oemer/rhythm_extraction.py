@@ -10,12 +10,20 @@ from oemer.utils import get_unit_size, get_logger
 from oemer.bbox import get_center, get_rotated_bbox, to_rgb_img, draw_bounding_boxes
 from oemer.notehead_extraction import NoteType
 from oemer.morph import morph_open, morph_close
+from numpy import float64
+from numpy import int64
+from numpy import ndarray
+from typing import Tuple
+from typing import List
+from numpy import int32
+from typing import Any
+from typing import Dict
 
 
 logger = get_logger(__name__)
 
 
-def scan_dot(symbols, note_id_map, bbox, unit_size, min_count, max_count):
+def scan_dot(symbols: ndarray, note_id_map: ndarray, bbox: Tuple[int64, int64, int64, int64], unit_size: float64, min_count: int, max_count: int) -> bool:
     right_bound = bbox[2] + 1
     start_y = bbox[1] - round(unit_size / 2)
     while True:
@@ -50,7 +58,7 @@ def scan_dot(symbols, note_id_map, bbox, unit_size, min_count, max_count):
     return False
 
 
-def parse_dot(min_area_ratio=0.08, max_area_ratio=0.2):
+def parse_dot(min_area_ratio: float = 0.08, max_area_ratio: float = 0.2) -> None:
     # Fetch parameters
     groups = layers.get_layer('note_groups')
     symbols = layers.get_layer('symbols_pred')
@@ -95,7 +103,7 @@ def parse_dot(min_area_ratio=0.08, max_area_ratio=0.2):
                     notes[nid].has_dot = to_dot
 
 
-def polish_symbols(staff_pred, symbols, stems, clefs_sfns, group_map):
+def polish_symbols(staff_pred: ndarray, symbols: ndarray, stems: ndarray, clefs_sfns: ndarray, group_map: ndarray) -> ndarray:
     st_width = 5
     beams_in_staff = morph_open(staff_pred, (st_width, 1))
 
@@ -109,7 +117,7 @@ def polish_symbols(staff_pred, symbols, stems, clefs_sfns, group_map):
     return beams
 
 
-def parse_beams(min_area_ratio=0.07, min_tp_ratio=0.4, min_width_ratio=0.2):
+def parse_beams(min_area_ratio: float = 0.07, min_tp_ratio: float = 0.4, min_width_ratio: float = 0.2) -> Tuple[ndarray, List[Tuple[Tuple[float, float], Tuple[float, float], float]], ndarray]:
     # Fetch parameters
     symbols = layers.get_layer('symbols_pred')
     staff_pred = layers.get_layer('staff_pred')
@@ -197,7 +205,7 @@ def parse_beams(min_area_ratio=0.07, min_tp_ratio=0.4, min_width_ratio=0.2):
     return poly_map, valid_box, invalid_map
 
 
-def parse_beam_overlap_regions(poly_map, invalid_map):
+def parse_beam_overlap_regions(poly_map: ndarray, invalid_map: ndarray) -> Tuple[ndarray, Dict[int32, Dict[str, Any]]]:
     # Fetch parameters
     symbols = layers.get_layer('symbols_pred')
     group_map = layers.get_layer('group_map')
@@ -255,7 +263,7 @@ def parse_beam_overlap_regions(poly_map, invalid_map):
     return out_map, map_info
 
 
-def refine_map_info(map_info):
+def refine_map_info(map_info: Dict[int32, Dict[str, Any]]) -> Dict[int32, Dict[str, Any]]:
     # Fetch parameters
     groups = layers.get_layer('note_groups')
     group_map = layers.get_layer('group_map')
@@ -304,7 +312,7 @@ def refine_map_info(map_info):
     return new_map_info
 
 
-def get_stem_x(gbox, nboxes, unit_size, is_right=True):
+def get_stem_x(gbox: Tuple[int64, int64, int64, int64], nboxes: List[ndarray], unit_size: float64, is_right: bool = True) -> int64:
     all_same_side = all(abs(nb[2]-gbox[2])<unit_size/3 for nb in nboxes)
     stem_at_center = not all_same_side
     if stem_at_center:
@@ -316,14 +324,14 @@ def get_stem_x(gbox, nboxes, unit_size, is_right=True):
 
 
 def scan_beam_flag(
-    poly_map,
-    start_x,
-    start_y,
-    end_x,
-    end_y,
-    threshold=0.1,
-    min_width_ratio=0.25,
-    max_width_ratio=0.9):
+    poly_map: ndarray,
+    start_x: int64,
+    start_y: int64,
+    end_x: int64,
+    end_y: int64,
+    threshold: float = 0.1,
+    min_width_ratio: float = 0.25,
+    max_width_ratio: float = 0.9) -> int:
 
     start_x = int(start_x)
     start_y = int(start_y)
@@ -460,7 +468,7 @@ def parse_inner_groups(poly_map, group, set_box, note_type_map, half_scan_width,
                 group.top_note_ids.append(nn.id)
 
 
-def parse_rhythm(beam_map, map_info, agree_th=0.15):
+def parse_rhythm(beam_map: ndarray, map_info: Dict[int32, Dict[str, Any]], agree_th: float = 0.15) -> ndarray:
     # Fetch parameters
     groups = layers.get_layer('note_groups')
     notes = layers.get_layer('notes') 
@@ -575,10 +583,10 @@ def parse_rhythm(beam_map, map_info, agree_th=0.15):
 
 
 def extract(
-    dot_min_area_ratio=0.08,
-    dot_max_area_ratio=0.2,
-    beam_min_area_ratio=0.07,
-    agree_th=0.15):
+    dot_min_area_ratio: float = 0.08,
+    dot_max_area_ratio: float = 0.2,
+    beam_min_area_ratio: float = 0.07,
+    agree_th: float = 0.15) -> Tuple[ndarray, List[Tuple[Tuple[float, float], Tuple[float, float], float]]]:
 
     logger.debug("Parsing dot")
     parse_dot(max_area_ratio=dot_max_area_ratio, min_area_ratio=dot_min_area_ratio)

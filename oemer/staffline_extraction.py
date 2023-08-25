@@ -12,6 +12,13 @@ from oemer import layers
 from oemer import exceptions as E
 from oemer.utils import get_logger
 from oemer.bbox import find_lines, get_bbox, get_center
+from numpy import int64
+from numpy import bool_
+from numpy import float64
+from typing import List
+from numpy import ndarray
+from typing import Tuple
+from numpy import int32
 
 
 logger = get_logger(__name__)
@@ -26,11 +33,11 @@ class LineLabel(enum.Enum):
 
 
 class Line:
-    def __init__(self):
+    def __init__(self) -> None:
         self.points = []
-        self.label: LineLabel = None
+        self.label: LineLabel | None = None
 
-    def add_point(self, y, x):
+    def add_point(self, y: int64, x: int64) -> None:
         self.points.append((y, x))
         self._y_center = None
         self._y_upper = None
@@ -50,7 +57,7 @@ class Line:
         return self._y_center
 
     @property
-    def y_upper(self) -> float:
+    def y_upper(self) -> float | None:
         if not hasattr(self, "_y_upper"):
             setattr(self, "_y_upper", None)
         if self._y_upper is not None:
@@ -108,7 +115,7 @@ class Line:
         self._slope = model.coef_[0]
         return self._slope
 
-    def __lt__(self, line):
+    def __lt__(self, line: Line) -> bool_:
         return self.y_center < line.y_center
 
     def __len__(self):
@@ -126,13 +133,13 @@ class Line:
 
 
 class Staff:
-    def __init__(self):
+    def __init__(self) -> None:
         self.lines = []
         self.track: int = None
         self.group: int = None
         self.is_interp: bool = False
 
-    def add_line(self, line):
+    def add_line(self, line: Line) -> None:
         self.lines.append(line)
         self._y_center = None
         self._y_upper = None
@@ -274,7 +281,7 @@ class Staff:
             f"\tSlope: {self.slope}\n" \
             ")\n"
 
-    def __sub__(self, st):
+    def __sub__(self, st: List[int]) -> float64:
         if isinstance(st, Staff):
             x, y = st.x_center, st.y_center
         else:
@@ -284,7 +291,7 @@ class Staff:
         return (x_dist + y_dist) ** 0.5
 
 
-def init_zones(staff_pred, splits):
+def init_zones(staff_pred: ndarray, splits: int) -> Tuple[ndarray, int, int, int64]:
     ys, xs = np.where(staff_pred > 0)
 
     # Define left and right bound
@@ -315,7 +322,7 @@ def init_zones(staff_pred, splits):
     return np.array(zones, dtype=object), left_bound, right_bound, bottom_bound
 
 
-def extract(splits=8, line_threshold=0.8, horizontal_diff_th=0.1, unit_size_diff_th=0.1, barline_min_degree=75):
+def extract(splits: int = 8, line_threshold: float = 0.8, horizontal_diff_th: float = 0.1, unit_size_diff_th: float = 0.1, barline_min_degree: int = 75) -> Tuple[ndarray, ndarray]:
     # Fetch parameters from layers
     staff_pred = layers.get_layer('staff_pred')
 
@@ -368,7 +375,7 @@ def extract(splits=8, line_threshold=0.8, horizontal_diff_th=0.1, unit_size_diff
     return np.array(all_staffs), zones
 
 
-def extract_part(pred, x_offset, line_threshold=0.8):
+def extract_part(pred: ndarray, x_offset: int64, line_threshold: float = 0.8) -> List[Staff]:
     # Extract lines
     lines, _ = extract_line(pred, x_offset=x_offset, line_threshold=line_threshold)
 
@@ -399,7 +406,7 @@ def extract_part(pred, x_offset, line_threshold=0.8):
     return staffs
 
 
-def extract_line(pred, x_offset, line_threshold=0.8):
+def extract_line(pred: ndarray, x_offset: int64, line_threshold: float = 0.8) -> Tuple[ndarray, ndarray]:
     # Split into zones horizontally and detects staff lines separately.
     count = np.zeros(len(pred), dtype=np.uint16)
     sub_ys, sub_xs = np.where(pred > 0)
@@ -446,7 +453,7 @@ def extract_line(pred, x_offset, line_threshold=0.8):
     return lines, norm
 
 
-def filter_line_peaks(peaks, norm, max_gap_ratio=1.5):
+def filter_line_peaks(peaks: ndarray, norm: ndarray, max_gap_ratio: float = 1.5) -> Tuple[ndarray, List[int]]:
     valid_peaks = np.array([True for _ in range(len(peaks))])
 
     # Filter by height
@@ -498,7 +505,7 @@ def filter_line_peaks(peaks, norm, max_gap_ratio=1.5):
     return valid_peaks, groups[:-1]
 
 
-def align_staffs(staffs, max_dist_ratio=3):
+def align_staffs(staffs: List[List[Staff]], max_dist_ratio: int = 3) -> ndarray:
     len_types = set(len(st_part) for st_part in staffs)
     if len(len_types) == 1:
         # All columns contains the same amount of sub-staffs
@@ -592,7 +599,7 @@ def align_staffs(staffs, max_dist_ratio=3):
     return grid
 
 
-def further_infer_track_nums(staffs, min_degree=75):
+def further_infer_track_nums(staffs: ndarray, min_degree: int = 75) -> int:
     # Fetch parameters
     symbols = layers.get_layer('symbols_pred')
     stems = layers.get_layer('stems_rests_pred')
@@ -633,11 +640,11 @@ def further_infer_track_nums(staffs, min_degree=75):
     return num_track
 
 
-def get_degree(line):
+def get_degree(line: Tuple[int32, int32, int32, int32]) -> float64:
     return np.rad2deg(np.arctan2(line[3] - line[1], line[2] - line[0]))
 
 
-def filter_lines(lines, staffs, min_degree=75):
+def filter_lines(lines: List[Tuple[int32, int32, int32, int32]], staffs: ndarray, min_degree: int = 75) -> List[Tuple[int32, int32, int32, int32]]:
     min_y = 9999999
     min_x = 9999999
     max_y = 0
@@ -666,7 +673,7 @@ def filter_lines(lines, staffs, min_degree=75):
     return cands
 
 
-def get_barline_map(symbols, bboxes):
+def get_barline_map(symbols: ndarray, bboxes: List[Tuple[int32, int32, int32, int32]]) -> ndarray:
     img = np.zeros_like(symbols)
     for box in bboxes:
         box = list(box)
@@ -677,10 +684,10 @@ def get_barline_map(symbols, bboxes):
     return img
 
 
-def naive_get_unit_size(staffs, x, y):
+def naive_get_unit_size(staffs: ndarray, x: int, y: int) -> float64:
     flat_staffs = staffs.reshape(-1, 1).squeeze()
 
-    def dist(st):
+    def dist(st: Staff) -> float64:
         x_diff = st.x_center - x
         y_diff = st.y_center - y
         return x_diff ** 2 + y_diff ** 2

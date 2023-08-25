@@ -1,4 +1,6 @@
 import numpy as np
+from numpy import ndarray
+from typing import List
 
 
 # Dictionary of numpy.ndarray, representing all kinds of information
@@ -8,7 +10,7 @@ _layers = {}
 _access_count = {}
 
 
-def register_layer(name, layer):
+def register_layer(name: str, layer: ndarray) -> None:
     if name in _layers:
         print("Name already registered! Choose another name or delete it first.")
         return
@@ -18,7 +20,7 @@ def register_layer(name, layer):
     _access_count[name] = 0
 
 
-def get_layer(name):
+def get_layer(name: str) -> ndarray:
     if name not in _layers:
         raise KeyError(f"The given layer name not registered: {name}")
     _access_count[name] += 1
@@ -31,7 +33,7 @@ def delete_layer(name):
         del _access_count[name]
 
 
-def list_layers():
+def list_layers() -> List:
     return list(_layers.keys())
 
 

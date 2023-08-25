@@ -6,6 +6,10 @@ import cv2
 import numpy as np
 
 from oemer import MODULE_PATH
+from numpy import ndarray
+from typing import Any
+from typing import Optional
+from typing import Tuple
 
 
 def resize_image(image: Image.Image):
@@ -24,7 +28,7 @@ def resize_image(image: Image.Image):
     return image.resize((tar_w, tar_h))
 
 
-def inference(model_path, img_path, step_size=128, batch_size=16, manual_th=None, use_tf=False):
+def inference(model_path: str, img_path: str, step_size: int = 128, batch_size: int = 16, manual_th: Optional[Any] = None, use_tf: bool = False) -> Tuple[ndarray, ndarray]:
     if use_tf:
         import tensorflow as tf
 
@@ -99,15 +103,15 @@ def inference(model_path, img_path, step_size=128, batch_size=16, manual_th=None
     return class_map, out
 
 
-def predict(region, model_name):
+def predict(region: ndarray, model_name: str) -> str:
     if np.max(region) == 1:
         region *= 255
     m_info = pickle.load(open(os.path.join(MODULE_PATH, f"sklearn_models/{model_name}.model"), "rb"))
     model = m_info['model']
     w = m_info['w']
     h = m_info['h']
-    region = Image.fromarray(region.astype(np.uint8)).resize((w, h))
-    pred = model.predict(np.array(region).reshape(1, -1))
+    region = np.array(Image.fromarray(region.astype(np.uint8)).resize((w, h)))
+    pred = model.predict(region.reshape(1, -1))
     return m_info['class_map'][pred[0]]
 
 

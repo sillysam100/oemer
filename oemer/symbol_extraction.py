@@ -20,6 +20,14 @@ from oemer.bbox import (
     get_center,
     to_rgb_img
 )
+from numpy import float64
+from numpy import int64
+from typing import List
+from typing import Tuple
+from numpy import int32
+from numpy import ndarray
+from typing import Any
+from typing import Optional
 
 
 
@@ -49,23 +57,23 @@ class RestType(enum.Enum):
 
 
 class Clef:
-    def __init__(self):
+    def __init__(self) -> None:
         self.bbox: list[int] = None
         self.track: int = None
         self.group: int = None
         self._label: ClefType = None
 
     @property
-    def label(self):
+    def label(self) -> ClefType:
         return self._label
 
     @label.setter
-    def label(self, val):
+    def label(self, val: ClefType) -> None:
         assert isinstance(val, ClefType)
         self._label = val
 
     @property
-    def x_center(self):
+    def x_center(self) -> float64:
         return (self.bbox[0] + self.bbox[2]) / 2
 
     def __repr__(self):
@@ -73,7 +81,7 @@ class Clef:
 
 
 class Sfn:
-    def __init__(self):
+    def __init__(self) -> None:
         self.bbox: list[int] = None
         self.note_id: int = None
         self.is_key: bool = None  # Whether is key or accidental
@@ -82,16 +90,16 @@ class Sfn:
         self._label: SfnType = None
 
     @property
-    def label(self):
+    def label(self) -> SfnType:
         return self._label
 
     @label.setter
-    def label(self, val):
+    def label(self, val: SfnType) -> None:
         assert isinstance(val, SfnType)
         self._label = val
 
     @property
-    def x_center(self):
+    def x_center(self) -> float64:
         return (self.bbox[0] + self.bbox[2]) / 2
 
     def __repr__(self):
@@ -100,7 +108,7 @@ class Sfn:
 
 
 class Rest:
-    def __init__(self):
+    def __init__(self) -> None:
         self.bbox: list[int] = None
         self.has_dot: bool = None
         self.track: int = None
@@ -108,16 +116,16 @@ class Rest:
         self._label: RestType = None
 
     @property
-    def label(self):
+    def label(self) -> RestType:
         return self._label
 
     @label.setter
-    def label(self, val):
+    def label(self, val: RestType) -> None:
         assert isinstance(val, RestType)
         self._label = val
 
     @property
-    def x_center(self):
+    def x_center(self) -> float64:
         return (self.bbox[0] + self.bbox[2]) / 2
 
     def __repr__(self):
@@ -126,19 +134,19 @@ class Rest:
 
 
 class Barline:
-    def __init__(self):
+    def __init__(self) -> None:
         self.bbox: list[int] = None
         self.group: int = None
 
     @property
-    def x_center(self):
+    def x_center(self) -> float64:
         return (self.bbox[0] + self.bbox[2]) / 2
 
     def __repr__(self):
         return f"Barline / Group: {self.group}"
 
 
-def filter_barlines(lines, min_height_unit_ratio=3.75):
+def filter_barlines(lines: List[Tuple[int32, int32, int32, int32]], min_height_unit_ratio: float = 3.75) -> ndarray:
     lines = filter_out_of_range_bbox(lines)
     # lines = merge_nearby_bbox(lines, 100, x_factor=100)
     lines = rm_merge_overlap_bbox(lines, mode='merge', overlap_ratio=0)
@@ -184,7 +192,7 @@ def filter_barlines(lines, min_height_unit_ratio=3.75):
     return valid_box
 
 
-def parse_barlines(group_map, stems_rests, symbols, min_height_unit_ratio=3.75):
+def parse_barlines(group_map: ndarray, stems_rests: ndarray, symbols: ndarray, min_height_unit_ratio: float = 3.75) -> ndarray:
     # Remove notehead from prediction
     barline_cand = np.where(stems_rests-group_map>1, 1, 0)
 
@@ -215,7 +223,7 @@ def parse_barlines(group_map, stems_rests, symbols, min_height_unit_ratio=3.75):
     return line_box
 
 
-def filter_clef_box(bboxes):
+def filter_clef_box(bboxes: List[Tuple[int64, int64, int64, int64]]) -> List[Tuple[int64, int64, int64, int64]]:
     valid_box = []
     for box in bboxes:
         w = box[2] - box[0]
@@ -236,7 +244,7 @@ def filter_clef_box(bboxes):
     return valid_box
 
 
-def parse_clefs_keys(clefs_keys, unit_size, clef_size_ratio=3.5, max_clef_tp_ratio=0.45):
+def parse_clefs_keys(clefs_keys: ndarray, unit_size: float64, clef_size_ratio: float = 3.5, max_clef_tp_ratio: float = 0.45) -> Tuple[List[Tuple[int64, int64, int64, int64]], List[Tuple[int64, int64, int64, int64]], List[str], List[str]]:
     global cs_img
     cs_img = to_rgb_img(clefs_keys)
 
@@ -267,7 +275,7 @@ def parse_clefs_keys(clefs_keys, unit_size, clef_size_ratio=3.5, max_clef_tp_rat
 
     clef_box = filter_clef_box(clef_box)
 
-    def pred_symbols(bboxes, model_name):
+    def pred_symbols(bboxes: List[Tuple[int64, int64, int64, int64]], model_name: str) -> List[str]:
         label = []
         for x1, y1, x2, y2 in bboxes:
             region = np.copy(clefs_keys[y1:y2, x1:x2])
@@ -282,7 +290,7 @@ def parse_clefs_keys(clefs_keys, unit_size, clef_size_ratio=3.5, max_clef_tp_rat
     return clef_box, key_box, clef_label, key_label
 
 
-def parse_rests(line_box, unit_size):
+def parse_rests(line_box: ndarray, unit_size: float64) -> Tuple[List[Tuple[int64, int64, int64, int64]], List[str]]:
     stems_rests = layers.get_layer('stems_rests_pred')
     group_map = layers.get_layer('group_map')
 
@@ -323,7 +331,7 @@ def parse_rests(line_box, unit_size):
     return valid_box, label
 
 
-def gen_barlines(bboxes):
+def gen_barlines(bboxes: ndarray) -> List[Barline]:
     barlines = []
     for box in bboxes:
         st1, _ = find_closest_staffs(*get_center(box))
@@ -334,7 +342,7 @@ def gen_barlines(bboxes):
     return barlines
 
 
-def gen_clefs(bboxes, labels):
+def gen_clefs(bboxes: List[Tuple[int64, int64, int64, int64]], labels: List[str]) -> List[Clef]:
     name_type_map = {
         "gclef": ClefType.G_CLEF,
         "fclef": ClefType.F_CLEF
@@ -351,7 +359,7 @@ def gen_clefs(bboxes, labels):
     return clefs
 
 
-def get_nearby_note_id(box, note_id_map):
+def get_nearby_note_id(box: Tuple[int64, int64, int64, int64], note_id_map: ndarray) -> Optional[Any]:
     cen_x, cen_y = get_center(box)
     unit_size = int(round(get_unit_size(cen_x, cen_y)))
     nid = None
@@ -362,7 +370,7 @@ def get_nearby_note_id(box, note_id_map):
     return nid
 
 
-def gen_sfns(bboxes, labels):
+def gen_sfns(bboxes: List[Tuple[int64, int64, int64, int64]], labels: List[str]) -> List[Sfn]:
     note_id_map = layers.get_layer('note_id')
     notes = layers.get_layer('notes')
 
@@ -394,7 +402,7 @@ def gen_sfns(bboxes, labels):
     return sfns
 
 
-def gen_rests(bboxes, labels):
+def gen_rests(bboxes: List[Tuple[int64, int64, int64, int64]], labels: List[str]) -> List[Rest]:
     symbols = layers.get_layer('symbols_pred')
 
     name_type_map = {
@@ -424,7 +432,7 @@ def gen_rests(bboxes, labels):
     return rests
 
 
-def extract(min_barline_h_unit_ratio=3.75):
+def extract(min_barline_h_unit_ratio: float = 3.75) -> Tuple[List[Barline], List[Clef], List[Sfn], List[Rest]]:
     # Fetch paramters
     symbols = layers.get_layer('symbols_pred')
     stems_rests = layers.get_layer('stems_rests_pred')

@@ -8,6 +8,12 @@ from oemer import layers
 from oemer.constant import NoteHeadConstant as nhc
 from oemer.bbox import get_bbox, get_center, merge_nearby_bbox, rm_merge_overlap_bbox, to_rgb_img
 from oemer.utils import get_unit_size, find_closest_staffs, get_global_unit_size, get_logger
+from oemer.staffline_extraction import Staff
+from numpy import int64
+from numpy import float64
+from numpy import ndarray
+from typing import List
+from typing import Tuple
 
 
 logger = get_logger(__name__)
@@ -29,7 +35,7 @@ class NoteType(enum.Enum):
 
 
 class NoteHead:
-    def __init__(self):
+    def __init__(self) -> None:
         self.points: list[tuple] = []
         self.pitch: int = None
         self.has_dot: bool = False
@@ -67,7 +73,7 @@ class NoteHead:
         assert isinstance(label, NoteType)
         self._label = label
 
-    def add_point(self, x, y):
+    def add_point(self, x: int64, y: int64) -> None:
         self.points.append((y, x))
 
     def __lt__(self, nt):
@@ -91,7 +97,7 @@ class NoteHead:
             f")\n"
 
 
-def morph_notehead(pred, unit_size):
+def morph_notehead(pred: ndarray, unit_size: float64) -> ndarray:
     small_size = int(round(unit_size / 3))
     small_ker = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (small_size, small_size))
     pred = cv2.erode(cv2.dilate(pred.astype(np.uint8), small_ker), small_ker)
@@ -116,7 +122,7 @@ def adjust_bbox(bbox, noteheads):
     return (bbox[0], top, bbox[2], bottom)
 
 
-def check_bbox_size(bbox, noteheads, unit_size):
+def check_bbox_size(bbox: Tuple[int, int, int, int], noteheads: ndarray, unit_size: float64) -> List[Tuple[int, int, int, int]]:
     w = bbox[2] - bbox[0]
     h = bbox[3] - bbox[1]
     cen_x, _ = get_center(bbox)
@@ -162,13 +168,13 @@ def check_bbox_size(bbox, noteheads, unit_size):
 
 
 def filter_notehead_bbox(
-    bboxes,
-    notehead,
-    min_h_ratio=0.4,
-    max_h_ratio=5,
-    min_w_ratio=0.3,
-    max_w_ratio=3,
-    min_area_ratio=0.5):
+    bboxes: List[Tuple[int, int, int, int]],
+    notehead: ndarray,
+    min_h_ratio: float = 0.4,
+    max_h_ratio: int = 5,
+    min_w_ratio: float = 0.3,
+    max_w_ratio: int = 3,
+    min_area_ratio: float = 0.5) -> List[Tuple[int, int, int, int]]:
 
     # Fetch parameters
     zones = layers.get_layer('zones')
@@ -208,13 +214,13 @@ def filter_notehead_bbox(
 
 
 def get_notehead_bbox(
-    pred,
-    global_unit_size,
-    min_h_ratio=0.4,
-    max_h_ratio=5,
-    min_w_ratio=0.3,
-    max_w_ratio=3,
-    min_area_ratio=0.6):
+    pred: ndarray,
+    global_unit_size: float64,
+    min_h_ratio: float = 0.4,
+    max_h_ratio: int = 5,
+    min_w_ratio: float = 0.3,
+    max_w_ratio: int = 3,
+    min_area_ratio: float = 0.6) -> List[Tuple[int, int, int, int]]:
 
     logger.debug("Morph noteheads")
     note = morph_notehead(pred, unit_size=global_unit_size)
@@ -241,7 +247,7 @@ def get_notehead_bbox(
     return bboxes
 
 
-def fill_hole(region):
+def fill_hole(region: ndarray) -> ndarray:
     tar = np.copy(region)
 
     h, w = tar.shape
@@ -296,7 +302,7 @@ def fill_hole(region):
     return tar
 
 
-def gen_notes(bboxes, symbols):
+def gen_notes(bboxes: List[ndarray], symbols: ndarray) -> List[NoteHead]:
     notes = []
     for bbox in bboxes:
         # Instanitiate notehead.
@@ -312,7 +318,7 @@ def gen_notes(bboxes, symbols):
             nn.add_point(x, y)
 
         # Assign group and track to the note
-        def assign_group_track(st):
+        def assign_group_track(st: Staff) -> None:
             nn.group = st.group
             nn.track = st.track
 
@@ -364,7 +370,7 @@ def gen_notes(bboxes, symbols):
     return notes
 
 
-def parse_stem_info(notes):
+def parse_stem_info(notes: List[NoteHead]) -> None:
     # Fetch parameters
     stems = layers.get_layer('stems_rests_pred')
 
@@ -400,14 +406,14 @@ def parse_stem_info(notes):
 
 
 def extract(
-    min_h_ratio=0.4,
-    max_h_ratio=5,
-    min_w_ratio=0.3,
-    max_w_ratio=3,
-    min_area_ratio=0.5,
-    max_whole_note_width_factor=1.5,
-    y_dist_factor=5,
-    hollow_filled_ratio_th=1.3):
+    min_h_ratio: float = 0.4,
+    max_h_ratio: int = 5,
+    min_w_ratio: float = 0.3,
+    max_w_ratio: int = 3,
+    min_area_ratio: float = 0.5,
+    max_whole_note_width_factor: float = 1.5,
+    y_dist_factor: int = 5,
+    hollow_filled_ratio_th: float = 1.3) -> List[NoteHead]:
 
     # Fetch parameters from layers
     pred = layers.get_layer('notehead_pred')

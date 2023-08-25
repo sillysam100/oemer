@@ -13,13 +13,20 @@ from oemer.bbox import (
     to_rgb_img,
     draw_bounding_boxes
 )
+from numpy import float64
+from numpy import int32
+from numpy import int64
+from numpy import ndarray
+from typing import Dict
+from typing import List
+from typing import Tuple
 
 
 logger = get_logger(__name__)
 
 
 class NoteGroup:
-    def __init__(self):
+    def __init__(self) -> None:
         self.id: int = None
         self.bbox: list[int] = None
         self.note_ids: list[int] = []
@@ -32,7 +39,7 @@ class NoteGroup:
         self.track: int = None
 
     @property
-    def x_center(self):
+    def x_center(self) -> float64:
         return (self.bbox[0] + self.bbox[2]) / 2
 
     def __len__(self):
@@ -46,7 +53,7 @@ class NoteGroup:
             ")\n"
 
 
-def group_noteheads():
+def group_noteheads() -> Tuple[Dict[int32, List[int64]], ndarray]:
     # Fetch parameters
     note_id_map = layers.get_layer('note_id')
     notehead = layers.get_layer('notehead_pred')
@@ -196,7 +203,7 @@ def check_valid_new_group(ori_grp, tar_grp, group_map, max_x_diff_ratio=0.5):
     return diff < max_x_diff
 
 
-def parse_stem_direction(groups, group_map, tolerance_ratio=0.2, max_x_diff_ratio=0.5):
+def parse_stem_direction(groups: Dict[int32, List[int64]], group_map: ndarray, tolerance_ratio: float = 0.2, max_x_diff_ratio: float = 0.5) -> Tuple[Dict[int32, List[int64]], ndarray]:
     # Fetch parameters
     notes = layers.get_layer('notes')
 
@@ -263,7 +270,7 @@ def check_group(group):
     return True
 
 
-def gen_groups(groups, group_map):
+def gen_groups(groups: Dict[int32, List[int64]], group_map: ndarray) -> Tuple[List[NoteGroup], ndarray]:
     # Fetch parameters
     notes = layers.get_layer('notes')
 
@@ -345,7 +352,7 @@ def post_check_groups(groups):
             continue
 
 
-def extract():
+def extract() -> Tuple[List[NoteGroup], ndarray]:
     # Start process
     logger.debug("Grouping noteheads")
     groups, group_map = group_noteheads()
