@@ -214,7 +214,7 @@ def parse_stem_direction(
         gy, gx = np.where(group_map==gp)
         gbox = (np.min(gx), np.min(gy), np.max(gx), np.max(gy))
         nbox = np.array([notes[nid].bbox for nid in nids])
-        nbox = (np.min(nbox[:, 0]), np.min(nbox[:, 1]), np.max(nbox[:, 2]), np.max(nbox[:, 3])) # type: ignore
+        nbox = (np.min(nbox[:, 0]), np.min(nbox[:, 1]), np.max(nbox[:, 2]), np.max(nbox[:, 3]))  # type: ignore
         nh = np.mean([notes[nid].bbox[3]-notes[nid].bbox[1] for nid in nids])  # Average note height in this group
         tolerance = nh * tolerance_ratio
 
@@ -290,7 +290,7 @@ def gen_groups(groups: Dict[int, List[int]], group_map: ndarray) -> Tuple[List[N
         gy, gx = np.where(group_map==gid)
         gbox = (np.min(gx), np.min(gy), np.max(gx), np.max(gy))
         nbox = np.array([notes[nid].bbox for nid in nids])
-        nbox = (np.min(nbox[:, 0]), np.min(nbox[:, 1]), np.max(nbox[:, 2]), np.max(nbox[:, 3])) # type: ignore
+        nbox = (np.min(nbox[:, 0]), np.min(nbox[:, 1]), np.max(nbox[:, 2]), np.max(nbox[:, 3]))  # type: ignore
 
         cv2.rectangle(grp_img, (gbox[0], gbox[1]), (gbox[2], gbox[3]), (255, 0, 0), 2)
         cv2.rectangle(grp_img, (nbox[0], nbox[1]), (nbox[2], nbox[3]), (0, 0, 255), 2)
@@ -327,7 +327,7 @@ def gen_groups(groups: Dict[int, List[int]], group_map: ndarray) -> Tuple[List[N
         if not (same_track and same_group):
             y_mass_center = (gbox[1] + gbox[3]) / 2
             x_mass_center = (gbox[0] + gbox[2]) / 2
-            st, _ = find_closest_staffs(x_mass_center, y_mass_center) # type: ignore
+            st, _ = find_closest_staffs(x_mass_center, y_mass_center)  # type: ignore
             tar_track = st.track
             tar_group = st.group
             for nid in nids:
@@ -363,11 +363,11 @@ def extract() -> Tuple[List[NoteGroup], ndarray]:
     groups, group_map = parse_stem_direction(groups, group_map)
 
     logger.debug("Instanitiating note groups")
-    groups, group_map = gen_groups(groups, group_map) # type: ignore
+    groups, group_map = gen_groups(groups, group_map)  # type: ignore
 
     logger.debug("Post check notes in groups")
 
-    return groups, group_map # type: ignore
+    return groups, group_map  # type: ignore
 
 
 def predict_symbols():
@@ -421,4 +421,4 @@ if __name__ == "__main__":
     groups, c_map = gen_groups(b_groups, b_map)
 
     bboxes = [g.bbox for g in groups]
-    out = draw_bounding_boxes(bboxes, notehead) # type: ignore
+    out = draw_bounding_boxes(bboxes, notehead)  # type: ignore

@@ -89,7 +89,7 @@ def parse_dot(min_area_ratio: float = 0.08, max_area_ratio: float = 0.2) -> None
         gbox = group.bbox
         unit_size = get_unit_size(*get_center(gbox))
         nbox = np.array([notes[nid].bbox for nid in nids])
-        nbox = (np.min(nbox[:, 0]), np.min(nbox[:, 1]), np.max(nbox[:, 2]), np.max(nbox[:, 3])) # type: ignore
+        nbox = (np.min(nbox[:, 0]), np.min(nbox[:, 1]), np.max(nbox[:, 2]), np.max(nbox[:, 3]))  # type: ignore
         min_count = round(unit_size**2 * min_area_ratio)
         max_count = round(unit_size**2 * max_area_ratio)
 
@@ -162,10 +162,10 @@ def parse_beams(
     valid_box = []
     valid_idxs = []
     idx_map = np.zeros_like(poly_map) - 1
-    for idx, rbox in enumerate(rboxes): # type: ignore
+    for idx, rbox in enumerate(rboxes):  # type: ignore
         # Used to find indexes of contour areas later. Must be check before
         # any 'continue' statement.
-        idx %= 255 # type: ignore
+        idx %= 255  # type: ignore
         if idx == 0:
             idx_map = np.zeros_like(poly_map) - 1
 
@@ -400,14 +400,14 @@ def scan_beam_flag(
         if c not in stat:
             stat[c] = 0
         stat[c] += 1
-    stat = sorted(stat.items(), key=lambda s: s[0], reverse=True) # type: ignore
+    stat = sorted(stat.items(), key=lambda s: s[0], reverse=True)  # type: ignore
 
     # At least there are such amount agreed with that there
     # are this number of beams/flags.
     accum = 0
     min_num = len(counter) * threshold
-    for c, num in stat: # type: ignore
-        accum += num # type: ignore
+    for c, num in stat:  # type: ignore
+        accum += num  # type: ignore
         if accum > min_num:
             return c
     return 0
@@ -552,8 +552,8 @@ def parse_rhythm(beam_map: ndarray, map_info: Dict[int, Dict[str, Any]], agree_t
         count = {k: 0 for k in set(labels)}
         for l in labels:
             count[l] += 1
-        count = sorted(count.items(), key=lambda c: c[1], reverse=True) # type: ignore
-        label = count[0][0] # type: ignore
+        count = sorted(count.items(), key=lambda c: c[1], reverse=True)  # type: ignore
+        label = count[0][0]  # type: ignore
         if label == NoteType.HALF_OR_WHOLE:
             # This group contians only half notes
             for nid in group.note_ids:
@@ -582,7 +582,7 @@ def parse_rhythm(beam_map: ndarray, map_info: Dict[int, Dict[str, Any]], agree_t
             end_y = gbox[3]
 
         # Calculate how many beams/flags are there.
-        count = scan_beam_flag( # type: ignore
+        count = scan_beam_flag(  # type: ignore
             bin_beam_map,
             max(reg_box[0], cen_x-half_scan_width),
             start_y,
@@ -597,7 +597,7 @@ def parse_rhythm(beam_map: ndarray, map_info: Dict[int, Dict[str, Any]], agree_t
         # Assign note label
         for nid in group.note_ids:
             if notes[nid].label is None:
-                notes[nid].label = note_type_map[count] # type: ignore
+                notes[nid].label = note_type_map[count]  # type: ignore
 
     return beam_img
 

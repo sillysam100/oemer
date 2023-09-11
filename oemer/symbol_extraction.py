@@ -166,11 +166,11 @@ def filter_barlines(lines: List[BBox], min_height_unit_ratio: float = 3.75) -> n
         valid_lines.append(line)
 
     # Second round check, in bbox mode.
-    valid_lines = np.array(valid_lines) # type: ignore
-    max_x = np.max(valid_lines[..., 2]) # type: ignore
-    max_y = np.max(valid_lines[..., 3]) # type: ignore
+    valid_lines = np.array(valid_lines)  # type: ignore
+    max_x = np.max(valid_lines[..., 2])  # type: ignore
+    max_y = np.max(valid_lines[..., 3])  # type: ignore
     data = np.zeros((max_y+10, max_x+10, 3))
-    data = draw_lines(valid_lines, data, width=1) # type: ignore
+    data = draw_lines(valid_lines, data, width=1)  # type: ignore
     boxes = get_bbox(data[..., 1])
     valid_box = []
     for box in boxes:
@@ -188,9 +188,9 @@ def filter_barlines(lines: List[BBox], min_height_unit_ratio: float = 3.75) -> n
     top_5 = np.mean(heights[-5:])
     norm = np.array(heights) / top_5
     idx = np.where(norm > 0.5)[0]
-    valid_box = np.array(valid_box)[idx] # type: ignore
+    valid_box = np.array(valid_box)[idx]  # type: ignore
 
-    return valid_box # type: ignore
+    return valid_box  # type: ignore
 
 
 def parse_barlines(
@@ -255,7 +255,7 @@ def parse_clefs_keys(
         clef_size_ratio: float = 3.5, 
         max_clef_tp_ratio: float = 0.45) -> Tuple[List[BBox], List[BBox], List[str], List[str]]:
     global cs_img
-    cs_img = to_rgb_img(clefs_keys) # type: ignore
+    cs_img = to_rgb_img(clefs_keys)  # type: ignore
 
     ker = np.ones((np.int64(unit_size//2), 1), dtype=np.uint8)
     clefs_keys = cv2.erode(cv2.dilate(clefs_keys.astype(np.uint8), ker), ker)
@@ -493,4 +493,4 @@ if __name__ == "__main__":
     aa = draw_symbols(clefs, ori_img)
     bb = draw_symbols(rests, aa, color=(11, 163, 0))
     cc = draw_symbols(sfns, bb, color=(53, 0, 168))
-    dd = draw_bounding_boxes([b.bbox for b in barlines], cc, color=(250, 0, 200)) # type: ignore
+    dd = draw_bounding_boxes([b.bbox for b in barlines], cc, color=(250, 0, 200))  # type: ignore

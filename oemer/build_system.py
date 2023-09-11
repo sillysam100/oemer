@@ -92,8 +92,8 @@ class Voice:
         ll_count = {ll: 0 for ll in set(labels)}
         for ll in labels:
             ll_count[ll] += 1
-        ll_count = sorted(ll_count.items(), key=lambda it: it[1], reverse=True) # type: ignore
-        self.label = ll_count[0][0] # type: ignore
+        ll_count = sorted(ll_count.items(), key=lambda it: it[1], reverse=True)  # type: ignore
+        self.label = ll_count[0][0]  # type: ignore
 
         # Determine the dots
         dots = [notes[nid].has_dot for nid in self.note_ids]
@@ -110,7 +110,7 @@ class Voice:
         self.rhythm_name = NOTE_TYPE_TO_RHYTHM[self.label]['name']
         self.duration = NOTE_TYPE_TO_RHYTHM[self.label]['duration']
         if self.has_dot:
-            self.duration = round(self.duration * 1.5) # type: ignore
+            self.duration = round(self.duration * 1.5)  # type: ignore
 
     def __repr__(self):
         return f"Voice {self.id}\n" \
@@ -139,7 +139,7 @@ class Measure:
         self.symbols = sorted(self.symbols, key=lambda s: s.x_center)
         for sym in symbols:
             if isinstance(sym, Voice):
-                self.voices.append(sym) # type: ignore
+                self.voices.append(sym)  # type: ignore
             elif isinstance(sym, Clef):
                 self.clefs.append(sym)
                 self.has_clef = True
@@ -203,18 +203,18 @@ class Measure:
             counter = {SfnType.FLAT: 0, SfnType.SHARP: 0, SfnType.NATURAL: 0}
             for sfn in sfns_cands:
                 counter[sfn.label] += 1
-            counter = sorted(counter.items(), key=lambda s: s[1], reverse=True) # type: ignore
-            if counter[0][0] == SfnType.NATURAL: # type: ignore
+            counter = sorted(counter.items(), key=lambda s: s[1], reverse=True)  # type: ignore
+            if counter[0][0] == SfnType.NATURAL:  # type: ignore
                 # Swap the first and second candidates when the first sfn type is natural.
-                counter[0], counter[1] = counter[1], counter[0] # type: ignore
+                counter[0], counter[1] = counter[1], counter[0]  # type: ignore
 
-            if counter[0][0] == SfnType.FLAT: # type: ignore
+            if counter[0][0] == SfnType.FLAT:  # type: ignore
                 # Flat and sharp/natural is assumed will not being confused by the model.
                 sfn_label = SfnType.FLAT
-            elif counter[0][0] == SfnType.SHARP: # type: ignore
-                if counter[1][0] == SfnType.FLAT: # type: ignore
+            elif counter[0][0] == SfnType.SHARP:  # type: ignore
+                if counter[1][0] == SfnType.FLAT:  # type: ignore
                     sfn_label = SfnType.SHARP
-                elif counter[0][1] > counter[1][1]: # type: ignore
+                elif counter[0][1] > counter[1][1]:  # type: ignore
                     # Sharp and natural are the most error-prone for prediction.
                     sfn_label = SfnType.SHARP
                 else:
@@ -248,7 +248,7 @@ class Measure:
                     new_clef.label = ClefType(track%2 + 1)
                     clefs.append(new_clef)
             return clefs
-        return [None for _ in range(track_nums)] # type: ignore
+        return [None for _ in range(track_nums)]  # type: ignore
 
     @typing.no_type_check
     def align_symbols(self) -> Optional[Any]:
@@ -389,7 +389,7 @@ class Measure:
 
     def get_time_slot_dura(self, x_center: float) -> Tuple[int, ndarray]:
         for idx, slot in enumerate(self.time_slots[:-1]):
-            if slot[0].x_center <= x_center < self.time_slots[idx+1][0].x_center: # type: ignore
+            if slot[0].x_center <= x_center < self.time_slots[idx+1][0].x_center:  # type: ignore
                 return idx, self.slot_duras[idx]
         return len(self.time_slots)-1, self.slot_duras[-1]
 
@@ -403,7 +403,7 @@ class Action:
     class Context:
         key: Union[Key, None] = None
         clefs: List[Clef] = []
-        sfn_state: Mapping[str, Sfn] = {chr(ord('A')+i):None for i in range(7)} # type: ignore
+        sfn_state: Mapping[str, Sfn] = {chr(ord('A')+i):None for i in range(7)}  # type: ignore
 
     ctx = Context()
 
@@ -428,7 +428,7 @@ class Action:
     def clear(cls) -> None:
         cls.ctx.key = None
         cls.ctx.clefs = []
-        cls.ctx.sfn_state = {chr(ord('A')+i):None for i in range(7)} # type: ignore
+        cls.ctx.sfn_state = {chr(ord('A')+i):None for i in range(7)}  # type: ignore
 
 
 class KeyChange(Action):
@@ -470,7 +470,7 @@ class AddNote(Action):
         chroma = get_chroma_pitch(self.note.staff_line_pos, clef_type)
         cur_sfn = self.ctx.sfn_state[chroma]
         if (self.note.sfn is not None) and (cur_sfn != self.note.sfn):
-            self.ctx.sfn_state[chroma] = self.note.sfn # type: ignore
+            self.ctx.sfn_state[chroma] = self.note.sfn  # type: ignore
         else:
             self.note.sfn = cur_sfn
         elem = decode_note(self.note, clef_type, self.chord, self.voice)
@@ -567,7 +567,7 @@ class MusicXMLBuilder:
     def __init__(self, title: Optional[str] = None) -> None:
         self.measures: dict[int, list[Measure]] = {}
         self.actions: list[Action] = []
-        self.title: str = title # type: ignore
+        self.title: str = title  # type: ignore
 
     def build(self) -> None:
         # Fetch parameters
@@ -904,7 +904,7 @@ def gen_measures(group_container):
 
 def decode_note(note, clef_type, is_chord=False, voice=1) -> Element:
     if note.invalid:
-        return None # type: ignore
+        return None  # type: ignore
 
     # Element order matters!!
     elem = Element('note')
@@ -943,13 +943,13 @@ def decode_note(note, clef_type, is_chord=False, voice=1) -> Element:
     if (int(octave.text) < 0 or int(octave.text) > 8) \
             or (int(octave.text) == 0 and step.text != "A") \
             or (int(octave.text) == 8 and step.text != "C"):
-        return None # type: ignore
+        return None  # type: ignore
 
     # Rhythm type
     dura = SubElement(elem, 'duration')
     dura.text = str(NOTE_TYPE_TO_RHYTHM[note.label]['duration'])
     rhy = SubElement(elem, 'type')
-    rhy.text = NOTE_TYPE_TO_RHYTHM[note.label]['name'] # type: ignore
+    rhy.text = NOTE_TYPE_TO_RHYTHM[note.label]['name']  # type: ignore
 
     # Dot
     if note.has_dot:

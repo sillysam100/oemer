@@ -35,7 +35,7 @@ def filter_out_small_area(
             size = area_size
         else:
             unit_size = get_unit_size(*get_center(box))
-            size = area_size_func(unit_size) # type: ignore
+            size = area_size_func(unit_size)  # type: ignore
         if w * h > size:
             valid_box.append(box)
     return valid_box

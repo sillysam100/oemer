@@ -197,7 +197,7 @@ def connect_nearby_grid_group(
 
                 # Interpolate y centers between the start and end points again.
                 centers = [grid.y_center, centers[0]]
-                x = [-i-1, 0] # type: ignore
+                x = [-i-1, 0]  # type: ignore
                 inter_func = interp1d(x, centers, kind='linear')
 
                 # Start to insert grids between points
@@ -217,7 +217,7 @@ def connect_nearby_grid_group(
                         max(gg.bbox[3], box[3])
                     )
                     gg.bbox = [int(bb) for bb in gg.bbox]
-                    box = [int(bb) for bb in box] # type: ignore
+                    box = [int(bb) for bb in box]  # type: ignore
                     grids.append(grid)
                     new_gg_map[box[1]:box[3], box[0]:box[2]] = gg.id
 

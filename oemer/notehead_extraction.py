@@ -229,7 +229,7 @@ def get_notehead_bbox(
     result_bboxes: Any = []
     for box in bboxes:
         unit_size = get_unit_size(*get_center(box))
-        box = check_bbox_size(box, pred, unit_size) # type: ignore
+        box = check_bbox_size(box, pred, unit_size)  # type: ignore
         result_bboxes.extend(box)
     logger.debug("Detected noteheads: %d", len(result_bboxes))
 
@@ -272,8 +272,8 @@ def fill_hole(region: ndarray) -> ndarray:
             cand_x.append(cur)
             cur += 1
         if cur < w:
-            cand_y = np.array(cand_y) # type: ignore
-            cand_x = np.array(cand_x) # type: ignore
+            cand_y = np.array(cand_y)  # type: ignore
+            cand_x = np.array(cand_x)  # type: ignore
             tar[cand_y, cand_x] = 1
 
     # Scan by column
@@ -296,8 +296,8 @@ def fill_hole(region: ndarray) -> ndarray:
                 cand_x.append(xi)
                 cur += 1
             if cur < h:
-                cand_y = np.array(cand_y) # type: ignore
-                cand_x = np.array(cand_x) # type: ignore
+                cand_y = np.array(cand_y)  # type: ignore
+                cand_x = np.array(cand_x)  # type: ignore
                 tar[cand_y, cand_x] = 1
     return tar
 
@@ -380,7 +380,7 @@ def parse_stem_info(notes: List[NoteHead]) -> None:
 
     for note in notes:
         box = note.bbox
-        region = st_map[box[1]:box[3], box[0]:box[2]] # type: ignore
+        region = st_map[box[1]:box[3], box[0]:box[2]]  # type: ignore
         lls = set(np.unique(region))
         if 0 in lls:
             lls.remove(0)
@@ -460,8 +460,8 @@ def extract(
 
     # Assign notes with extracted infromation
     logger.info("Instanitiating notes")
-    solid_notes = gen_notes(solid_box, symbols) # type: ignore
-    hollow_notes = gen_notes(hollow_box, symbols) # type: ignore
+    solid_notes = gen_notes(solid_box, symbols)  # type: ignore
+    hollow_notes = gen_notes(hollow_box, symbols)  # type: ignore
 
     logger.debug("Setting temporary note type")
     for idx in range(len(hollow_notes)):
