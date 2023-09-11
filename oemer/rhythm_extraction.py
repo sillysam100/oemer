@@ -11,7 +11,6 @@ from oemer.logging import get_logger
 from oemer.bbox import BBox, get_center, get_rotated_bbox, to_rgb_img, draw_bounding_boxes
 from oemer.notehead_extraction import NoteType
 from oemer.morph import morph_open, morph_close
-from numpy import float64
 from numpy import ndarray
 from typing import Tuple
 from typing import List
@@ -27,7 +26,7 @@ ratio_map: ndarray
 logger = get_logger(__name__)
 
 
-def scan_dot(symbols: ndarray, note_id_map: ndarray, bbox: BBox, unit_size: float64, min_count: int, max_count: int) -> bool:
+def scan_dot(symbols: ndarray, note_id_map: ndarray, bbox: BBox, unit_size: float, min_count: int, max_count: int) -> bool:
     right_bound = bbox[2] + 1
     start_y = bbox[1] - round(unit_size / 2)
     while True:
@@ -316,7 +315,7 @@ def refine_map_info(map_info: Dict[int, Dict[str, Any]]) -> Dict[int, Dict[str, 
     return new_map_info
 
 
-def get_stem_x(gbox: BBox, nboxes: List[ndarray], unit_size: float64, is_right: bool = True) -> int:
+def get_stem_x(gbox: BBox, nboxes: List[ndarray], unit_size: float, is_right: bool = True) -> int:
     all_same_side = all(abs(nb[2]-gbox[2])<unit_size/3 for nb in nboxes)
     stem_at_center = not all_same_side
     if stem_at_center:

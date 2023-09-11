@@ -22,7 +22,6 @@ from oemer.bbox import (
     get_center,
     to_rgb_img
 )
-from numpy import float64
 from typing import List
 from typing import Tuple
 from numpy import ndarray
@@ -75,8 +74,8 @@ class Clef:
         self._label = val
 
     @property
-    def x_center(self) -> float64:
-        return float64((self.bbox[0] + self.bbox[2]) / 2)
+    def x_center(self) -> float:
+        return float((self.bbox[0] + self.bbox[2]) / 2)
 
     def __repr__(self):
         return f"Clef: {self.label.name} / Track: {self.track} / Group: {self.group}"
@@ -101,8 +100,8 @@ class Sfn:
         self._label = val
 
     @property
-    def x_center(self) -> float64:
-        return float64((self.bbox[0] + self.bbox[2]) / 2)
+    def x_center(self) -> float:
+        return float((self.bbox[0] + self.bbox[2]) / 2)
 
     def __repr__(self):
         return f"SFN: {self.label.name} / Note ID: {self.note_id} / Is key: {self.is_key}" \
@@ -127,8 +126,8 @@ class Rest:
         self._label = val
 
     @property
-    def x_center(self) -> float64:
-        return float64((self.bbox[0] + self.bbox[2]) / 2)
+    def x_center(self) -> float:
+        return float((self.bbox[0] + self.bbox[2]) / 2)
 
     def __repr__(self):
         return f"Rest: {self.label.name} / Has dot: {self.has_dot} / Track: {self.track}" \
@@ -141,8 +140,8 @@ class Barline:
         self.group: int | Any = None
 
     @property
-    def x_center(self) -> float64:
-        return float64((self.bbox[0] + self.bbox[2]) / 2)
+    def x_center(self) -> float:
+        return float((self.bbox[0] + self.bbox[2]) / 2)
 
     def __repr__(self):
         return f"Barline / Group: {self.group}"
@@ -246,7 +245,7 @@ def filter_clef_box(bboxes: List[BBox]) -> List[BBox]:
     return valid_box
 
 
-def parse_clefs_keys(clefs_keys: ndarray, unit_size: float64, clef_size_ratio: float = 3.5, max_clef_tp_ratio: float = 0.45) -> Tuple[List[BBox], List[BBox], List[str], List[str]]:
+def parse_clefs_keys(clefs_keys: ndarray, unit_size: float, clef_size_ratio: float = 3.5, max_clef_tp_ratio: float = 0.45) -> Tuple[List[BBox], List[BBox], List[str], List[str]]:
     global cs_img
     cs_img = to_rgb_img(clefs_keys) # type: ignore
 
@@ -292,7 +291,7 @@ def parse_clefs_keys(clefs_keys: ndarray, unit_size: float64, clef_size_ratio: f
     return clef_box, key_box, clef_label, key_label
 
 
-def parse_rests(line_box: ndarray, unit_size: float64) -> Tuple[List[BBox], List[str]]:
+def parse_rests(line_box: ndarray, unit_size: float) -> Tuple[List[BBox], List[str]]:
     stems_rests = layers.get_layer('stems_rests_pred')
     group_map = layers.get_layer('group_map')
 

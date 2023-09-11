@@ -17,7 +17,6 @@ from oemer.utils import get_global_unit_size, get_total_track_nums
 from oemer.logging import get_logger
 from typing import Union, Any, Optional, Tuple, Dict
 import typing
-from numpy import float64
 from numpy import ndarray
 
 
@@ -388,7 +387,7 @@ class Measure:
         self.slot_duras = new_track_duras[:, :2]
         return time_slots, track_duras, new_track_duras
 
-    def get_time_slot_dura(self, x_center: float64) -> Tuple[int, ndarray]:
+    def get_time_slot_dura(self, x_center: float) -> Tuple[int, ndarray]:
         for idx, slot in enumerate(self.time_slots[:-1]):
             if slot[0].x_center <= x_center < self.time_slots[idx+1][0].x_center: # type: ignore
                 return idx, self.slot_duras[idx]

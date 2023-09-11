@@ -14,7 +14,6 @@ from oemer.bbox import (
     to_rgb_img,
     draw_bounding_boxes
 )
-from numpy import float64
 from numpy import ndarray
 from typing import Dict, List, Tuple, Any
 
@@ -38,8 +37,8 @@ class NoteGroup:
         self.track: int | Any = None
 
     @property
-    def x_center(self) -> float64:
-        return float64((self.bbox[0] + self.bbox[2]) / 2)
+    def x_center(self) -> float:
+        return float((self.bbox[0] + self.bbox[2]) / 2)
 
     def __len__(self):
         return len(self.note_ids)

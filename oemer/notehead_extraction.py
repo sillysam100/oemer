@@ -10,7 +10,6 @@ from oemer.bbox import BBox, get_bbox, get_center, merge_nearby_bbox, rm_merge_o
 from oemer.utils import get_unit_size, find_closest_staffs, get_global_unit_size
 from oemer.logging import get_logger
 from oemer.staffline_extraction import Staff
-from numpy import float64
 from numpy import ndarray
 from typing import List, Tuple, Any
 
@@ -98,7 +97,7 @@ class NoteHead:
             f")\n"
 
 
-def morph_notehead(pred: ndarray, unit_size: float64) -> ndarray:
+def morph_notehead(pred: ndarray, unit_size: float) -> ndarray:
     small_size = int(round(unit_size / 3))
     small_ker = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (small_size, small_size))
     pred = cv2.erode(cv2.dilate(pred.astype(np.uint8), small_ker), small_ker)
@@ -123,7 +122,7 @@ def adjust_bbox(bbox, noteheads):
     return (bbox[0], top, bbox[2], bottom)
 
 
-def check_bbox_size(bbox: BBox, noteheads: ndarray, unit_size: float64) -> List[BBox]:
+def check_bbox_size(bbox: BBox, noteheads: ndarray, unit_size: float) -> List[BBox]:
     w = bbox[2] - bbox[0]
     h = bbox[3] - bbox[1]
     cen_x, _ = get_center(bbox)
@@ -216,7 +215,7 @@ def filter_notehead_bbox(
 
 def get_notehead_bbox(
     pred: ndarray,
-    global_unit_size: float64,
+    global_unit_size: float,
     min_h_ratio: float = 0.4,
     max_h_ratio: int = 5,
     min_w_ratio: float = 0.3,

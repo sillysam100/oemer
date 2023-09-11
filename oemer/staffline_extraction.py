@@ -13,7 +13,6 @@ from oemer import exceptions as E
 from oemer.logging import get_logger
 from oemer.bbox import BBox, find_lines, get_bbox, get_center
 from numpy import bool_
-from numpy import float64
 from typing import List, Any, cast
 from typing_extensions import Self
 from numpy import ndarray
@@ -280,7 +279,7 @@ class Staff:
             f"\tSlope: {self.slope}\n" \
             ")\n"
 
-    def __sub__(self, st: List[int]) -> float64:
+    def __sub__(self, st: List[int]) -> float:
         if isinstance(st, Staff):
             x, y = st.x_center, st.y_center
         else:
@@ -639,7 +638,7 @@ def further_infer_track_nums(staffs: ndarray, min_degree: int = 75) -> int:
     return num_track
 
 
-def get_degree(line: BBox) -> float64:
+def get_degree(line: BBox) -> float:
     return np.rad2deg(np.arctan2(line[3] - line[1], line[2] - line[0]))
 
 
@@ -683,10 +682,10 @@ def get_barline_map(symbols: ndarray, bboxes: List[BBox]) -> ndarray:
     return img
 
 
-def naive_get_unit_size(staffs: ndarray, x: int, y: int) -> float64:
+def naive_get_unit_size(staffs: ndarray, x: int, y: int) -> float:
     flat_staffs = staffs.reshape(-1, 1).squeeze()
 
-    def dist(st: Staff) -> float64:
+    def dist(st: Staff) -> float:
         x_diff = st.x_center - x
         y_diff = st.y_center - y
         return x_diff ** 2 + y_diff ** 2 # type: ignore
