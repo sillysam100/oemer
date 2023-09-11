@@ -120,6 +120,7 @@ def train(folders):
 
 
 def train_tf(folders):
+    import tensorflow as tf
     class_map = {idx: Path(ff).name for idx, ff in enumerate(folders)}
     train_x = []
     train_y = []
