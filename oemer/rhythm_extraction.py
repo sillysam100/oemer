@@ -26,7 +26,13 @@ ratio_map: ndarray
 logger = get_logger(__name__)
 
 
-def scan_dot(symbols: ndarray, note_id_map: ndarray, bbox: BBox, unit_size: float, min_count: int, max_count: int) -> bool:
+def scan_dot(
+        symbols: ndarray, 
+        note_id_map: ndarray, 
+        bbox: BBox, 
+        unit_size: float, 
+        min_count: int, 
+        max_count: int) -> bool:
     right_bound = bbox[2] + 1
     start_y = bbox[1] - round(unit_size / 2)
     while True:
@@ -106,7 +112,12 @@ def parse_dot(min_area_ratio: float = 0.08, max_area_ratio: float = 0.2) -> None
                     notes[nid].has_dot = to_dot
 
 
-def polish_symbols(staff_pred: ndarray, symbols: ndarray, stems: ndarray, clefs_sfns: ndarray, group_map: ndarray) -> ndarray:
+def polish_symbols(
+        staff_pred: ndarray, 
+        symbols: ndarray, 
+        stems: ndarray, 
+        clefs_sfns: ndarray, 
+        group_map: ndarray) -> ndarray:
     st_width = 5
     beams_in_staff = morph_open(staff_pred, (st_width, 1))
 
@@ -120,7 +131,13 @@ def polish_symbols(staff_pred: ndarray, symbols: ndarray, stems: ndarray, clefs_
     return beams
 
 
-def parse_beams(min_area_ratio: float = 0.07, min_tp_ratio: float = 0.4, min_width_ratio: float = 0.2) -> Tuple[ndarray, List[Tuple[Tuple[float, float], Tuple[float, float], float]], ndarray]:
+def parse_beams(
+        min_area_ratio: float = 0.07, 
+        min_tp_ratio: float = 0.4, 
+        min_width_ratio: float = 0.2) -> Tuple[
+            ndarray, 
+            List[Tuple[Tuple[float, float], Tuple[float, float], float]], 
+            ndarray]:
     # Fetch parameters
     symbols = layers.get_layer('symbols_pred')
     staff_pred = layers.get_layer('staff_pred')

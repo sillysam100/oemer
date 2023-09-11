@@ -23,7 +23,10 @@ def filter_out_of_range_bbox(bboxes: Union[List[BBox], List[BBox]]) -> Union[Lis
     return valid_box
  
 
-def filter_out_small_area(bboxes: Union[List[BBox], List[BBox]], area_size: Optional[Any] = None, area_size_func: Optional[Callable] = None) -> Union[List[BBox], List[BBox]]:
+def filter_out_small_area(
+        bboxes: Union[List[BBox], List[BBox]], 
+        area_size: Optional[Any] = None, 
+        area_size_func: Optional[Callable] = None) -> Union[List[BBox], List[BBox]]:
     valid_box = []
     for box in bboxes:
         w = box[2] - box[0]

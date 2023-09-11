@@ -53,7 +53,10 @@ def merge_nearby_bbox(bboxes: List[BBox], distance: float, x_factor: int = 1, y_
     return new_box
 
 
-def rm_merge_overlap_bbox(bboxes: List[BBox], mode: str = 'remove', overlap_ratio: float = 0.5) -> Union[List[BBox], List[BBox], List[BBox]]:
+def rm_merge_overlap_bbox(
+        bboxes: List[BBox], 
+        mode: str = 'remove', 
+        overlap_ratio: float = 0.5) -> Union[List[BBox], List[BBox], List[BBox]]:
     assert mode in ['remove', 'merge'], mode
 
     pts = np.array([(box[2], box[3]) for box in bboxes])
@@ -140,7 +143,12 @@ def to_rgb_img(data: ndarray) -> ndarray:
     return img
 
 
-def draw_bounding_boxes(bboxes: List[BBox], img: ndarray, color: Tuple[int, int, int] = (0, 255, 0), width: int = 2, inplace: bool = False) -> ndarray:
+def draw_bounding_boxes(
+        bboxes: List[BBox], 
+        img: ndarray, 
+        color: Tuple[int, int, int] = (0, 255, 0), 
+        width: int = 2, 
+        inplace: bool = False) -> ndarray:
     if len(img.shape) < 3:
         img = to_rgb_img(img)
     if not inplace:

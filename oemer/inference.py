@@ -28,7 +28,13 @@ def resize_image(image: Image.Image):
     return image.resize((tar_w, tar_h))
 
 
-def inference(model_path: str, img_path: str, step_size: int = 128, batch_size: int = 16, manual_th: Optional[Any] = None, use_tf: bool = False) -> Tuple[ndarray, ndarray]:
+def inference(
+        model_path: str, 
+        img_path: str, 
+        step_size: int = 128, 
+        batch_size: int = 16, 
+        manual_th: Optional[Any] = None, 
+        use_tf: bool = False) -> Tuple[ndarray, ndarray]:
     if use_tf:
         import tensorflow as tf
 

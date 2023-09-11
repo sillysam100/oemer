@@ -193,7 +193,11 @@ def filter_barlines(lines: List[BBox], min_height_unit_ratio: float = 3.75) -> n
     return valid_box # type: ignore
 
 
-def parse_barlines(group_map: ndarray, stems_rests: ndarray, symbols: ndarray, min_height_unit_ratio: float = 3.75) -> ndarray:
+def parse_barlines(
+        group_map: ndarray, 
+        stems_rests: ndarray, 
+        symbols: ndarray, 
+        min_height_unit_ratio: float = 3.75) -> ndarray:
     # Remove notehead from prediction
     barline_cand = np.where(stems_rests-group_map>1, 1, 0)
 
@@ -245,7 +249,11 @@ def filter_clef_box(bboxes: List[BBox]) -> List[BBox]:
     return valid_box
 
 
-def parse_clefs_keys(clefs_keys: ndarray, unit_size: float, clef_size_ratio: float = 3.5, max_clef_tp_ratio: float = 0.45) -> Tuple[List[BBox], List[BBox], List[str], List[str]]:
+def parse_clefs_keys(
+        clefs_keys: ndarray, 
+        unit_size: float, 
+        clef_size_ratio: float = 3.5, 
+        max_clef_tp_ratio: float = 0.45) -> Tuple[List[BBox], List[BBox], List[str], List[str]]:
     global cs_img
     cs_img = to_rgb_img(clefs_keys) # type: ignore
 

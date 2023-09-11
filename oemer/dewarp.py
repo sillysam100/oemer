@@ -114,7 +114,13 @@ def build_grid_group(grid_map: ndarray, grids: List[Grid]) -> Tuple[ndarray, Lis
     return gg_map, grid_groups
 
 
-def connect_nearby_grid_group(gg_map: ndarray, grid_groups: List[GridGroup], grid_map: ndarray, grids: List[Grid], ref_count: int = 8, max_step: int = 20) -> ndarray:
+def connect_nearby_grid_group(
+        gg_map: ndarray, 
+        grid_groups: List[GridGroup], 
+        grid_map: ndarray, 
+        grids: List[Grid], 
+        ref_count: int = 8, 
+        max_step: int = 20) -> ndarray:
     new_gg_map = np.copy(gg_map)
     ref_gids = grid_groups[0].gids[:ref_count]
     idx = 0

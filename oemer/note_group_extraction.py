@@ -201,7 +201,11 @@ def check_valid_new_group(ori_grp, tar_grp, group_map, max_x_diff_ratio=0.5):
     return diff < max_x_diff
 
 
-def parse_stem_direction(groups: Dict[int, List[int]], group_map: ndarray, tolerance_ratio: float = 0.2, max_x_diff_ratio: float = 0.5) -> Tuple[Dict[int, List[int]], ndarray]:
+def parse_stem_direction(
+        groups: Dict[int, List[int]], 
+        group_map: ndarray, 
+        tolerance_ratio: float = 0.2, 
+        max_x_diff_ratio: float = 0.5) -> Tuple[Dict[int, List[int]], ndarray]:
     # Fetch parameters
     notes = layers.get_layer('notes')
 
