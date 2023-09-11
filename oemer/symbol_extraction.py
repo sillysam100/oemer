@@ -22,7 +22,7 @@ from oemer.bbox import (
     get_center,
     to_rgb_img
 )
-from typing import List
+from typing import List, Union
 from typing import Tuple
 from numpy import ndarray
 from typing import Any
@@ -368,7 +368,7 @@ def gen_clefs(bboxes: List[BBox], labels: List[str]) -> List[Clef]:
     return clefs
 
 
-def get_nearby_note_id(box: BBox, note_id_map: ndarray) -> Optional[Any]:
+def get_nearby_note_id(box: BBox, note_id_map: ndarray) -> Union[int, None]:
     cen_x, cen_y = get_center(box)
     unit_size = int(round(get_unit_size(cen_x, cen_y)))
     nid = None
