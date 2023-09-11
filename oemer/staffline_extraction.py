@@ -11,7 +11,7 @@ from sklearn.linear_model import LinearRegression
 from oemer import layers
 from oemer import exceptions as E
 from oemer.logging import get_logger
-from oemer.bbox import find_lines, get_bbox, get_center
+from oemer.bbox import BBox, find_lines, get_bbox, get_center
 from numpy import bool_
 from numpy import float64
 from typing import List, Any, cast
@@ -639,11 +639,11 @@ def further_infer_track_nums(staffs: ndarray, min_degree: int = 75) -> int:
     return num_track
 
 
-def get_degree(line: Tuple[int, int, int, int]) -> float64:
+def get_degree(line: BBox) -> float64:
     return np.rad2deg(np.arctan2(line[3] - line[1], line[2] - line[0]))
 
 
-def filter_lines(lines: List[Tuple[int, int, int, int]], staffs: ndarray, min_degree: int = 75) -> List[Tuple[int, int, int, int]]:
+def filter_lines(lines: List[BBox], staffs: ndarray, min_degree: int = 75) -> List[BBox]:
     min_y = 9999999
     min_x = 9999999
     max_y = 0
@@ -672,7 +672,7 @@ def filter_lines(lines: List[Tuple[int, int, int, int]], staffs: ndarray, min_de
     return cands
 
 
-def get_barline_map(symbols: ndarray, bboxes: List[Tuple[int, int, int, int]]) -> ndarray:
+def get_barline_map(symbols: ndarray, bboxes: List[BBox]) -> ndarray:
     img = np.zeros_like(symbols)
     for box in bboxes:
         box = list(box) # type: ignore

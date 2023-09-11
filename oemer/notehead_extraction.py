@@ -6,7 +6,7 @@ import scipy.ndimage
 
 from oemer import layers
 from oemer.constant import NoteHeadConstant as nhc
-from oemer.bbox import get_bbox, get_center, merge_nearby_bbox, rm_merge_overlap_bbox, to_rgb_img
+from oemer.bbox import BBox, get_bbox, get_center, merge_nearby_bbox, rm_merge_overlap_bbox, to_rgb_img
 from oemer.utils import get_unit_size, find_closest_staffs, get_global_unit_size
 from oemer.logging import get_logger
 from oemer.staffline_extraction import Staff
@@ -123,7 +123,7 @@ def adjust_bbox(bbox, noteheads):
     return (bbox[0], top, bbox[2], bottom)
 
 
-def check_bbox_size(bbox: Tuple[int, int, int, int], noteheads: ndarray, unit_size: float64) -> List[Tuple[int, int, int, int]]:
+def check_bbox_size(bbox: BBox, noteheads: ndarray, unit_size: float64) -> List[BBox]:
     w = bbox[2] - bbox[0]
     h = bbox[3] - bbox[1]
     cen_x, _ = get_center(bbox)
@@ -169,13 +169,13 @@ def check_bbox_size(bbox: Tuple[int, int, int, int], noteheads: ndarray, unit_si
 
 
 def filter_notehead_bbox(
-    bboxes: List[Tuple[int, int, int, int]],
+    bboxes: List[BBox],
     notehead: ndarray,
     min_h_ratio: float = 0.4,
     max_h_ratio: int = 5,
     min_w_ratio: float = 0.3,
     max_w_ratio: int = 3,
-    min_area_ratio: float = 0.5) -> List[Tuple[int, int, int, int]]:
+    min_area_ratio: float = 0.5) -> List[BBox]:
 
     # Fetch parameters
     zones = layers.get_layer('zones')
@@ -221,7 +221,7 @@ def get_notehead_bbox(
     max_h_ratio: int = 5,
     min_w_ratio: float = 0.3,
     max_w_ratio: int = 3,
-    min_area_ratio: float = 0.6) -> List[Tuple[int, int, int, int]]:
+    min_area_ratio: float = 0.6) -> List[BBox]:
 
     logger.debug("Morph noteheads")
     note = morph_notehead(pred, unit_size=global_unit_size)

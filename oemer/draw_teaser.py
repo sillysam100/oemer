@@ -8,11 +8,13 @@ from numpy import ndarray
 from typing import List, Optional, Tuple, Union
 import typing
 
+from oemer.bbox import BBox
+
 # Globals
 out: ndarray
 
 @typing.no_type_check
-def draw_bbox(bboxes: Union[List[Tuple[int, int, int, int]], List[ndarray]], color: Tuple[int, int, int], text: Optional[str] = None, labels: Optional[List[str]] = None, text_y_pos: float = 1) -> None:
+def draw_bbox(bboxes: Union[List[BBox], List[ndarray]], color: Tuple[int, int, int], text: Optional[str] = None, labels: Optional[List[str]] = None, text_y_pos: float = 1) -> None:
     for idx, (x1, y1, x2, y2) in enumerate(bboxes):
         cv2.rectangle(out, (x1, y1), (x2, y2), color, 2)
         y_pos = y1 + round((y2-y1)*text_y_pos)
