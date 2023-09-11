@@ -21,7 +21,7 @@ def count(data, intervals):
     return occur
 
 
-def find_closest_staffs(x: int, y: int) -> Tuple[Staff, Staff]:  # -> Tuple([Staff, Staff]):
+def find_closest_staffs(x: int, y: int) -> Tuple[Staff, Staff]:
     staffs = layers.get_layer('staffs')
 
     staffs = staffs.reshape(-1, 1).squeeze()
