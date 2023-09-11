@@ -11,7 +11,7 @@ from oemer.utils import get_unit_size, find_closest_staffs, get_global_unit_size
 from oemer.logging import get_logger
 from oemer.staffline_extraction import Staff
 from numpy import ndarray
-from typing import List, Tuple, Any
+from typing import List, Tuple, Any, Union
 
 # Globals
 nn_img: ndarray
@@ -37,24 +37,24 @@ class NoteType(enum.Enum):
 class NoteHead:
     def __init__(self) -> None:
         self.points: list[tuple] = []
-        self.pitch: int | Any = None
+        self.pitch: Union[int, None] = None
         self.has_dot: bool = False
         self.bbox: list[float] | Any = None  # XYXY
-        self.stem_up: bool | Any = None
-        self.stem_right: bool | Any = None
-        self.track: int | Any = None
-        self.group: int | Any = None
-        self.staff_line_pos: int | Any = None
-        self.invalid: bool | Any = False  # May be false positive
-        self.id: int | Any = None
-        self.note_group_id: int | Any = None
+        self.stem_up: Union[bool, None] = None
+        self.stem_right: Union[bool, None] = None
+        self.track: Union[int, None] = None
+        self.group: Union[int, None] = None
+        self.staff_line_pos: int = None  # type: ignore
+        self.invalid: Union[bool, None] = False  # May be false positive
+        self.id: Union[int, None] = None
+        self.note_group_id: Union[int, None] = None
         self.sfn: Any = None  # See symbols_extraction.py
 
         # Protected attributes
-        self._label: NoteType | Any = None
+        self._label: Union[NoteType, None] = None
 
     @property
-    def label(self) -> NoteType | Any:
+    def label(self) -> Union[NoteType, None]:
         if self.invalid:
             logger.warning(f"Note {self.id} is not a valid note.")
             return None
@@ -356,7 +356,7 @@ def gen_notes(bboxes: List[ndarray], symbols: ndarray) -> List[NoteHead]:
         # Estimate position by the closeset center.
         pos_idx = np.argmin(np.abs(np.array(pos_cen)-cen_y))
         if 0 < pos_idx < len(pos_cen)-1:
-            nn.staff_line_pos = pos_idx
+            nn.staff_line_pos = int(pos_idx)
         elif pos_idx == 0:
             diff = abs(pos_cen[0] - cen_y)
             pos = round(diff / step)
@@ -392,7 +392,7 @@ def parse_stem_info(notes: List[NoteHead]) -> None:
         st_cen_x = np.mean(xi)
         cen_x = (box[0] + box[2]) / 2
         on_right = st_cen_x > cen_x
-        note.stem_right = on_right
+        note.stem_right = bool(on_right)
         # start_y = box[1] - offset
         # end_y = box[3] + offset
         # left_sum = np.sum(stems[start_y:end_y, box[0]-offset:box[2]])

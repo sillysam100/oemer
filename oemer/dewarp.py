@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from oemer.morph import morph_open
 from oemer.logging import get_logger
 from numpy import ndarray
-from typing import List, Tuple, Any
+from typing import List, Tuple, Any, Union
 from typing_extensions import Self
 
 
@@ -20,7 +20,7 @@ logger = get_logger(__name__)
 
 class Grid:
     def __init__(self) -> None:
-        self.id: int | Any = None
+        self.id: Union[int, None] = None
         self.bbox: list[int] | Any = None  # XYXY
         self.y_shift: int = 0
 
@@ -35,11 +35,11 @@ class Grid:
 
 class GridGroup:
     def __init__(self) -> None:
-        self.id: int | Any = None
-        self.reg_id: int | Any = None
+        self.id: Union[int, None] = None
+        self.reg_id: Union[int, None] = None
         self.bbox: list[int] | Any = None
         self.gids: list[int] = []
-        self.split_unit: int | Any = None
+        self.split_unit: int = None  # type: ignore
 
     @property
     def y_center(self):

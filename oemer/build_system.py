@@ -72,17 +72,17 @@ class Key(enum.Enum):
 
 class Voice:
     def __init__(self) -> None:
-        self.id: int | Any = None
+        self.id: Union[int, None] = None
         self.note_ids: list[int] = []
-        self.stem_up: bool | Any = None
-        self.group_id: int | Any = None
-        self.x_center: float | Any = None
-        self.label: NoteType | Any = None
-        self.has_dot: bool | Any = None
-        self.group: int | Any = None
-        self.track: int | Any = None
-        self.duration: int | Any = None
-        self.rhythm_name: str | Any = None
+        self.stem_up: Union[bool, None] = None
+        self.group_id: Union[int, None] = None
+        self.x_center: Union[float, None] = None
+        self.label: NoteType = None  # type: ignore
+        self.has_dot: Union[bool, None] = None
+        self.group: Union[int, None] = None
+        self.track: Union[int, None] = None
+        self.duration: int = None  # type: ignore
+        self.rhythm_name: Union[str, None] = None
 
     def init(self) -> None:
         notes = layers.get_layer('notes')
@@ -107,8 +107,8 @@ class Voice:
                 notes[nid].force_set_label(self.label)
             notes[nid].has_dot = self.has_dot
 
-        self.rhythm_name = NOTE_TYPE_TO_RHYTHM[self.label]['name']
-        self.duration = NOTE_TYPE_TO_RHYTHM[self.label]['duration']
+        self.rhythm_name = NOTE_TYPE_TO_RHYTHM[self.label]['name']  # type: ignore
+        self.duration = NOTE_TYPE_TO_RHYTHM[self.label]['duration']  # type: ignore
         if self.has_dot:
             self.duration = round(self.duration * 1.5)  # type: ignore
 
@@ -121,18 +121,18 @@ class Voice:
 class Measure:
     def __init__(self) -> None:
         self.symbols: List[Any] = []  # List of symbols
-        self.double_barline: bool | Any = None
+        self.double_barline: Union[bool, None] = None
         self.has_clef: bool = False
         self.clefs: list[Clef] = []
         self.voices: list[NoteGroup] = []
         self.sfns: list[Sfn] = []
         self.rests: list[Rest] = []
-        self.number: int | Any = None
-        self.at_beginning: bool | Any = None
-        self.group: int | Any = None
+        self.number: Union[int, None] = None
+        self.at_beginning: bool = None  # type: ignore
+        self.group: Union[int, None] = None
 
         self.time_slots: list[object] = []
-        self.slot_duras: np.ndarray | Any = None
+        self.slot_duras: np.ndarray = None  # type: ignore
 
     def add_symbols(self, symbols: Union[List[Union[Clef, Rest, Sfn]], List[Voice]]) -> None:
         self.symbols.extend(symbols)
@@ -188,7 +188,7 @@ class Measure:
         # Count occurance
         sfn_counts = [0 for _ in range(track_nums)]
         for sfn in sfns_cands:
-            sfn_counts[sfn.track] += 1
+            sfn_counts[sfn.track] += 1  # type: ignore
 
         # Check validity
         all_same = all(ss.label==sfns_cands[0].label for ss in sfns_cands)  # All tracks have the same label.
@@ -466,7 +466,7 @@ class AddNote(Action):
         self.voice = voice
 
     def perform(self, parent_elem: Optional[Element] = None) -> Element:
-        clef_type = self.ctx.clefs[self.note.track].label
+        clef_type = self.ctx.clefs[self.note.track].label  # type: ignore
         chroma = get_chroma_pitch(self.note.staff_line_pos, clef_type)
         cur_sfn = self.ctx.sfn_state[chroma]
         if (self.note.sfn is not None) and (cur_sfn != self.note.sfn):
@@ -672,7 +672,7 @@ class MusicXMLBuilder:
         num = 1  # Measure count starts from 1 for MusicXML
         for grp, insts in group_container.items():
             self.measures[grp] = []
-            buffer: Any = []
+            buffer: List[Any] = []
             at_beginning = True
             double_barline = False
             for inst in insts:

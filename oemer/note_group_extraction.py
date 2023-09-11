@@ -15,7 +15,7 @@ from oemer.bbox import (
     draw_bounding_boxes
 )
 from numpy import ndarray
-from typing import Dict, List, Tuple, Any
+from typing import Dict, List, Tuple, Any, Union
 
 # Globals
 grp_img: ndarray
@@ -25,16 +25,16 @@ logger = get_logger(__name__)
 
 class NoteGroup:
     def __init__(self) -> None:
-        self.id: int | Any = None
+        self.id: Union[int, None] = None
         self.bbox: list[int] | Any = None
         self.note_ids: list[int] = []
         self.top_note_ids: list[int] = []  # For multi-melody cases
         self.bottom_note_ids: list[int] = []  # For multi-melody cases
-        self.stem_up: bool | Any = None
-        self.has_stem: bool | Any = None
-        self.all_same_type: bool | Any = None  # All notes are solid or hollow
-        self.group: int | Any = None
-        self.track: int | Any = None
+        self.stem_up: Union[bool, None] = None
+        self.has_stem: Union[bool, None] = None
+        self.all_same_type: Union[bool, None] = None  # All notes are solid or hollow
+        self.group: Union[int, None] = None
+        self.track: Union[int, None] = None
 
     @property
     def x_center(self) -> float:

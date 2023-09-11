@@ -25,8 +25,7 @@ from oemer.bbox import (
 from typing import List, Union
 from typing import Tuple
 from numpy import ndarray
-from typing import Any
-from typing import Optional
+from typing import Any, Union
 
 # Globals
 global_cs: ndarray
@@ -60,9 +59,9 @@ class RestType(enum.Enum):
 class Clef:
     def __init__(self) -> None:
         self.bbox: list[int] | Any = None
-        self.track: int | Any = None
-        self.group: int | Any = None
-        self._label: ClefType | Any = None
+        self.track: Union[int, None] = None
+        self.group: Union[int, None] = None
+        self._label: ClefType = None  # type: ignore
 
     @property
     def label(self) -> ClefType:
@@ -84,11 +83,11 @@ class Clef:
 class Sfn:
     def __init__(self) -> None:
         self.bbox: list[int] | Any = None
-        self.note_id: int | Any = None
-        self.is_key: bool | Any = None  # Whether is key or accidental
-        self.track: int | Any = None
-        self.group: int | Any = None
-        self._label: SfnType | Any = None
+        self.note_id: Union[int, None] = None
+        self.is_key: Union[bool, None] = None  # Whether is key or accidental
+        self.track: Union[int, None] = None
+        self.group: Union[int, None] = None
+        self._label: SfnType = None  # type: ignore
 
     @property
     def label(self) -> SfnType:
@@ -111,10 +110,10 @@ class Sfn:
 class Rest:
     def __init__(self) -> None:
         self.bbox: list[int] | Any = None
-        self.has_dot: bool | Any = None
-        self.track: int | Any = None
-        self.group: int | Any = None
-        self._label: RestType | Any = None
+        self.has_dot: Union[bool, None] = None
+        self.track: Union[int, None] = None
+        self.group: Union[int, None] = None
+        self._label: RestType = None  # type: ignore
 
     @property
     def label(self) -> RestType:
@@ -137,7 +136,7 @@ class Rest:
 class Barline:
     def __init__(self) -> None:
         self.bbox: list[int] | Any = None
-        self.group: int | Any = None
+        self.group: Union[int, None] = None
 
     @property
     def x_center(self) -> float:
