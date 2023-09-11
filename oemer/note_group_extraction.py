@@ -1,6 +1,9 @@
+from typing import Dict, List, Tuple, Any, Union
+
 import cv2
-import numpy as np
 import scipy.ndimage
+import numpy as np
+from numpy import ndarray
 
 from oemer import layers
 from oemer.inference import predict
@@ -14,8 +17,6 @@ from oemer.bbox import (
     to_rgb_img,
     draw_bounding_boxes
 )
-from numpy import ndarray
-from typing import Dict, List, Tuple, Any, Union
 
 # Globals
 grp_img: ndarray

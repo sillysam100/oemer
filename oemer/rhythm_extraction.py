@@ -1,9 +1,11 @@
+from typing import Tuple, List, Any, Dict
 import random
 import math
 
 import cv2
-import numpy as np
 import scipy.ndimage
+import numpy as np
+from numpy import ndarray
 
 from oemer import layers
 from oemer.utils import get_unit_size
@@ -11,11 +13,6 @@ from oemer.logging import get_logger
 from oemer.bbox import BBox, get_center, get_rotated_bbox, to_rgb_img, draw_bounding_boxes
 from oemer.notehead_extraction import NoteType
 from oemer.morph import morph_open, morph_close
-from numpy import ndarray
-from typing import Tuple
-from typing import List
-from typing import Any
-from typing import Dict
 
 # Globals
 dot_img: ndarray

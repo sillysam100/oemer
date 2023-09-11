@@ -1,8 +1,10 @@
+from typing import List, Tuple, Any, Union
 import enum
 
 import cv2
-import numpy as np
 import scipy.ndimage
+import numpy as np
+from numpy import ndarray
 
 from oemer import layers
 from oemer.constant import NoteHeadConstant as nhc
@@ -10,8 +12,6 @@ from oemer.bbox import BBox, get_bbox, get_center, merge_nearby_bbox, rm_merge_o
 from oemer.utils import get_unit_size, find_closest_staffs, get_global_unit_size
 from oemer.logging import get_logger
 from oemer.staffline_extraction import Staff
-from numpy import ndarray
-from typing import List, Tuple, Any, Union
 
 # Globals
 nn_img: ndarray

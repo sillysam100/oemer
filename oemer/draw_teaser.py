@@ -1,12 +1,12 @@
+import typing
 from PIL import Image
+from typing import List, Optional, Tuple, Union
 
 import cv2
 import numpy as np
 
 from oemer import layers
 from numpy import ndarray
-from typing import List, Optional, Tuple, Union
-import typing
 
 from oemer.bbox import BBox
 

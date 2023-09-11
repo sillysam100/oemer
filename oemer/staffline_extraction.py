@@ -1,9 +1,12 @@
+from typing import List, Any, cast, Tuple
+from typing_extensions import Self
 import enum
 import pickle
 
 import cv2
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+from numpy import bool_, ndarray
 from scipy.signal import find_peaks
 from sklearn.cluster import KMeans
 from sklearn.linear_model import LinearRegression
@@ -12,11 +15,6 @@ from oemer import layers
 from oemer import exceptions as E
 from oemer.logging import get_logger
 from oemer.bbox import BBox, find_lines, get_bbox, get_center
-from numpy import bool_
-from typing import List, Any, cast
-from typing_extensions import Self
-from numpy import ndarray
-from typing import Tuple
 
 
 logger = get_logger(__name__)

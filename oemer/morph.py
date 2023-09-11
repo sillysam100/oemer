@@ -1,8 +1,9 @@
 
-import numpy as np
-import cv2
-from numpy import ndarray
 from typing import Tuple
+
+import cv2
+import numpy as np
+from numpy import ndarray
 
 
 def get_kernel(kernel: Tuple[int, int]) -> ndarray:

@@ -1,3 +1,4 @@
+from typing import Tuple
 import os
 import logging
 
@@ -7,7 +8,6 @@ from sklearn.linear_model import LinearRegression
 
 from . import layers
 from oemer.staffline_extraction import Staff
-from typing import Tuple
 
 def count(data, intervals):
     """Count elements in different intervals"""

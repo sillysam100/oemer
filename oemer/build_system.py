@@ -1,13 +1,14 @@
 import re
 import math
 import enum
-from typing import List, Mapping
+import typing
 import xml.etree.ElementTree as ET
+from typing import List, Mapping, Union, Any, Optional, Tuple, Dict
 from xml.dom import minidom
 from xml.etree.ElementTree import Element, SubElement
 
 import numpy as np
-from typing import Union
+from numpy import ndarray
 
 from oemer import layers
 from oemer.symbol_extraction import Barline, Clef, Sfn, Rest, SfnType, ClefType, RestType
@@ -15,9 +16,6 @@ from oemer.note_group_extraction import NoteGroup
 from oemer.notehead_extraction import NoteHead, NoteType
 from oemer.utils import get_global_unit_size, get_total_track_nums
 from oemer.logging import get_logger
-from typing import Union, Any, Optional, Tuple, Dict
-import typing
-from numpy import ndarray
 
 
 logger = get_logger(__name__)

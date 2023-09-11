@@ -1,18 +1,18 @@
 import os
 import pickle
+from typing import List, Tuple, Any, Union
+from typing_extensions import Self
 
 import cv2
 import numpy as np
 import scipy.ndimage
+import matplotlib.pyplot as plt
+from numpy import ndarray
 from scipy.interpolate import interp1d, griddata
 from sklearn.linear_model import LinearRegression
-import matplotlib.pyplot as plt
 
 from oemer.morph import morph_open
 from oemer.logging import get_logger
-from numpy import ndarray
-from typing import List, Tuple, Any, Union
-from typing_extensions import Self
 
 
 logger = get_logger(__name__)

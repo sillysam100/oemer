@@ -6,8 +6,8 @@ from pathlib import Path
 from PIL import Image
 from numpy import ndarray
 from typing import Tuple
-from argparse import Namespace
-from argparse import ArgumentParser
+
+from argparse import Namespace, ArgumentParser
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 

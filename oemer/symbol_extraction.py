@@ -1,9 +1,11 @@
+from typing import List, Union, Any, Tuple
 import enum
 
 import cv2
-import numpy as np
 import scipy.ndimage
 import matplotlib.pyplot as plt
+import numpy as np
+from numpy import ndarray
 
 from oemer import layers
 from oemer import exceptions as E
@@ -22,10 +24,7 @@ from oemer.bbox import (
     get_center,
     to_rgb_img
 )
-from typing import List, Union
-from typing import Tuple
-from numpy import ndarray
-from typing import Any, Union
+
 
 # Globals
 global_cs: ndarray

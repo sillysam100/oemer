@@ -1,15 +1,13 @@
 import os
 import pickle
 from PIL import Image
+from typing import Any, Optional, Tuple
 
 import cv2
 import numpy as np
+from numpy import ndarray
 
 from oemer import MODULE_PATH
-from numpy import ndarray
-from typing import Any
-from typing import Optional
-from typing import Tuple
 
 
 def resize_image(image: Image.Image):

@@ -1,14 +1,13 @@
 
+from typing import Union, Any, List, Tuple
+
 import cv2
 import numpy as np
-from sklearn.cluster import AgglomerativeClustering
 from numpy import ndarray
-from typing import List
-from typing import Tuple
-from typing import Union, Any
+from sklearn.cluster import AgglomerativeClustering
+
 
 BBox = Tuple[int, int, int, int]
-
 
 def get_bbox(data: ndarray) -> List[BBox]:
     contours, _ = cv2.findContours(data.astype(np.uint8), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)

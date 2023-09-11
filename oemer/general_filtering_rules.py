@@ -1,12 +1,8 @@
+from typing import List, Union, Any, Callable, Optional
+
 from . import layers
 from .utils import get_unit_size
 from .bbox import BBox, get_center
-from typing import List
-from typing import Tuple
-from typing import Union
-from typing import Any
-from typing import Callable
-from typing import Optional
 
 
 def filter_out_of_range_bbox(bboxes: Union[List[BBox], List[BBox]]) -> Union[List[BBox], List[BBox]]:
