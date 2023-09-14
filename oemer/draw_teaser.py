@@ -13,9 +13,8 @@ from oemer.bbox import BBox
 # Globals
 out: ndarray
 
-@typing.no_type_check
 def draw_bbox(
-    bboxes: Union[List[BBox], List[ndarray]], 
+    bboxes: List[BBox], 
     color: Tuple[int, int, int], 
     text: Optional[str] = None, 
     labels: Optional[List[str]] = None, 
@@ -25,7 +24,7 @@ def draw_bbox(
         y_pos = y1 + round((y2-y1)*text_y_pos)
         if text is not None:
             cv2.putText(out, text, (x2+2, y_pos), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 1)
-        else:
+        elif labels is not None:
             cv2.putText(out, labels[idx], (x2+2, y_pos), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 1)
 
 

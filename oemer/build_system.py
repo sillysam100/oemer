@@ -129,7 +129,7 @@ class Measure:
         self.at_beginning: bool = None  # type: ignore
         self.group: Union[int, None] = None
 
-        self.time_slots: list[object] = []
+        self.time_slots: list[List[Any]] = []
         self.slot_duras: np.ndarray = None  # type: ignore
 
     def add_symbols(self, symbols: Union[List[Union[Clef, Rest, Sfn]], List[Voice]]) -> None:
@@ -248,11 +248,10 @@ class Measure:
             return clefs
         return [None for _ in range(track_nums)]  # type: ignore
 
-    @typing.no_type_check
     def align_symbols(self) -> Optional[Any]:
         track_nums = get_total_track_nums()
         unit_size = get_global_unit_size()
-        time_slots = []
+        time_slots: List[List[Any]] = []
         corr_sidx = []
         last_x = None
         for idx, sym in enumerate(self.symbols):
@@ -284,19 +283,19 @@ class Measure:
             if has_multi:
                 multi_track_idx.append(idx)
 
-            duras = [[] for _ in range(track_nums)]
+            track_dura: List[List[int]] = [[] for _ in range(track_nums)]
             for sym in slot:
                 dura = get_duration(sym)
-                duras[sym.track].append(dura)
-            for track, dura in enumerate(duras):
-                du = min(dura) if dura else 0
+                track_dura[sym.track].append(dura)
+            for track, durations in enumerate(track_dura):
+                du = min(durations) if durations else 0
                 track_duras[idx, track] = du
 
         # Decide whether to keep processing
         if track_nums == 1:
             self.time_slots = time_slots
             self.slot_duras = track_duras
-            return
+            return None
         assert track_nums == 2, track_nums
 
         # Start adjusting rhythms
@@ -335,8 +334,8 @@ class Measure:
                 new_track_duras[add_idx, 1-lead_track] = diff
             return added
 
-        for idx, duras in enumerate(track_duras):
-            t1, t2 = duras
+        for idx, track_dura in enumerate(track_duras):
+            t1, t2 = typing.cast(List[int], track_dura)
             if (t1 > 0) and (t2 > 0):
                 if diff > 0:
                     added = modify(add_idx, diff, lead_track, added)
@@ -401,7 +400,7 @@ class Action:
     class Context:
         key: Union[Key, None] = None
         clefs: List[Clef] = []
-        sfn_state: Mapping[str, Sfn] = {chr(ord('A')+i):None for i in range(7)}  # type: ignore
+        sfn_state: Mapping[str, SfnType] = {chr(ord('A')+i):None for i in range(7)}  # type: ignore
 
     ctx = Context()
 
@@ -412,13 +411,12 @@ class Action:
         raise NotImplementedError
 
     @classmethod
-    @typing.no_type_check
     def init_sfn_state(cls) -> None:
-        cls.ctx.sfn_state = {chr(ord('A')+i):None for i in range(7)}
-        if cls.ctx.key.value > 0:
+        cls.ctx.sfn_state = {chr(ord('A')+i):None for i in range(7)}  # type: ignore
+        if cls.ctx.key and cls.ctx.key.value > 0:
             for sfn_name in SHARP_KEY_ORDER[:cls.ctx.key.value]:
                 cls.ctx.sfn_state[sfn_name] = SfnType.SHARP
-        elif cls.ctx.key.value < 0:
+        elif cls.ctx.key and cls.ctx.key.value < 0:
             for sfn_name in FLAT_KEY_ORDER[:-cls.ctx.key.value]:
                 cls.ctx.sfn_state[sfn_name] = SfnType.FLAT
 
