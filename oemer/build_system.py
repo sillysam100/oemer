@@ -15,7 +15,7 @@ from oemer.symbol_extraction import Barline, Clef, Sfn, Rest, SfnType, ClefType,
 from oemer.note_group_extraction import NoteGroup
 from oemer.notehead_extraction import NoteHead, NoteType
 from oemer.utils import get_global_unit_size, get_total_track_nums
-from oemer.logging import get_logger
+from oemer.logger import get_logger
 
 
 logger = get_logger(__name__)

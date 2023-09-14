@@ -8,7 +8,7 @@ from numpy import ndarray
 from oemer import layers
 from oemer.inference import predict
 from oemer.utils import find_closest_staffs, get_global_unit_size, get_unit_size
-from oemer.logging import get_logger
+from oemer.logger import get_logger
 from oemer.bbox import (
     get_center,
     merge_nearby_bbox,

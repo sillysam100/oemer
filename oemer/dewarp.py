@@ -12,7 +12,7 @@ from scipy.interpolate import interp1d, griddata
 from sklearn.linear_model import LinearRegression
 
 from oemer.morph import morph_open
-from oemer.logging import get_logger
+from oemer.logger import get_logger
 
 
 logger = get_logger(__name__)

@@ -13,7 +13,7 @@ from sklearn.linear_model import LinearRegression
 
 from oemer import layers
 from oemer import exceptions as E
-from oemer.logging import get_logger
+from oemer.logger import get_logger
 from oemer.bbox import BBox, find_lines, get_bbox, get_center
 
 

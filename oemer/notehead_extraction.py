@@ -10,7 +10,7 @@ from oemer import layers
 from oemer.constant import NoteHeadConstant as nhc
 from oemer.bbox import BBox, get_bbox, get_center, merge_nearby_bbox, rm_merge_overlap_bbox, to_rgb_img
 from oemer.utils import get_unit_size, find_closest_staffs, get_global_unit_size
-from oemer.logging import get_logger
+from oemer.logger import get_logger
 from oemer.staffline_extraction import Staff
 
 # Globals

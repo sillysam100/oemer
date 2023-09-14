@@ -9,7 +9,7 @@ from numpy import ndarray
 
 from oemer import layers
 from oemer.utils import get_unit_size
-from oemer.logging import get_logger
+from oemer.logger import get_logger
 from oemer.bbox import BBox, get_center, get_rotated_bbox, to_rgb_img, draw_bounding_boxes
 from oemer.notehead_extraction import NoteType
 from oemer.morph import morph_open, morph_close

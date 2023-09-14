@@ -17,7 +17,7 @@ import numpy as np
 from oemer import MODULE_PATH
 from oemer import layers
 from oemer.inference import inference
-from oemer.logging import get_logger
+from oemer.logger import get_logger
 from oemer.dewarp import estimate_coords, dewarp
 from oemer.staffline_extraction import extract as staff_extract
 from oemer.notehead_extraction import extract as note_extract
