@@ -18,7 +18,8 @@ def draw_bbox(
     color: Tuple[int, int, int], 
     text: Optional[str] = None, 
     labels: Optional[List[str]] = None, 
-    text_y_pos: float = 1) -> None:
+    text_y_pos: float = 1
+) -> None:
     for idx, (x1, y1, x2, y2) in enumerate(bboxes):
         cv2.rectangle(out, (x1, y1), (x2, y2), color, 2)
         y_pos = y1 + round((y2-y1)*text_y_pos)

@@ -3,11 +3,11 @@ import pickle
 import argparse
 import urllib.request
 from pathlib import Path
+from typing import Tuple
+from argparse import Namespace, ArgumentParser
+
 from PIL import Image
 from numpy import ndarray
-from typing import Tuple
-
-from argparse import Namespace, ArgumentParser
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 

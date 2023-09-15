@@ -725,12 +725,12 @@ class MusicXMLBuilder:
 
 
 def gen_measure(
-        buffer: Union[List[Union[Clef, Rest, Sfn]], 
-                      List[Voice]], 
-                      grp: int, 
-                      num: int, 
-                      at_beginning: bool = False, 
-                      double_barline: bool = False) -> Measure:
+    buffer: Union[List[Union[Clef, Rest, Sfn]], List[Voice]], 
+    grp: int, 
+    num: int, 
+    at_beginning: bool = False, 
+    double_barline: bool = False
+) -> Measure:
     mm = Measure()
     mm.add_symbols(buffer)
     mm.double_barline = double_barline
