@@ -37,7 +37,7 @@ class NoteType(enum.Enum):
 
 class NoteHead:
     def __init__(self) -> None:
-        self.points: list[tuple] = []
+        self.points: List[tuple] = []
         self.pitch: Union[int, None] = None
         self.has_dot: bool = False
         self.bbox: BBox = None  # type: ignore 
@@ -227,11 +227,11 @@ def get_notehead_bbox(
     note = morph_notehead(pred, unit_size=global_unit_size)
     bboxes = get_bbox(note)
     bboxes = rm_merge_overlap_bbox(bboxes)
-    result_bboxes: Any = []
+    result_bboxes: List[BBox] = []
     for box in bboxes:
         unit_size = get_unit_size(*get_center(box))
-        box = check_bbox_size(box, pred, unit_size)  # type: ignore
-        result_bboxes.extend(box)
+        checked_boxes = check_bbox_size(box, pred, unit_size)  # type: ignore
+        result_bboxes.extend(checked_boxes)
     logger.debug("Detected noteheads: %d", len(result_bboxes))
 
     logger.debug("Filtering noteheads")

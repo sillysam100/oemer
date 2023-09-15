@@ -40,7 +40,7 @@ class GridGroup:
         self.id: Union[int, None] = None
         self.reg_id: Union[int, None] = None
         self.bbox: BBox = None  # type: ignore
-        self.gids: list[int] = []
+        self.gids: List[int] = []
         self.split_unit: int = None  # type: ignore
 
     @property

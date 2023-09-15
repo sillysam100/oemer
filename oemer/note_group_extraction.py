@@ -29,9 +29,9 @@ class NoteGroup:
     def __init__(self) -> None:
         self.id: Union[int, None] = None
         self.bbox: BBox = None  # type: ignore
-        self.note_ids: list[int] = []
-        self.top_note_ids: list[int] = []  # For multi-melody cases
-        self.bottom_note_ids: list[int] = []  # For multi-melody cases
+        self.note_ids: List[int] = []
+        self.top_note_ids: List[int] = []  # For multi-melody cases
+        self.bottom_note_ids: List[int] = []  # For multi-melody cases
         self.stem_up: Union[bool, None] = None
         self.has_stem: Union[bool, None] = None
         self.all_same_type: Union[bool, None] = None  # All notes are solid or hollow
