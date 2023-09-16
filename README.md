@@ -94,7 +94,7 @@ Notice that all descriptions below are simplfied compared to the actual implemen
 
 There are two UNet models being used: one serves to separate stafflines and all other symbols, and the other for separating more detailed symbol types (see [Model Prediction](#model-prediction) below). The training script is under `oemer/train.py`.
 
-The two models use different datasets for training: [CvcMuscima-Distortions](http://www.cvc.uab.es/cvcmuscima/index_database.html) for training the first model, and [DeepScores-extended](https://zenodo.org/record/4012193) for the second model. Both trainings leverage multiple types of image augmentation techniques to enhance the robustness (see [here](https://github.com/BreezeWhite/oemer/blob/main/oemer/train.py#L50-L108)).
+The two models use different datasets for training: [CvcMuscima-Distortions](http://pages.cvc.uab.es/cvcmuscima/index_database.html) for training the first model, and [DeepScores-extended](https://zenodo.org/record/4012193) for the second model. Both trainings leverage multiple types of image augmentation techniques to enhance the robustness (see [here](https://github.com/BreezeWhite/oemer/blob/main/oemer/train.py#L50-L108)).
 
 To identify invidual symbol types on the predictions, SVM models are used. The data used to train SVM models are extracted from [DeepScores-extended](https://zenodo.org/record/4012193). There are three different SVM models that are used to classify symbols. More details can be found in [oemer/classifier.py](https://github.com/BreezeWhite/oemer/blob/main/oemer/classifier.py).
 
