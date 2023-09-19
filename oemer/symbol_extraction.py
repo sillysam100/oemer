@@ -1,16 +1,20 @@
+from typing import List, Union, Any, Tuple
 import enum
 
 import cv2
-import numpy as np
 import scipy.ndimage
 import matplotlib.pyplot as plt
+import numpy as np
+from numpy import ndarray
 
 from oemer import layers
 from oemer import exceptions as E
 from oemer.inference import predict
-from oemer.utils import get_global_unit_size, slope_to_degree, get_unit_size, get_logger, find_closest_staffs
+from oemer.utils import get_global_unit_size, slope_to_degree, get_unit_size, find_closest_staffs
+from oemer.logger import get_logger
 from oemer.general_filtering_rules import filter_out_of_range_bbox, filter_out_small_area
 from oemer.bbox import (
+    BBox,
     merge_nearby_bbox,
     rm_merge_overlap_bbox,
     find_lines,
@@ -22,6 +26,9 @@ from oemer.bbox import (
 )
 
 
+# Globals
+global_cs: ndarray
+temp: ndarray
 
 logger = get_logger(__name__)
 
@@ -49,50 +56,50 @@ class RestType(enum.Enum):
 
 
 class Clef:
-    def __init__(self):
-        self.bbox: list[int] = None
-        self.track: int = None
-        self.group: int = None
-        self._label: ClefType = None
+    def __init__(self) -> None:
+        self.bbox: BBox = None  # type: ignore
+        self.track: Union[int, None] = None
+        self.group: Union[int, None] = None
+        self._label: ClefType = None  # type: ignore
 
     @property
-    def label(self):
+    def label(self) -> ClefType:
         return self._label
 
     @label.setter
-    def label(self, val):
+    def label(self, val: ClefType) -> None:
         assert isinstance(val, ClefType)
         self._label = val
 
     @property
-    def x_center(self):
-        return (self.bbox[0] + self.bbox[2]) / 2
+    def x_center(self) -> float:
+        return float((self.bbox[0] + self.bbox[2]) / 2)
 
     def __repr__(self):
         return f"Clef: {self.label.name} / Track: {self.track} / Group: {self.group}"
 
 
 class Sfn:
-    def __init__(self):
-        self.bbox: list[int] = None
-        self.note_id: int = None
-        self.is_key: bool = None  # Whether is key or accidental
-        self.track: int = None
-        self.group: int = None
-        self._label: SfnType = None
+    def __init__(self) -> None:
+        self.bbox: BBox = None  # type: ignore
+        self.note_id: Union[int, None] = None
+        self.is_key: Union[bool, None] = None  # Whether is key or accidental
+        self.track: Union[int, None] = None
+        self.group: Union[int, None] = None
+        self._label: SfnType = None  # type: ignore
 
     @property
-    def label(self):
+    def label(self) -> SfnType:
         return self._label
 
     @label.setter
-    def label(self, val):
+    def label(self, val: SfnType) -> None:
         assert isinstance(val, SfnType)
         self._label = val
 
     @property
-    def x_center(self):
-        return (self.bbox[0] + self.bbox[2]) / 2
+    def x_center(self) -> float:
+        return float((self.bbox[0] + self.bbox[2]) / 2)
 
     def __repr__(self):
         return f"SFN: {self.label.name} / Note ID: {self.note_id} / Is key: {self.is_key}" \
@@ -100,25 +107,25 @@ class Sfn:
 
 
 class Rest:
-    def __init__(self):
-        self.bbox: list[int] = None
-        self.has_dot: bool = None
-        self.track: int = None
-        self.group: int = None
-        self._label: RestType = None
+    def __init__(self) -> None:
+        self.bbox: BBox = None  # type: ignore
+        self.has_dot: Union[bool, None] = None
+        self.track: Union[int, None] = None
+        self.group: Union[int, None] = None
+        self._label: RestType = None  # type: ignore
 
     @property
-    def label(self):
+    def label(self) -> RestType:
         return self._label
 
     @label.setter
-    def label(self, val):
+    def label(self, val: RestType) -> None:
         assert isinstance(val, RestType)
         self._label = val
 
     @property
-    def x_center(self):
-        return (self.bbox[0] + self.bbox[2]) / 2
+    def x_center(self) -> float:
+        return float((self.bbox[0] + self.bbox[2]) / 2)
 
     def __repr__(self):
         return f"Rest: {self.label.name} / Has dot: {self.has_dot} / Track: {self.track}" \
@@ -126,19 +133,19 @@ class Rest:
 
 
 class Barline:
-    def __init__(self):
-        self.bbox: list[int] = None
-        self.group: int = None
+    def __init__(self) -> None:
+        self.bbox: BBox = None  # type: ignore
+        self.group: Union[int, None] = None
 
     @property
-    def x_center(self):
-        return (self.bbox[0] + self.bbox[2]) / 2
+    def x_center(self) -> float:
+        return float((self.bbox[0] + self.bbox[2]) / 2)
 
     def __repr__(self):
         return f"Barline / Group: {self.group}"
 
 
-def filter_barlines(lines, min_height_unit_ratio=3.75):
+def filter_barlines(lines: List[BBox], min_height_unit_ratio: float = 3.75) -> ndarray:
     lines = filter_out_of_range_bbox(lines)
     # lines = merge_nearby_bbox(lines, 100, x_factor=100)
     lines = rm_merge_overlap_bbox(lines, mode='merge', overlap_ratio=0)
@@ -157,11 +164,11 @@ def filter_barlines(lines, min_height_unit_ratio=3.75):
         valid_lines.append(line)
 
     # Second round check, in bbox mode.
-    valid_lines = np.array(valid_lines)
-    max_x = np.max(valid_lines[..., 2])
-    max_y = np.max(valid_lines[..., 3])
+    valid_lines = np.array(valid_lines)  # type: ignore
+    max_x = np.max(valid_lines[..., 2])  # type: ignore
+    max_y = np.max(valid_lines[..., 3])  # type: ignore
     data = np.zeros((max_y+10, max_x+10, 3))
-    data = draw_lines(valid_lines, data, width=1)
+    data = draw_lines(valid_lines, data, width=1)  # type: ignore
     boxes = get_bbox(data[..., 1])
     valid_box = []
     for box in boxes:
@@ -179,12 +186,17 @@ def filter_barlines(lines, min_height_unit_ratio=3.75):
     top_5 = np.mean(heights[-5:])
     norm = np.array(heights) / top_5
     idx = np.where(norm > 0.5)[0]
-    valid_box = np.array(valid_box)[idx]
+    valid_box = np.array(valid_box)[idx]  # type: ignore
 
-    return valid_box
+    return valid_box  # type: ignore
 
 
-def parse_barlines(group_map, stems_rests, symbols, min_height_unit_ratio=3.75):
+def parse_barlines(
+    group_map: ndarray, 
+    stems_rests: ndarray, 
+    symbols: ndarray, 
+    min_height_unit_ratio: float = 3.75
+) -> ndarray:
     # Remove notehead from prediction
     barline_cand = np.where(stems_rests-group_map>1, 1, 0)
 
@@ -215,7 +227,7 @@ def parse_barlines(group_map, stems_rests, symbols, min_height_unit_ratio=3.75):
     return line_box
 
 
-def filter_clef_box(bboxes):
+def filter_clef_box(bboxes: List[BBox]) -> List[BBox]:
     valid_box = []
     for box in bboxes:
         w = box[2] - box[0]
@@ -236,9 +248,14 @@ def filter_clef_box(bboxes):
     return valid_box
 
 
-def parse_clefs_keys(clefs_keys, unit_size, clef_size_ratio=3.5, max_clef_tp_ratio=0.45):
+def parse_clefs_keys(
+    clefs_keys: ndarray, 
+    unit_size: float, 
+    clef_size_ratio: float = 3.5, 
+    max_clef_tp_ratio: float = 0.45
+) -> Tuple[List[BBox], List[BBox], List[str], List[str]]:
     global cs_img
-    cs_img = to_rgb_img(clefs_keys)
+    cs_img = to_rgb_img(clefs_keys)  # type: ignore
 
     ker = np.ones((np.int64(unit_size//2), 1), dtype=np.uint8)
     clefs_keys = cv2.erode(cv2.dilate(clefs_keys.astype(np.uint8), ker), ker)
@@ -267,7 +284,7 @@ def parse_clefs_keys(clefs_keys, unit_size, clef_size_ratio=3.5, max_clef_tp_rat
 
     clef_box = filter_clef_box(clef_box)
 
-    def pred_symbols(bboxes, model_name):
+    def pred_symbols(bboxes: List[BBox], model_name: str) -> List[str]:
         label = []
         for x1, y1, x2, y2 in bboxes:
             region = np.copy(clefs_keys[y1:y2, x1:x2])
@@ -282,7 +299,7 @@ def parse_clefs_keys(clefs_keys, unit_size, clef_size_ratio=3.5, max_clef_tp_rat
     return clef_box, key_box, clef_label, key_label
 
 
-def parse_rests(line_box, unit_size):
+def parse_rests(line_box: ndarray, unit_size: float) -> Tuple[List[BBox], List[str]]:
     stems_rests = layers.get_layer('stems_rests_pred')
     group_map = layers.get_layer('group_map')
 
@@ -323,7 +340,7 @@ def parse_rests(line_box, unit_size):
     return valid_box, label
 
 
-def gen_barlines(bboxes):
+def gen_barlines(bboxes: ndarray) -> List[Barline]:
     barlines = []
     for box in bboxes:
         st1, _ = find_closest_staffs(*get_center(box))
@@ -334,7 +351,7 @@ def gen_barlines(bboxes):
     return barlines
 
 
-def gen_clefs(bboxes, labels):
+def gen_clefs(bboxes: List[BBox], labels: List[str]) -> List[Clef]:
     name_type_map = {
         "gclef": ClefType.G_CLEF,
         "fclef": ClefType.F_CLEF
@@ -351,7 +368,7 @@ def gen_clefs(bboxes, labels):
     return clefs
 
 
-def get_nearby_note_id(box, note_id_map):
+def get_nearby_note_id(box: BBox, note_id_map: ndarray) -> Union[int, None]:
     cen_x, cen_y = get_center(box)
     unit_size = int(round(get_unit_size(cen_x, cen_y)))
     nid = None
@@ -362,7 +379,7 @@ def get_nearby_note_id(box, note_id_map):
     return nid
 
 
-def gen_sfns(bboxes, labels):
+def gen_sfns(bboxes: List[BBox], labels: List[str]) -> List[Sfn]:
     note_id_map = layers.get_layer('note_id')
     notes = layers.get_layer('notes')
 
@@ -394,7 +411,7 @@ def gen_sfns(bboxes, labels):
     return sfns
 
 
-def gen_rests(bboxes, labels):
+def gen_rests(bboxes: List[BBox], labels: List[str]) -> List[Rest]:
     symbols = layers.get_layer('symbols_pred')
 
     name_type_map = {
@@ -424,7 +441,7 @@ def gen_rests(bboxes, labels):
     return rests
 
 
-def extract(min_barline_h_unit_ratio=3.75):
+def extract(min_barline_h_unit_ratio: float = 3.75) -> Tuple[List[Barline], List[Clef], List[Sfn], List[Rest]]:
     # Fetch paramters
     symbols = layers.get_layer('symbols_pred')
     stems_rests = layers.get_layer('stems_rests_pred')
@@ -476,4 +493,4 @@ if __name__ == "__main__":
     aa = draw_symbols(clefs, ori_img)
     bb = draw_symbols(rests, aa, color=(11, 163, 0))
     cc = draw_symbols(sfns, bb, color=(53, 0, 168))
-    dd = draw_bounding_boxes([b.bbox for b in barlines], cc, color=(250, 0, 200))
+    dd = draw_bounding_boxes([b.bbox for b in barlines], cc, color=(250, 0, 200))  # type: ignore

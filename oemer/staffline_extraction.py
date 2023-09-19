@@ -1,17 +1,21 @@
 import enum
 import pickle
+import typing
+from typing import List, Any,  Tuple, Union
+from typing_extensions import Self
 
 import cv2
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+from numpy import bool_, ndarray
 from scipy.signal import find_peaks
 from sklearn.cluster import KMeans
 from sklearn.linear_model import LinearRegression
 
 from oemer import layers
 from oemer import exceptions as E
-from oemer.utils import get_logger
-from oemer.bbox import find_lines, get_bbox, get_center
+from oemer.logger import get_logger
+from oemer.bbox import BBox, find_lines, get_bbox, get_center
 
 
 logger = get_logger(__name__)
@@ -26,11 +30,11 @@ class LineLabel(enum.Enum):
 
 
 class Line:
-    def __init__(self):
-        self.points = []
-        self.label: LineLabel = None
+    def __init__(self) -> None:
+        self.points: Any = []
+        self.label: Union[LineLabel, None] = None
 
-    def add_point(self, y, x):
+    def add_point(self, y: int, x: int) -> None:
         self.points.append((y, x))
         self._y_center = None
         self._y_upper = None
@@ -47,10 +51,10 @@ class Line:
         if self._y_center is not None:
             return self._y_center
         self._y_center = np.mean([point[0] for point in self.points])
-        return self._y_center
+        return typing.cast(float, self._y_center)
 
     @property
-    def y_upper(self) -> float:
+    def y_upper(self) -> Union[float, None]:
         if not hasattr(self, "_y_upper"):
             setattr(self, "_y_upper", None)
         if self._y_upper is not None:
@@ -65,7 +69,7 @@ class Line:
         if self._y_lower is not None:
             return self._y_lower
         self._y_lower = np.max([point[0] for point in self.points])
-        return self._y_lower
+        return typing.cast(float, self._y_lower)
 
     @property
     def x_center(self) -> float:
@@ -74,7 +78,7 @@ class Line:
         if self._x_center is not None:
             return self._x_center
         self._x_center = np.mean([point[1] for point in self.points])
-        return self._x_center
+        return typing.cast(float, self._x_center)
 
     @property
     def x_left(self) -> float:
@@ -83,7 +87,7 @@ class Line:
         if self._x_left is not None:
             return self._x_left
         self._x_left = np.min([point[1] for point in self.points])
-        return self._x_left
+        return typing.cast(float, self._x_left)  
 
     @property
     def x_right(self) -> float:
@@ -92,7 +96,7 @@ class Line:
         if self._x_right is not None:
             return self._x_right
         self._x_right = np.max([point[1] for point in self.points])
-        return self._x_right
+        return typing.cast(float, self._x_right)
 
     @property
     def slope(self) -> float:
@@ -106,9 +110,9 @@ class Line:
         model = LinearRegression()
         model.fit(xs, ys)
         self._slope = model.coef_[0]
-        return self._slope
+        return typing.cast(float, self._slope)
 
-    def __lt__(self, line):
+    def __lt__(self, line: Self) -> bool:
         return self.y_center < line.y_center
 
     def __len__(self):
@@ -126,22 +130,22 @@ class Line:
 
 
 class Staff:
-    def __init__(self):
-        self.lines = []
-        self.track: int = None
-        self.group: int = None
+    def __init__(self) -> None:
+        self.lines: List[Line] = []
+        self.track: Union[int, None] = None
+        self.group: Union[int, None]  = None
         self.is_interp: bool = False
 
-    def add_line(self, line):
+    def add_line(self, line: Line) -> None:
         self.lines.append(line)
-        self._y_center = None
+        self._y_center: Union[float, None] = None
         self._y_upper = None
         self._y_lower = None
-        self._x_center = None
+        self._x_center: Union[float, None] = None
         self._x_left = None
         self._x_right = None
-        self._unit_size = None
-        self._slope = None
+        self._unit_size: Union[float, None] = None
+        self._slope: Union[float, None] = None
 
     @property
     def y_center(self) -> float:
@@ -149,7 +153,7 @@ class Staff:
             setattr(self, "_y_center", None)
         if self._y_center is not None:
             return self._y_center
-        self._y_center = np.mean([line.y_center for line in self.lines])
+        self._y_center = float(np.mean([line.y_center for line in self.lines]))
         return self._y_center
 
     @y_center.setter
@@ -163,7 +167,7 @@ class Staff:
         if self._y_upper is not None:
             return self._y_upper
         self._y_upper = np.min([line.y_upper for line in self.lines])
-        return self._y_upper
+        return typing.cast(float, self._y_upper)
 
     @y_upper.setter
     def y_upper(self, val):
@@ -176,7 +180,7 @@ class Staff:
         if self._y_lower is not None:
             return self._y_lower
         self._y_lower = np.max([line.y_lower for line in self.lines])
-        return self._y_lower
+        return typing.cast(float, self._y_lower)
 
     @y_lower.setter
     def y_lower(self, val):
@@ -188,7 +192,7 @@ class Staff:
             setattr(self, "_x_center", None)
         if self._x_center is not None:
             return self._x_center
-        self._x_center = np.mean([line.x_center for line in self.lines])
+        self._x_center = float(np.mean([line.x_center for line in self.lines]))
         return self._x_center
 
     @x_center.setter
@@ -202,7 +206,7 @@ class Staff:
         if self._x_left is not None:
             return self._x_left
         self._x_left = np.min([line.x_left for line in self.lines])
-        return self._x_left
+        return typing.cast(float, self._x_left)
 
     @x_left.setter
     def x_left(self, val):
@@ -215,14 +219,14 @@ class Staff:
         if self._x_right is not None:
             return self._x_right
         self._x_right = np.max([line.x_right for line in self.lines])
-        return self._x_right
+        return typing.cast(float, self._x_right)
 
     @x_right.setter
     def x_right(self, val):
         self._x_right = val
 
     @property
-    def unit_size(self) -> int:
+    def unit_size(self) -> float:
         # The very basic size for measuring all the symbols.
         if not hasattr(self, "_unit_size"):
             setattr(self, "_unit_size", None)
@@ -230,7 +234,7 @@ class Staff:
             return self._unit_size
         centers = [line.y_center for line in self.lines]
         gaps = [centers[i] - centers[i-1] for i in range(1, len(self.lines))]
-        self._unit_size = np.mean(gaps)
+        self._unit_size = float(np.mean(gaps))
         return self._unit_size
 
     @property
@@ -243,7 +247,7 @@ class Staff:
             self._slope = None
         if self._slope is not None:
             return self._slope
-        self._slope = np.mean([l.slope for l in self.lines])
+        self._slope = float(np.mean([l.slope for l in self.lines]))
         return self._slope
 
     def duplicate(self, x_offset=0, y_offset=0):
@@ -274,7 +278,7 @@ class Staff:
             f"\tSlope: {self.slope}\n" \
             ")\n"
 
-    def __sub__(self, st):
+    def __sub__(self, st: List[int]) -> float:
         if isinstance(st, Staff):
             x, y = st.x_center, st.y_center
         else:
@@ -284,7 +288,7 @@ class Staff:
         return (x_dist + y_dist) ** 0.5
 
 
-def init_zones(staff_pred, splits):
+def init_zones(staff_pred: ndarray, splits: int) -> Tuple[ndarray, int, int, int]:
     ys, xs = np.where(staff_pred > 0)
 
     # Define left and right bound
@@ -315,7 +319,13 @@ def init_zones(staff_pred, splits):
     return np.array(zones, dtype=object), left_bound, right_bound, bottom_bound
 
 
-def extract(splits=8, line_threshold=0.8, horizontal_diff_th=0.1, unit_size_diff_th=0.1, barline_min_degree=75):
+def extract(
+    splits: int = 8, 
+    line_threshold: float = 0.8, 
+    horizontal_diff_th: float = 0.1, 
+    unit_size_diff_th: float = 0.1, 
+    barline_min_degree: int = 75
+) -> Tuple[ndarray, ndarray]:
     # Fetch parameters from layers
     staff_pred = layers.get_layer('staff_pred')
 
@@ -329,10 +339,10 @@ def extract(splits=8, line_threshold=0.8, horizontal_diff_th=0.1, unit_size_diff
         if staffs is not None:
             all_staffs.append(staffs)
             print(len(staffs))
-    all_staffs = align_staffs(all_staffs)
+    all_staffs = align_staffs(all_staffs)  # type: ignore
 
     # Use barline information to infer the number of tracks for each group.
-    num_track = further_infer_track_nums(all_staffs, min_degree=barline_min_degree)
+    num_track = further_infer_track_nums(all_staffs, min_degree=barline_min_degree)  # type: ignore
     logger.debug(f"Tracks: {num_track}")
     for col_sts in all_staffs:
         for idx, st in enumerate(col_sts):
@@ -346,7 +356,7 @@ def extract(splits=8, line_threshold=0.8, horizontal_diff_th=0.1, unit_size_diff
     assert all([len(staff) == len(all_staffs[0]) for staff in all_staffs])
 
     norm = lambda data: np.abs(np.array(data) / np.mean(data) - 1)
-    for staffs in all_staffs.T:
+    for staffs in all_staffs.T:  # type: ignore
         # Should all have 5 lines
         line_num = [len(staff.lines) for staff in staffs]
         if len(set(line_num)) != 1:
@@ -368,16 +378,16 @@ def extract(splits=8, line_threshold=0.8, horizontal_diff_th=0.1, unit_size_diff
     return np.array(all_staffs), zones
 
 
-def extract_part(pred, x_offset, line_threshold=0.8):
+def extract_part(pred: ndarray, x_offset: int, line_threshold: float = 0.8) -> List[Staff]:
     # Extract lines
     lines, _ = extract_line(pred, x_offset=x_offset, line_threshold=line_threshold)
 
     # To assure there contains at leat one staff lines and above
     if len(lines) < 5:
-        return None
+        return None  # type: ignore
 
     staffs = []
-    line_buffer = []
+    line_buffer: Any = []
     for idx, line in enumerate(lines):
         lid = idx % 5
         assert line.label == LineLabel(lid), f"{line}, {lid}, {idx}"
@@ -399,7 +409,7 @@ def extract_part(pred, x_offset, line_threshold=0.8):
     return staffs
 
 
-def extract_line(pred, x_offset, line_threshold=0.8):
+def extract_line(pred: ndarray, x_offset: int, line_threshold: float = 0.8) -> Tuple[ndarray, ndarray]:
     # Split into zones horizontally and detects staff lines separately.
     count = np.zeros(len(pred), dtype=np.uint16)
     sub_ys, sub_xs = np.where(pred > 0)
@@ -443,10 +453,10 @@ def extract_line(pred, x_offset, line_threshold=0.8):
         idx += 1
 
     lines = np.array(lines)[valid_centers]
-    return lines, norm
+    return lines, norm  # type: ignore
 
 
-def filter_line_peaks(peaks, norm, max_gap_ratio=1.5):
+def filter_line_peaks(peaks: ndarray, norm: ndarray, max_gap_ratio: float = 1.5) -> Tuple[ndarray, List[int]]:
     valid_peaks = np.array([True for _ in range(len(peaks))])
 
     # Filter by height
@@ -498,7 +508,7 @@ def filter_line_peaks(peaks, norm, max_gap_ratio=1.5):
     return valid_peaks, groups[:-1]
 
 
-def align_staffs(staffs, max_dist_ratio=3):
+def align_staffs(staffs: List[List[Staff]], max_dist_ratio: int = 3) -> ndarray:
     len_types = set(len(st_part) for st_part in staffs)
     if len(len_types) == 1:
         # All columns contains the same amount of sub-staffs
@@ -592,7 +602,7 @@ def align_staffs(staffs, max_dist_ratio=3):
     return grid
 
 
-def further_infer_track_nums(staffs, min_degree=75):
+def further_infer_track_nums(staffs: ndarray, min_degree: int = 75) -> int:
     # Fetch parameters
     symbols = layers.get_layer('symbols_pred')
     stems = layers.get_layer('stems_rests_pred')
@@ -620,12 +630,12 @@ def further_infer_track_nums(staffs, min_degree=75):
         unit_size = naive_get_unit_size(staffs, *get_center(box))
         if h > unit_size:
             h_ratios.append(h / unit_size)
-    h_ratios = np.array(h_ratios)
+    h_ratios = np.array(h_ratios)  # type: ignore
 
     num_track = 1
     factor = 10
     for i in range(1, 10):
-        valid_h = len(h_ratios[h_ratios>factor*i])
+        valid_h = len(h_ratios[h_ratios>factor*i])  # type: ignore
         if valid_h * (i+1) > staffs.shape[1]:
             num_track += 1
         else:
@@ -633,11 +643,11 @@ def further_infer_track_nums(staffs, min_degree=75):
     return num_track
 
 
-def get_degree(line):
+def get_degree(line: BBox) -> float:
     return np.rad2deg(np.arctan2(line[3] - line[1], line[2] - line[0]))
 
 
-def filter_lines(lines, staffs, min_degree=75):
+def filter_lines(lines: List[BBox], staffs: ndarray, min_degree: int = 75) -> List[BBox]:
     min_y = 9999999
     min_x = 9999999
     max_y = 0
@@ -666,24 +676,24 @@ def filter_lines(lines, staffs, min_degree=75):
     return cands
 
 
-def get_barline_map(symbols, bboxes):
+def get_barline_map(symbols: ndarray, bboxes: List[BBox]) -> ndarray:
     img = np.zeros_like(symbols)
     for box in bboxes:
-        box = list(box)
+        box = list(box)  # type: ignore
         if box[2]-box[0] == 0:
-            box[2] += 1
+            box[2] += 1  # type: ignore
         img[box[1]:box[3], box[0]:box[2]] += symbols[box[1]:box[3], box[0]:box[2]]
     img[img>1] = 1
     return img
 
 
-def naive_get_unit_size(staffs, x, y):
+def naive_get_unit_size(staffs: ndarray, x: int, y: int) -> float:
     flat_staffs = staffs.reshape(-1, 1).squeeze()
 
-    def dist(st):
+    def dist(st: Staff) -> float:
         x_diff = st.x_center - x
         y_diff = st.y_center - y
-        return x_diff ** 2 + y_diff ** 2
+        return x_diff ** 2 + y_diff ** 2  # type: ignore
 
     dists = [(st.unit_size, dist(st)) for st in flat_staffs]
     dists = sorted(dists, key=lambda it: it[1])
@@ -717,6 +727,6 @@ if __name__ == "__main__":
     peaks, _ = find_peaks(norm, height=threshold, distance=8, prominence=1)
     valid_peaks, groups = filter_line_peaks(peaks, norm)
     peaks = peaks[valid_peaks]
-    plt.plot(norm)
+    plt.plot(norm)  # type: ignore
     plt.plot(peaks, [threshold]*len(peaks), 'ro')
     plt.show()

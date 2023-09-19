@@ -1,10 +1,15 @@
 
+from typing import Union, Any, List, Tuple, Dict
+
 import cv2
 import numpy as np
+from numpy import ndarray
 from sklearn.cluster import AgglomerativeClustering
 
 
-def get_bbox(data):
+BBox = Tuple[int, int, int, int]
+
+def get_bbox(data: ndarray) -> List[BBox]:
     contours, _ = cv2.findContours(data.astype(np.uint8), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     bboxes = []
     for cnt in contours:
@@ -14,7 +19,7 @@ def get_bbox(data):
     return bboxes
 
 
-def get_center(bbox):
+def get_center(bbox: Union[BBox, ndarray]) -> Tuple[int, int]:
     cen_y = int(round((bbox[1] + bbox[3]) / 2))
     cen_x = int(round((bbox[0] + bbox[2]) / 2))
     return cen_x, cen_y
@@ -28,7 +33,7 @@ def get_edge(data):
     return data
 
 
-def merge_nearby_bbox(bboxes, distance, x_factor=1, y_factor=1):
+def merge_nearby_bbox(bboxes: List[BBox], distance: float, x_factor: int = 1, y_factor: int = 1) -> List[BBox]:
     model = AgglomerativeClustering(n_clusters=None, distance_threshold=distance, compute_full_tree=True)
     centers = np.array([(bb[0]+bb[2], bb[1]+bb[3]) for bb in bboxes]) / 2
     centers[:, 0] *= x_factor  # Increase/decrease the x distance
@@ -47,24 +52,28 @@ def merge_nearby_bbox(bboxes, distance, x_factor=1, y_factor=1):
     return new_box
 
 
-def rm_merge_overlap_bbox(bboxes, mode='remove', overlap_ratio=0.5):
+def rm_merge_overlap_bbox(
+    bboxes: List[BBox], 
+    mode: str = 'remove', 
+    overlap_ratio: float = 0.5
+) -> List[BBox]:
     assert mode in ['remove', 'merge'], mode
 
     pts = np.array([(box[2], box[3]) for box in bboxes])
     max_x, max_y = np.max(pts[:, 0]), np.max(pts[:, 1])
     mask = np.zeros((max_y, max_x), dtype=np.uint16)
 
-    box_info = []
+    box_infos: List[Dict[str, Any]] = []
     for box in bboxes:
         area_size = (box[3]-box[1]) * (box[2]-box[0])
-        box_info.append({
+        box_infos.append({
             "bbox": box,
             "area_size": area_size
         })
-    box_info = sorted(box_info, key=lambda info: info["area_size"], reverse=True)
+    box_infos = sorted(box_infos, key=lambda info: info["area_size"], reverse=True)
 
     records = {}
-    for idx, box_info in enumerate(box_info):
+    for idx, box_info in enumerate(box_infos):
         box = box_info["bbox"]
         region = mask[box[1]:box[3], box[0]:box[2]]
         vals = set(np.unique(region))
@@ -104,7 +113,7 @@ def rm_merge_overlap_bbox(bboxes, mode='remove', overlap_ratio=0.5):
     return valid_box
 
 
-def find_lines(data, min_len=10, max_gap=20):
+def find_lines(data: ndarray, min_len: int = 10, max_gap: int = 20) -> List[BBox]:
     assert len(data.shape) == 2, f"{type(data)} {data.shape}"
 
     lines = cv2.HoughLinesP(data.astype(np.uint8), 1, np.pi/180, 50, None, min_len, max_gap)
@@ -117,14 +126,14 @@ def find_lines(data, min_len=10, max_gap=20):
     return new_line
 
 
-def draw_lines(lines, ori_img, width=3):
+def draw_lines(lines: ndarray, ori_img: ndarray, width: int = 3) -> ndarray:
     img = ori_img.copy()
     for line in lines:
         cv2.line(img, (line[0], line[1]), (line[2], line[3]), (0, 255, 0), width, cv2.LINE_AA)
     return img
 
 
-def to_rgb_img(data):
+def to_rgb_img(data: ndarray) -> ndarray:
     if len(data.shape) >=3:
         return data
     
@@ -134,7 +143,13 @@ def to_rgb_img(data):
     return img
 
 
-def draw_bounding_boxes(bboxes, img, color=(0, 255, 0), width=2, inplace=False):
+def draw_bounding_boxes(
+    bboxes: List[BBox], 
+    img: ndarray, 
+    color: Tuple[int, int, int] = (0, 255, 0), 
+    width: int = 2, 
+    inplace: bool = False
+) -> ndarray:
     if len(img.shape) < 3:
         img = to_rgb_img(img)
     if not inplace:
@@ -144,7 +159,7 @@ def draw_bounding_boxes(bboxes, img, color=(0, 255, 0), width=2, inplace=False):
     return img
 
 
-def get_rotated_bbox(data):
+def get_rotated_bbox(data: ndarray) -> List[Tuple[Tuple[float, float], Tuple[float, float], float]]:
     contours, _ = cv2.findContours(data.astype(np.uint8), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     bboxes = []
     for cnt in contours:

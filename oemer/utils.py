@@ -1,3 +1,4 @@
+from typing import Tuple
 import os
 import logging
 
@@ -6,54 +7,7 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 
 from . import layers
-
-
-def get_logger(name, level="warn"):
-    """Get the logger for printing informations.
-    Used for layout the information of various stages while executing the program.
-    Set the environment variable ``LOG_LEVEL`` to change the default level.
-    Parameters
-    ----------
-    name: str
-        Name of the logger.
-    level: {'debug', 'info', 'warn', 'warning', 'error', 'critical'}
-        Level of the logger. The level 'warn' and 'warning' are different. The former
-        is the default level and the actual level is set to logging.INFO, and for
-        'warning' which will be set to true logging.WARN level. The purpose behind this
-        design is to categorize the message layout into several different formats.
-    """
-    logger = logging.getLogger(name)
-    level = os.environ.get("LOG_LEVEL", level)
-
-    msg_formats = {
-        "debug": "%(asctime)s [%(levelname)s] %(message)s  [at %(filename)s:%(lineno)d]",
-        "info": "%(asctime)s %(message)s  [at %(filename)s:%(lineno)d]",
-        "warn": "%(asctime)s %(message)s",
-        "warning": "%(asctime)s %(message)s",
-        "error": "%(asctime)s [%(levelname)s] %(message)s  [at %(filename)s:%(lineno)d]",
-        "critical": "%(asctime)s [%(levelname)s] %(message)s  [at %(filename)s:%(lineno)d]",
-    }
-    level_mapping = {
-        "debug": logging.DEBUG,
-        "info": logging.INFO,
-        "warn": logging.INFO,
-        "warning": logging.WARNING,
-        "error": logging.ERROR,
-        "critical": logging.CRITICAL,
-    }
-
-    date_format = "%Y-%m-%d %H:%M:%S"
-    formatter = logging.Formatter(fmt=msg_formats[level.lower()], datefmt=date_format)
-    handler = logging.StreamHandler()
-    handler.setFormatter(formatter)
-    if len(logger.handlers) > 0:
-        rm_idx = [idx for idx, handler in enumerate(logger.handlers) if isinstance(handler, logging.StreamHandler)]
-        for idx in rm_idx:
-            del logger.handlers[idx]
-    logger.addHandler(handler)
-    logger.setLevel(level_mapping[level.lower()])
-    return logger
-
+from oemer.staffline_extraction import Staff
 
 def count(data, intervals):
     """Count elements in different intervals"""
@@ -67,7 +21,7 @@ def count(data, intervals):
     return occur
 
 
-def find_closest_staffs(x, y):  # -> Tuple([Staff, Staff]):
+def find_closest_staffs(x: int, y: int) -> Tuple[Staff, Staff]:
     staffs = layers.get_layer('staffs')
 
     staffs = staffs.reshape(-1, 1).squeeze()
@@ -75,7 +29,7 @@ def find_closest_staffs(x, y):  # -> Tuple([Staff, Staff]):
     if len(diffs) == 1:
         return diffs[0], diffs[0]
     elif len(diffs) == 2:
-        return list(diffs)
+        return (diffs[0], diffs[1])
 
     # There are over three candidates
     first = diffs[0]
@@ -99,14 +53,14 @@ def find_closest_staffs(x, y):  # -> Tuple([Staff, Staff]):
             return first, first
 
 
-def get_unit_size(x, y):
+def get_unit_size(x: int, y: int) -> float:
     st1, st2 = find_closest_staffs(x, y)
     if st1.y_center == st2.y_center:
-        return st1.unit_size
+        return float(st1.unit_size)
 
     # Within the stafflines
     if st1.y_upper <= y <= st1.y_lower:
-        return st1.unit_size 
+        return float(st1.unit_size)
 
     # Outside stafflines.
     # Infer the unit size by linear interpolation.
@@ -115,19 +69,18 @@ def get_unit_size(x, y):
     w1 = dist1 / (dist1 + dist2)
     w2 = dist2 / (dist1 + dist2)
     unit_size = w1 * st1.unit_size + w2 * st2.unit_size
-    return unit_size
+    return float(unit_size)
 
 
-def get_global_unit_size():
+def get_global_unit_size() -> float:
     staffs = layers.get_layer('staffs')
     usize = []
     for st in staffs.reshape(-1, 1).squeeze():
         usize.append(st.unit_size)
-    layers._global_unit_size = sum(usize) / len(usize)
-    return layers._global_unit_size
+    return sum(usize) / len(usize)
 
 
-def get_total_track_nums():
+def get_total_track_nums() -> int:
     staffs = layers.get_layer('staffs')
     tracks = [st.track for st in staffs.reshape(-1, 1).squeeze()]
     return len(set(tracks))
@@ -146,5 +99,5 @@ def estimate_degree(points, **kwargs):
     return slope_to_degree(model.coef_[0])
 
 
-def slope_to_degree(y_diff, x_diff):
+def slope_to_degree(y_diff: int, x_diff: int) -> float:
     return np.rad2deg(np.arctan2(y_diff, x_diff))

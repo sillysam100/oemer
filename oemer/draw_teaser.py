@@ -1,22 +1,35 @@
+import typing
 from PIL import Image
+from typing import List, Optional, Tuple, Union
 
 import cv2
 import numpy as np
 
 from oemer import layers
+from numpy import ndarray
 
+from oemer.bbox import BBox
 
-def draw_bbox(bboxes, color, text=None, labels=None, text_y_pos=1):
+# Globals
+out: ndarray
+
+def draw_bbox(
+    bboxes: List[BBox], 
+    color: Tuple[int, int, int], 
+    text: Optional[str] = None, 
+    labels: Optional[List[str]] = None, 
+    text_y_pos: float = 1
+) -> None:
     for idx, (x1, y1, x2, y2) in enumerate(bboxes):
         cv2.rectangle(out, (x1, y1), (x2, y2), color, 2)
         y_pos = y1 + round((y2-y1)*text_y_pos)
         if text is not None:
             cv2.putText(out, text, (x2+2, y_pos), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 1)
-        else:
+        elif labels is not None:
             cv2.putText(out, labels[idx], (x2+2, y_pos), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 1)
 
 
-def teaser() -> Image:
+def teaser() -> Image.Image:
     ori_img = layers.get_layer('original_image')
     notes = layers.get_layer('notes')
     groups = layers.get_layer('note_groups')

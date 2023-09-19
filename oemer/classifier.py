@@ -1,10 +1,9 @@
-from os import remove
 import random
+import pickle
+from os import remove
 from pathlib import Path
 from PIL import Image
-import pickle
 
-# import tensorflow as tf
 import augly.image as imaugs
 import numpy as np
 from sklearn import svm
@@ -12,7 +11,6 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier, GradientBoostingClassifier, BaggingClassifier
 from sklearn.linear_model import RidgeClassifier
 from sklearn.model_selection import GridSearchCV
-# from tensorflow.keras.layers import Dense, InputLayer, BatchNormalization
 
 from oemer.bbox import get_bbox, merge_nearby_bbox, draw_bounding_boxes, rm_merge_overlap_bbox
 from oemer.build_label import find_example
@@ -122,6 +120,7 @@ def train(folders):
 
 
 def train_tf(folders):
+    import tensorflow as tf
     class_map = {idx: Path(ff).name for idx, ff in enumerate(folders)}
     train_x = []
     train_y = []

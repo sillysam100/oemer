@@ -3,7 +3,11 @@ import pickle
 import argparse
 import urllib.request
 from pathlib import Path
+from typing import Tuple
+from argparse import Namespace, ArgumentParser
+
 from PIL import Image
+from numpy import ndarray
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
@@ -13,7 +17,7 @@ import numpy as np
 from oemer import MODULE_PATH
 from oemer import layers
 from oemer.inference import inference
-from oemer.utils import get_logger
+from oemer.logger import get_logger
 from oemer.dewarp import estimate_coords, dewarp
 from oemer.staffline_extraction import extract as staff_extract
 from oemer.notehead_extraction import extract as note_extract
@@ -36,13 +40,13 @@ CHECKPOINTS_URL = {
 
 
 
-def clear_data():
+def clear_data() -> None:
     lls = layers.list_layers()
     for l in lls:
         layers.delete_layer(l)
 
 
-def generate_pred(img_path, use_tf=False):
+def generate_pred(img_path: str, use_tf: bool = False) -> Tuple[ndarray, ndarray, ndarray, ndarray, ndarray]:
     logger.info("Extracting staffline and symbols")
     staff_symbols_map, _ = inference(
         os.path.join(MODULE_PATH, "checkpoints/unet_big"),
@@ -94,7 +98,7 @@ def register_notehead_bbox(bboxes):
     return layer
 
 
-def register_note_id():
+def register_note_id() -> None:
     symbols = layers.get_layer('symbols_pred')
     layer = layers.get_layer('note_id')
     notes = layers.get_layer('notes')
@@ -107,7 +111,7 @@ def register_note_id():
         notes[idx].id = idx
 
 
-def extract(args):
+def extract(args: Namespace) -> str:
     img_path = Path(args.img_path)
     f_name = os.path.splitext(img_path.name)[0]
     pkl_path = img_path.parent / f"{f_name}.pkl"
@@ -216,7 +220,7 @@ def extract(args):
     return out_path
 
 
-def get_parser():
+def get_parser() -> ArgumentParser:
     parser = argparse.ArgumentParser(
         "Oemer",
         description="End-to-end OMR command line tool. Receives an image as input, and outputs MusicXML file.",
@@ -238,7 +242,7 @@ def get_parser():
     return parser
 
 
-def download_file(title, url, save_path):
+def download_file(title: str, url: str, save_path: str) -> None:
     resp = urllib.request.urlopen(url)
     length = int(resp.getheader("Content-Length", -1))
 
@@ -254,7 +258,7 @@ def download_file(title, url, save_path):
         print(f"{title}: 100% {length}/{length}"+" "*20)
 
 
-def main():
+def main() -> None:
     parser = get_parser()
     args = parser.parse_args()
 

@@ -1,28 +1,33 @@
 import os
 import pickle
+import typing
+from typing import List, Tuple, Any, Union
+from typing_extensions import Self
 
 import cv2
 import numpy as np
 import scipy.ndimage
+import matplotlib.pyplot as plt
+from numpy import ndarray
 from scipy.interpolate import interp1d, griddata
 from sklearn.linear_model import LinearRegression
-import matplotlib.pyplot as plt
 
 from oemer.morph import morph_open
-from oemer.utils import get_logger
+from oemer.logger import get_logger
+from oemer.bbox import BBox
 
 
 logger = get_logger(__name__)
 
 
 class Grid:
-    def __init__(self):
-        self.id: int = None
-        self.bbox: list[int] = None  # XYXY
+    def __init__(self) -> None:
+        self.id: Union[int, None] = None
+        self.bbox: BBox = None  # type: ignore
         self.y_shift: int = 0
 
     @property
-    def y_center(self):
+    def y_center(self) -> float:
         return (self.bbox[1]+self.bbox[3]) / 2
 
     @property
@@ -31,18 +36,18 @@ class Grid:
 
 
 class GridGroup:
-    def __init__(self):
-        self.id: int = None
-        self.reg_id: int = None
-        self.bbox: list[int] = None
-        self.gids: list[int] = []
-        self.split_unit: int = None
+    def __init__(self) -> None:
+        self.id: Union[int, None] = None
+        self.reg_id: Union[int, None] = None
+        self.bbox: BBox = None  # type: ignore
+        self.gids: List[int] = []
+        self.split_unit: int = None  # type: ignore
 
     @property
     def y_center(self):
         return round((self.bbox[1]+self.bbox[3]) / 2)
 
-    def __lt__(self, tar):
+    def __lt__(self, tar: Self) -> bool:
         # Sort by width
         w = self.bbox[2] - self.bbox[0]
         tw = tar.bbox[2] - tar.bbox[0]
@@ -53,13 +58,13 @@ class GridGroup:
             f" / Y-center: {self.y_center} / Reg. ID: {self.reg_id}"
 
 
-def build_grid(st_pred, split_unit=11):
+def build_grid(st_pred: ndarray, split_unit: int = 11) -> Tuple[ndarray, List[Grid]]:
     grid_map = np.zeros(st_pred.shape) - 1
     h, w = st_pred.shape
 
     is_on = lambda data: np.sum(data) > split_unit//2
 
-    grids = []
+    grids: List[Grid] = []
     for i in range(0, w, split_unit):
         cur_y = 0
         last_y = 0
@@ -79,7 +84,7 @@ def build_grid(st_pred, split_unit=11):
     return grid_map, grids
 
 
-def build_grid_group(grid_map, grids):
+def build_grid_group(grid_map: ndarray, grids: List[Grid]) -> Tuple[ndarray, List[GridGroup]]:
     regions, feat_num = scipy.ndimage.label(grid_map+1)
     grid_groups = []
     for i in range(feat_num):
@@ -111,7 +116,14 @@ def build_grid_group(grid_map, grids):
     return gg_map, grid_groups
 
 
-def connect_nearby_grid_group(gg_map, grid_groups, grid_map, grids, ref_count=8, max_step=20):
+def connect_nearby_grid_group(
+    gg_map: ndarray, 
+    grid_groups: List[GridGroup], 
+    grid_map: ndarray, 
+    grids: List[Grid], 
+    ref_count: int = 8, 
+    max_step: int = 20
+) -> ndarray:
     new_gg_map = np.copy(gg_map)
     ref_gids = grid_groups[0].gids[:ref_count]
     idx = 0
@@ -188,7 +200,7 @@ def connect_nearby_grid_group(gg_map, grid_groups, grid_map, grids, ref_count=8,
 
                 # Interpolate y centers between the start and end points again.
                 centers = [grid.y_center, centers[0]]
-                x = [-i-1, 0]
+                x = [-i-1, 0]  # type: ignore
                 inter_func = interp1d(x, centers, kind='linear')
 
                 # Start to insert grids between points
@@ -207,8 +219,8 @@ def connect_nearby_grid_group(gg_map, grid_groups, grid_map, grids, ref_count=8,
                         max(gg.bbox[2], box[2]),
                         max(gg.bbox[3], box[3])
                     )
-                    gg.bbox = [int(bb) for bb in gg.bbox]
-                    box = [int(bb) for bb in box]
+                    gg.bbox = typing.cast(BBox, [int(bb) for bb in gg.bbox])
+                    box = [int(bb) for bb in box]  # type: ignore
                     grids.append(grid)
                     new_gg_map[box[1]:box[3], box[0]:box[2]] = gg.id
 
@@ -222,7 +234,7 @@ def connect_nearby_grid_group(gg_map, grid_groups, grid_map, grids, ref_count=8,
     return new_gg_map
 
 
-def build_mapping(gg_map, min_width_ratio=0.4):
+def build_mapping(gg_map: ndarray, min_width_ratio: float = 0.4) -> Tuple[ndarray, ndarray]:
     regions, num = scipy.ndimage.label(gg_map+1)
     min_width = gg_map.shape[1] * min_width_ratio
 
@@ -256,7 +268,7 @@ def build_mapping(gg_map, min_width_ratio=0.4):
     return coords_y, np.array(points)
 
 
-def estimate_coords(staff_pred):
+def estimate_coords(staff_pred: ndarray) -> Tuple[ndarray, ndarray]:
     ker = np.ones((6, 1), dtype=np.uint8)
     pred = cv2.dilate(staff_pred.astype(np.uint8), ker)
     pred = morph_open(pred, (1, 6))
@@ -283,7 +295,7 @@ def estimate_coords(staff_pred):
     return coords_x, coords_y
 
 
-def dewarp(img, coords_x, coords_y):
+def dewarp(img: ndarray, coords_x: ndarray, coords_y: ndarray) -> ndarray:
     return cv2.remap(img.astype(np.float32), coords_x,coords_y, cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)
 
 
