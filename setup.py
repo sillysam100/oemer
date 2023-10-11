@@ -41,10 +41,11 @@ setuptools.setup(
         'scipy',
         'scikit-learn>=1.2',
         'types-Pillow',
-        'types-tensorflow'
+        'types-tensorflow',
+        'typing-extensions',
     ],
     extras_require={
-        'tf': ['tensorflow-gpu', 'tf2onnx'],
+        'tf': ['tensorflow', 'tf2onnx'],
     },
     entry_points={'console_scripts': ['oemer = oemer.ete:main']},
     keywords=['OMR', 'optical-music-recognition', 'AI', 'machine-learning', 'image-processing'],
