@@ -72,15 +72,17 @@ optional arguments:
 ## Citation
 
 ```
-@software{yu_te_wu_2023_7980155,
-  author       = {Yu-Te, Wu},
-  title        = {BreezeWhite/oemer: v0.1.6},
-  month        = may,
+@software{yoyo_2023_8429346,
+  author       = {Yoyo and
+                  Christian Liebhardt and
+                  Sayooj Samuel},
+  title        = {BreezeWhite/oemer: v0.1.7},
+  month        = oct,
   year         = 2023,
   publisher    = {Zenodo},
-  version      = {v0.1.6},
-  doi          = {10.5281/zenodo.7980155},
-  url          = {https://doi.org/10.5281/zenodo.7980155}
+  version      = {v0.1.7},
+  doi          = {10.5281/zenodo.8429346},
+  url          = {https://doi.org/10.5281/zenodo.8429346}
 }
 ```
 
