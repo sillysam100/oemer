@@ -14,7 +14,7 @@ else:
 
 setuptools.setup(
     name='oemer',
-    version='0.1.6',
+    version='0.1.7',
     author='BreezeWhite',
     author_email='miyasihta2010@tuta.io',
     description='End-to-end Optical Music Recognition (OMR) system.',
