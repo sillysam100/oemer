@@ -4,8 +4,7 @@
 [![PyPI version](https://badge.fury.io/py/oemer.svg)](https://badge.fury.io/py/oemer)
 ![PyPI - License](https://img.shields.io/github/license/BreezeWhite/oemer)
 [![Downloads](https://img.shields.io/pypi/dm/oemer?color=orange)](https://pypistats.org/packages/oemer)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7980155.svg)](https://zenodo.org/record/8429346)
-
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8429346.svg)](https://doi.org/10.5281/zenodo.8429346)
 
 
 
