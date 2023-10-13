@@ -4,7 +4,7 @@
 [![PyPI version](https://badge.fury.io/py/oemer.svg)](https://badge.fury.io/py/oemer)
 ![PyPI - License](https://img.shields.io/github/license/BreezeWhite/oemer)
 [![Downloads](https://img.shields.io/pypi/dm/oemer?color=orange)](https://pypistats.org/packages/oemer)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7980155.svg)](https://zenodo.org/record/7980155)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7980155.svg)](https://zenodo.org/record/8429346)
 
 
 
@@ -49,7 +49,7 @@ If you encounter errors, try adding `--without-deskew` first (see [issue #9](htt
 
 ### Available options
 ```
-usage: Oemer [-h] [-o OUTPUT_PATH] [--use-tf] [--save-cache] [-d] img_path
+usage: oemer [-h] [-o OUTPUT_PATH] [--use-tf] [--save-cache] [-d] img_path
 
 End-to-end OMR command line tool. Receives an image as input, and outputs
 MusicXML file.
