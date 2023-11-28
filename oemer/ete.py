@@ -142,7 +142,14 @@ def extract(args: Namespace) -> str:
             pickle.dump(data, open(pkl_path, "wb"))
 
     # Load the original image, resize to the same size as prediction.
-    image = cv2.imread(str(img_path))
+    image = Image.open(str(img_path))
+    if "GIF" != image.format:
+        image = cv2.imread(str(img_path))
+    else:
+        gif_image = image.convert('RGB')
+        gif_image = np.array(gif_image)
+        image = gif_image[:, :, ::-1].copy()
+
     image = cv2.resize(image, (staff.shape[1], staff.shape[0]))
 
     if not args.without_deskew:
