@@ -55,14 +55,14 @@ def inference(
         output_shape = metadata['output_shape']
 
     # Collect data
-    image = Image.open(img_path)
-    if "GIF" != image.format:
+    image_pil = Image.open(img_path)
+    if "GIF" != image_pil.format:
         # Tricky workaround to avoid random mistery transpose when loading with 'Image'.
-        image = cv2.imread(img_path)
-        image = Image.fromarray(image)
+        image_pil = cv2.imread(img_path)
+        image_pil = Image.fromarray(image_pil)
 
-    image = image.convert("RGB")
-    image = np.array(resize_image(image))
+    image_pil = image_pil.convert("RGB")
+    image = np.array(resize_image(image_pil))
     win_size = input_shape[1]
     data = []
     for y in range(0, image.shape[0], step_size):
