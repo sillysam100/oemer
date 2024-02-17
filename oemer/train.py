@@ -11,11 +11,14 @@ import augly.image as imaugs
 
 from .build_label import build_label
 from .models.unet import semantic_segmentation, u_net
-from .constant import CHANNEL_NUM
+from .constant_min import CHANNEL_NUM
 
 
 
 def get_cvc_data_paths(dataset_path):
+    if not os.path.exists(dataset_path):
+        raise FileNotFoundError(f"{dataset_path} not found, download the dataset first.")
+    
     dirs = ["curvature", "ideal", "interrupted", "kanungo", "rotated", "staffline-thickness-variation-v1",
         "staffline-thickness-variation-v2", "staffline-y-variation-v1", "staffline-y-variation-v2",
         "thickness-ratio", "typeset-emulation", "whitespeckles"]
@@ -37,6 +40,9 @@ def get_cvc_data_paths(dataset_path):
 
 
 def get_deep_score_data_paths(dataset_path):
+    if not os.path.exists(dataset_path):
+        raise FileNotFoundError(f"{dataset_path} not found, download the dataset first.")
+    
     imgs = os.listdir(os.path.join(dataset_path, "images"))
     paths = []
     for img in imgs:
@@ -122,9 +128,42 @@ def batch_transform(img, trans_func):
         result.append(np.array(tmp_img))
     return np.dstack(result)
 
+    
+class MultiprocessingDataLoader:
+    def __init__(self, num_worker: int):
+        self._queue: Queue = Queue(maxsize=20)
+        self._dist_queue: Queue = Queue(maxsize=30)
+        self._process_pool = []
+        for _ in range(num_worker):
+            processor = Process(target=self._preprocess_image)
+            processor.daemon = True
+            self._process_pool.append(processor)
+        self._pdist = Process(target=self._distribute_process)
+        self._pdist.daemon = True
 
-class DataLoader:
+    def _start_processes(self):
+        if not self._pdist.is_alive():
+            self._pdist.start()
+        for process in self._process_pool:
+            if not process.is_alive():
+                process.start()
+
+    def _terminate_processes(self):
+        self._pdist.terminate()
+        for process in self._process_pool:
+            process.terminate()
+
+
+    def _distribute_process(self):
+        pass
+
+    def _preprocess_image(self):
+        pass
+
+
+class DataLoader(MultiprocessingDataLoader):
     def __init__(self, feature_files, win_size=256, num_samples=100, min_step_size=0.2, num_worker=4):
+        super().__init__(num_worker)
         self.feature_files = feature_files
         random.shuffle(self.feature_files)
         self.win_size = win_size
@@ -137,16 +176,6 @@ class DataLoader:
             self.min_step_size = max(min(abs(min_step_size), win_size), 2)
 
         self.file_idx = 0
-
-        self._queue = Queue(maxsize=200)
-        self._dist_queue = Queue(maxsize=300)
-        self._process_pool = []
-        for _ in range(num_worker):
-            processor = Process(target=self._preprocess_image)
-            processor.daemon = True
-            self._process_pool.append(processor)
-        self._pdist = Process(target=self._distribute_process)
-        self._pdist.daemon = True
 
     def _distribute_process(self):
         while True:
@@ -175,6 +204,7 @@ class DataLoader:
 
                 # Random perspective transform
                 seed = random.randint(0, 1000)
+                np.float = float  # Monkey patch to workaround removal of np.float
                 perspect_trans = lambda img: imaugs.perspective_transform(img, seed=seed, sigma=70)
                 image = np.array(perspect_trans(image))  # RGB image
                 staff_img = np.array(perspect_trans(staff_img))  # 1-bit mask
@@ -187,11 +217,7 @@ class DataLoader:
     def __iter__(self):
         samples = 0
 
-        if not self._pdist.is_alive():
-            self._pdist.start()
-        for process in self._process_pool:
-            if not process.is_alive():
-                process.start()
+        self._start_processes()
 
         while samples < self.num_samples:
             image, staff_img, symbol_img, ratio = self._queue.get()
@@ -218,9 +244,7 @@ class DataLoader:
                 start_y = min(start_y + y_step, max_y)
                 start_x = min(start_x + x_step, max_x)
 
-        self._pdist.terminate()
-        for process in self._process_pool:
-            process.terminate()
+        self._terminate_processes()
 
     def get_dataset(self, batch_size, output_types=None, output_shapes=None):
         def gen_wrapper():
@@ -240,8 +264,9 @@ class DataLoader:
             .prefetch(tf.data.experimental.AUTOTUNE)
 
 
-class DsDataLoader:
+class DsDataLoader(MultiprocessingDataLoader):
     def __init__(self, feature_files, win_size=256, num_samples=100, step_size=0.5, num_worker=4):
+        super().__init__(num_worker)
         self.feature_files = feature_files
         random.shuffle(self.feature_files)
         self.win_size = win_size
@@ -254,16 +279,6 @@ class DsDataLoader:
             self.step_size = max(abs(step_size), 2)
 
         self.file_idx = 0
-
-        self._queue = Queue(maxsize=200)
-        self._dist_queue = Queue(maxsize=100)
-        self._process_pool = []
-        for _ in range(num_worker):
-            processor = Process(target=self._preprocess_image)
-            processor.daemon = True
-            self._process_pool.append(processor)
-        self._pdist = Process(target=self._distribute_process)
-        self._pdist.daemon = True
 
     def _distribute_process(self):
         while True:
@@ -293,6 +308,7 @@ class DsDataLoader:
 
                 # Random perspective transform
                 seed = random.randint(0, 1000)
+                np.float = float  # Monkey patch to workaround removal of np.float
                 perspect_trans = lambda img: imaugs.perspective_transform(img, seed=seed, sigma=70)
                 image = np.array(batch_transform(image, perspect_trans))  # RGB image
                 label = np.array(batch_transform(label, perspect_trans))
@@ -302,11 +318,7 @@ class DsDataLoader:
     def __iter__(self):
         samples = 0
 
-        if not self._pdist.is_alive():
-            self._pdist.start()
-        for process in self._process_pool:
-            if not process.is_alive():
-                process.start()
+        self._start_processes()
 
         while samples < self.num_samples:
             image, label, ratio = self._queue.get()
@@ -337,10 +349,7 @@ class DsDataLoader:
                 ll = label[index]
                 yield feat, ll
 
-        self._pdist.terminate()
-        for process in self._process_pool:
-            process.terminate()
-
+        self._terminate_processes()
     def get_dataset(self, batch_size, output_types=None, output_shapes=None):
         def gen_wrapper():
             for data in self:
@@ -410,7 +419,6 @@ def focal_tversky_loss(y_true, y_pred, fw=0.7, alpha=0.7, smooth=1., gamma=0.75)
 
 def train_model(
     dataset_path,
-    win_size=288,
     train_val_split=0.1,
     learning_rate=5e-4,
     epochs=15,
@@ -418,33 +426,51 @@ def train_model(
     batch_size=8,
     val_steps=200,
     val_batch_size=8,
-    early_stop=8
+    early_stop=8,
+    data_model="segnet"
 ):
-    # feat_files = get_cvc_data_paths(dataset_path)
-    feat_files = get_deep_score_data_paths(dataset_path)
+    if data_model == "segnet":
+        feat_files = get_deep_score_data_paths(dataset_path)
+    else:
+        feat_files = get_cvc_data_paths(dataset_path)
     random.shuffle(feat_files)
     split_idx = round(train_val_split * len(feat_files))
     train_files = feat_files[split_idx:]
     val_files = feat_files[:split_idx]
 
     print(f"Loading dataset. Train/validation: {len(train_files)}/{len(val_files)}")
-    train_data = DsDataLoader(
-            train_files,
-            win_size=win_size,
-            num_samples=epochs*steps*batch_size
-        ) \
-        .get_dataset(batch_size)
-    val_data = DsDataLoader(
-            val_files,
-            win_size=win_size,
-            num_samples=epochs*val_steps*val_batch_size
-        ) \
-        .get_dataset(val_batch_size)
+    if data_model == "segnet":
+        win_size=288
+        train_data = DsDataLoader(
+                train_files,
+                win_size=win_size,
+                num_samples=epochs*steps*batch_size
+            ) \
+            .get_dataset(batch_size)
+        val_data = DsDataLoader(
+                val_files,
+                win_size=win_size,
+                num_samples=epochs*val_steps*val_batch_size
+            ) \
+            .get_dataset(val_batch_size)
+        model = u_net(win_size=win_size, out_class=CHANNEL_NUM)
+    else:
+        win_size=256
+        train_data = DataLoader(
+                train_files,
+                win_size=win_size,
+                num_samples=epochs*steps*batch_size
+            ) \
+            .get_dataset(batch_size)
+        val_data = DataLoader(
+                val_files,
+                win_size=win_size,
+                num_samples=epochs*val_steps*val_batch_size
+            ) \
+            .get_dataset(val_batch_size)
+        model = semantic_segmentation(win_size=256, out_class=3)
 
     print("Initializing model")
-    #model = naive_conv(win_size=win_size)
-    #model = u_net(win_size=win_size, out_class=CHANNEL_NUM)
-    model = semantic_segmentation(win_size=win_size, out_class=CHANNEL_NUM)
     optim = tf.keras.optimizers.Adam(learning_rate=WarmUpLearningRate(learning_rate))
     #loss = tf.keras.losses.BinaryCrossentropy(label_smoothing=0.1)
     #loss = tf.keras.losses.CategoricalCrossentropy()
@@ -457,15 +483,19 @@ def train_model(
     ]
 
     print("Start training")
-    model.fit(
-        train_data,
-        validation_data=val_data,
-        epochs=epochs,
-        steps_per_epoch=steps,
-        validation_steps=val_steps,
-        callbacks=callbacks
-    )
-    return model
+    try:
+        model.fit(
+            train_data,
+            validation_data=val_data,
+            epochs=epochs,
+            steps_per_epoch=steps,
+            validation_steps=val_steps,
+            callbacks=callbacks
+        )
+        return model
+    except Exception as e:
+        print(e)
+        return model
 
 
 def resize_image(image: Image.Image):

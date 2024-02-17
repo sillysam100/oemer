@@ -1,3 +1,4 @@
+import sys
 import os
 import random
 from PIL import Image
@@ -5,10 +6,11 @@ from PIL import Image
 import cv2
 import numpy as np
 
-from .constant_min import CLASS_CHANNEL_MAP
+from .constant_min import CLASS_CHANNEL_MAP, CHANNEL_NUM
+from .dense_dataset_definitions import DENSE_DATASET_DEFINITIONS as DEF
 
 
-HALF_WHOLE_NOTE = [39, 41, 42, 43, 45, 46, 47, 49]
+HALF_WHOLE_NOTE = DEF.NOTEHEADS_HOLLOW + DEF.NOTEHEADS_WHOLE + [42]
 
 
 def fill_hole(gt, tar_color):
@@ -75,12 +77,12 @@ def build_label(seg_path):
     color_set = set(np.unique(arr))
     color_set.remove(0)  # Remove background color from the candidates
 
-    total_chs = len(set(CLASS_CHANNEL_MAP.values())) + 2  # Plus 'background' and 'others' channel.
+    total_chs = CHANNEL_NUM
     output = np.zeros(arr.shape + (total_chs,))
 
     output[..., 0] = np.where(arr==0, 1, 0)
     for color in color_set:
-        ch = CLASS_CHANNEL_MAP.get(color, -1)
+        ch = CLASS_CHANNEL_MAP.get(color, 0)
         if (ch != 0) and color in HALF_WHOLE_NOTE:
             note = fill_hole(arr, color)
             output[..., ch] += note
@@ -101,12 +103,7 @@ def find_example(dataset_path: str, color: int, max_count=100, mark_value=200):
 
 
 if __name__ == "__main__":
-    seg_folder = '/media/kohara/ADATA HV620S/dataset/ds2_dense/segmentation'
-    files = os.listdir(seg_folder)
-    path = os.path.join(seg_folder, random.choice(files))
-    #out = build_label(path)
-
-    color = 45
-    arr = find_example(color)  # type: ignore
-    arr = np.where(arr==200, color, arr)
-    out = fill_hole(arr, color)
+    seg_folder = 'ds2_dense/segmentation'
+    color = int(sys.argv[1])
+    with_background, without_background = find_example(seg_folder, color)
+    cv2.imwrite("example.png", with_background)

@@ -58,6 +58,7 @@ def _collect(color, out_path, samples=100):
             img = imaugs.resize(Image.fromarray(patch.astype(np.uint8)), width=tar_w, height=tar_h)
 
             seed = random.randint(0, 1000)
+            np.float = float  # Monkey patch to workaround removal of np.float
             img = imaugs.perspective_transform(img, seed=seed, sigma=3)
             img = np.where(np.array(img)>0, 255, 0)
             Image.fromarray(img.astype(np.uint8)).save(out_path / f"{idx}.png")
@@ -118,10 +119,12 @@ def train(folders):
     model.fit(train_x, train_y)
     return model, class_map
 
+def build_class_map(folders):
+    return {idx: Path(ff).name for idx, ff in enumerate(folders)}
 
 def train_tf(folders):
     import tensorflow as tf
-    class_map = {idx: Path(ff).name for idx, ff in enumerate(folders)}
+    class_map = build_class_map(folders)
     train_x = []
     train_y = []
     samples = None
@@ -234,6 +237,53 @@ def predict(region, model_name):
     pred = model.predict(np.array(region).reshape(1, -1))
     return m_info['class_map'][pred[0]]
 
+def train_rests_above8(filename = "rests_above8.model"):
+    folders = ["rest_8th", "rest_16th", "rest_32nd", "rest_64th"]
+    model, class_map = train_tf([f"train_data/{folder}" for folder in folders])
+    test_tf(model, [f"test_data/{folder}" for folder in folders])
+    output = {'model': model, 'w': TARGET_WIDTH, 'h': TARGET_HEIGHT, 'class_map': class_map}
+    pickle.dump(output, open(filename, "wb"))
+
+
+def train_rests(filename = "rests.model"):
+    folders = ["rest_whole", "rest_quarter", "rest_8th"]
+    model, class_map = train_tf([f"train_data/{folder}" for folder in folders])
+    test_tf(model, [f"test_data/{folder}" for folder in folders])
+    output = {'model': model, 'w': TARGET_WIDTH, 'h': TARGET_HEIGHT, 'class_map': class_map}
+    pickle.dump(output, open(filename, "wb"))
+
+
+def train_all_rests(filename = "all_rests.model"):
+    folders = ["rest_whole", "rest_quarter", "rest_8th", "rest_16th", "rest_32nd", "rest_64th"]
+    model, class_map = train_tf([f"train_data/{folder}" for folder in folders])
+    test_tf(model, [f"test_data/{folder}" for folder in folders])
+    output = {'model': model, 'w': TARGET_WIDTH, 'h': TARGET_HEIGHT, 'class_map': class_map}
+    pickle.dump(output, open(filename, "wb"))
+
+
+def train_sfn(filename = "sfn.model"):
+    folders = ["sharp", "flat", "natural"]
+    model, class_map = train_tf([f"train_data/{folder}" for folder in folders])
+    test_tf(model, [f"test_data/{folder}" for folder in folders])
+    output = {'model': model, 'w': TARGET_WIDTH, 'h': TARGET_HEIGHT, 'class_map': class_map}
+    pickle.dump(output, open(filename, "wb"))
+
+
+def train_clefs(filename = "clef.model"):
+    folders = ["gclef", "fclef"]
+    model, class_map = train_tf([f"train_data/{folder}" for folder in folders])
+    test_tf(model, [f"test_data/{folder}" for folder in folders])
+    output = {'model': model, 'w': TARGET_WIDTH, 'h': TARGET_HEIGHT, 'class_map': class_map}
+    pickle.dump(output, open(filename, "wb"))
+
+
+def train_noteheads():
+    folders = ["notehead_solid", "notehead_hollow"]
+    model, class_map = train_tf([f"train_data/{folder}" for folder in folders])
+    test_tf(model, [f"test_data/{folder}" for folder in folders])
+    output = {'model': model, 'w': TARGET_WIDTH, 'h': TARGET_HEIGHT, 'class_map': class_map}
+    pickle.dump(output, open(f"notehead.model", "wb"))
+    
 
 if __name__ == "__main__":
     samples = 400
