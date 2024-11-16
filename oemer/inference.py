@@ -1,4 +1,5 @@
 import os
+import sys
 import pickle
 from PIL import Image
 from typing import Any, Optional, Tuple
@@ -27,12 +28,12 @@ def resize_image(image: Image.Image):
 
 
 def inference(
-    model_path: str, 
-    img_path: str, 
-    step_size: int = 128, 
-    batch_size: int = 16, 
-    manual_th: Optional[Any] = None, 
-    use_tf: bool = False
+    model_path: str,
+    img_path: str,
+    step_size: int = 128,
+    batch_size: int = 16,
+    manual_th: Optional[Any] = None,
+    use_tf: bool = False,
 ) -> Tuple[ndarray, ndarray]:
     if use_tf:
         import tensorflow as tf
@@ -48,11 +49,14 @@ def inference(
 
         onnx_path = os.path.join(model_path, "model.onnx")
         metadata = pickle.load(open(os.path.join(model_path, "metadata.pkl"), "rb"))
-        providers = ["CoreMLExecutionProvider", "CUDAExecutionProvider", "CPUExecutionProvider"]
+        if sys.platform == "darwin":
+            providers = ["CoreMLExecutionProvider", "CPUExecutionProvider"]
+        else:
+            providers = ["CUDAExecutionProvider", "CPUExecutionProvider"]
         sess = rt.InferenceSession(onnx_path, providers=providers)
-        output_names = metadata['output_names']
-        input_shape = metadata['input_shape']
-        output_shape = metadata['output_shape']
+        output_names = metadata["output_names"]
+        input_shape = metadata["input_shape"]
+        output_shape = metadata["output_shape"]
 
     # Collect data
     image_pil = Image.open(img_path)
@@ -71,15 +75,19 @@ def inference(
         for x in range(0, image.shape[1], step_size):
             if x + win_size > image.shape[1]:
                 x = image.shape[1] - win_size
-            hop = image[y:y+win_size, x:x+win_size]
+            hop = image[y : y + win_size, x : x + win_size]
             data.append(hop)
 
     # Predict
     pred = []
     for idx in range(0, len(data), batch_size):
         print(f"{idx+1}/{len(data)} (step: {batch_size})", end="\r")
-        batch = np.array(data[idx:idx+batch_size])
-        out = model.predict(batch) if use_tf else sess.run(output_names, {'input': batch})[0]
+        batch = np.array(data[idx : idx + batch_size])
+        out = (
+            model.predict(batch)
+            if use_tf
+            else sess.run(output_names, {"input": batch})[0]
+        )
         pred.append(out)
 
     # Merge prediction patches
@@ -96,18 +104,20 @@ def inference(
             batch_idx = hop_idx // batch_size
             remainder = hop_idx % batch_size
             hop = pred[batch_idx][remainder]
-            out[y:y+win_size, x:x+win_size] += hop
-            mask[y:y+win_size, x:x+win_size] += 1
+            out[y : y + win_size, x : x + win_size] += hop
+            mask[y : y + win_size, x : x + win_size] += 1
             hop_idx += 1
 
     out /= mask
     if manual_th is None:
         class_map = np.argmax(out, axis=-1)
     else:
-        assert len(manual_th) == output_shape[-1]-1, f"{manual_th}, {output_shape[-1]}"
+        assert (
+            len(manual_th) == output_shape[-1] - 1
+        ), f"{manual_th}, {output_shape[-1]}"
         class_map = np.zeros(out.shape[:2] + (len(manual_th),))
         for idx, th in enumerate(manual_th):
-            class_map[..., idx] = np.where(out[..., idx+1]>th, 1, 0)
+            class_map[..., idx] = np.where(out[..., idx + 1] > th, 1, 0)
 
     return class_map, out
 
@@ -115,13 +125,15 @@ def inference(
 def predict(region: ndarray, model_name: str) -> str:
     if np.max(region) == 1:
         region *= 255
-    m_info = pickle.load(open(os.path.join(MODULE_PATH, f"sklearn_models/{model_name}.model"), "rb"))
-    model = m_info['model']
-    w = m_info['w']
-    h = m_info['h']
+    m_info = pickle.load(
+        open(os.path.join(MODULE_PATH, f"sklearn_models/{model_name}.model"), "rb")
+    )
+    model = m_info["model"]
+    w = m_info["w"]
+    h = m_info["h"]
     region = np.array(Image.fromarray(region.astype(np.uint8)).resize((w, h)))
     pred = model.predict(region.reshape(1, -1))
-    return m_info['class_map'][pred[0]]
+    return m_info["class_map"][pred[0]]
 
 
 if __name__ == "__main__":
