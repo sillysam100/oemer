@@ -46,13 +46,17 @@ def inference(
         output_shape = model.output_shape
     else:
         import onnxruntime as rt
+        import torch
 
         onnx_path = os.path.join(model_path, "model.onnx")
         metadata = pickle.load(open(os.path.join(model_path, "metadata.pkl"), "rb"))
         if sys.platform == "darwin":
             providers = ["CoreMLExecutionProvider", "CPUExecutionProvider"]
         else:
-            providers = ["CUDAExecutionProvider", "CPUExecutionProvider"]
+            providers = [
+                ("CUDAExecutionProvider", {"device_id": 0}),
+                "CPUExecutionProvider",
+            ]
         sess = rt.InferenceSession(onnx_path, providers=providers)
         output_names = metadata["output_names"]
         input_shape = metadata["input_shape"]
