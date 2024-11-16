@@ -46,7 +46,6 @@ def inference(
         output_shape = model.output_shape
     else:
         import onnxruntime as rt
-        import torch
 
         onnx_path = os.path.join(model_path, "model.onnx")
         metadata = pickle.load(open(os.path.join(model_path, "metadata.pkl"), "rb"))
